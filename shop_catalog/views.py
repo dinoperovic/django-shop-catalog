@@ -32,6 +32,13 @@ class CategoryDetailView(ShopDetailView):
 
         return obj
 
+    def get_context_data(self, **kwargs):
+        context = super(CategoryDetailView, self).get_context_data(**kwargs)
+        if self.object:
+            context['object_list'] = Product.objects.active().filter(
+                category_id=self.object.pk)
+        return context
+
 
 class ProductListView(ShopListView):
     template_name = 'shop/product_list.html'

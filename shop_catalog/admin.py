@@ -62,7 +62,7 @@ class ProductAdmin(
         self.fieldsets = (
             (None, {
                 'fields': (
-                    'name', 'slug', 'date_added', 'last_modified', 'active'),
+                    'name', 'slug', 'active'),
             }),
             (None, {
                 'fields': ('parent', ),
@@ -72,6 +72,10 @@ class ProductAdmin(
             }),
             (_('Price'), {
                 'fields': ('unit_price', ),
+            }),
+            (_('Date information'), {
+                'fields': ('date_added', 'last_modified'),
+                'classes': ('collapse', ),
             }),
         )
 

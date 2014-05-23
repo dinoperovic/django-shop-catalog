@@ -9,7 +9,7 @@ from django.utils.text import slugify
 
 from shop.util.fields import CurrencyField
 from hvad.models import TranslatableModel, TranslatedFields
-from hvad.manager import TranslationManager
+from hvad.manager import TranslationManager, TranslationQueryset
 from mptt.models import MPTTModel
 from mptt.fields import TreeForeignKey
 
@@ -18,8 +18,8 @@ from shop_catalog import settings as scs
 
 
 class CatalogManager(TranslationManager):
-    def active(self, language_code=None):
-        return self.language(language_code).filter(active=True)
+    def active(self, language_code=None, **kwargs):
+        return self.language(language_code).filter(active=True, **kwargs)
 
     def get_by_slug(self, slug, language_code=None):
         return self.active(language_code).get(slug=slug)
@@ -139,9 +139,13 @@ class ProductBase(MPTTModel, CatalogModel):
         'self', blank=True, null=True, related_name='variants',
         verbose_name=_('Parent'),
         help_text=_('If this is a "variant" of a Product, select that '
-                    'Product.'))
+                    'Product. Only top level products (without a parent) are '
+                    'listed.'))
 
-    unit_price = CurrencyField(verbose_name=_('Unit price'))
+    unit_price = CurrencyField(
+        verbose_name=_('Unit price'),
+        help_text=_('If Product is a "variant" (parent is selected) and price '
+                    'is "0", unit price is inherited from its parent.'))
 
     class Meta:
         abstract = True
@@ -150,6 +154,12 @@ class ProductBase(MPTTModel, CatalogModel):
         return self.get_name()
 
     def get_price(self):
+        """
+        Returns price of a unit. If price is inherited returns parents
+        unit price.
+        """
+        if self.is_price_inherited:
+            return self.parent.get_price()
         return self.unit_price
 
     def get_product_reference(self):
@@ -170,6 +180,26 @@ class ProductBase(MPTTModel, CatalogModel):
     @property
     def is_variant(self):
         return not self.is_top_level
+
+    @property
+    def is_price_inherited(self):
+        return self.is_variant and not self.unit_price
+
+
+class ProductQuerySet(TranslationQueryset):
+    def top_level(self):
+        return self.filter(parent_id=None)
+
+
+class ProductManager(CatalogManager):
+    queryset_class = ProductQuerySet
+
+    def active(self, language_code=None, **kwargs):
+        queryset = super(ProductManager, self).active(language_code, **kwargs)
+        return queryset.top_level()
+
+    def top_level(self, language_code=None, **kwargs):
+        return self.language(language_code).top_level()
 
 
 class Product(TranslatableModel, ProductBase):
@@ -193,7 +223,7 @@ class Product(TranslatableModel, ProductBase):
             help_text=scs.SLUG_FIELD_HELP_TEXT),
     )
 
-    objects = CatalogManager()
+    objects = ProductManager()
 
     class Meta:
         db_table = 'shop_catalog_products'

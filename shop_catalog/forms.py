@@ -9,7 +9,21 @@ from hvad.forms import TranslatableModelForm
 from shop_catalog.models import Product, Attribute, ProductAttributeValue
 
 
-class ProductModelForm(TranslatableModelForm):
+class CatalogModelFormBase(TranslatableModelForm):
+    class Meta:
+        model = None
+
+    def __init__(self, *args, **kwargs):
+        super(CatalogModelFormBase, self).__init__(*args, **kwargs)
+
+        instance = getattr(self, 'instance', None)
+        if instance is not None:
+            self.fields['active'].help_text = _(
+                'Is this %s active? You can hide it by unchecking this box.' %
+                self.instance.__class__.__name__)
+
+
+class ProductModelForm(CatalogModelFormBase):
     class Meta:
         model = Product
 
@@ -23,17 +37,17 @@ class ProductModelForm(TranslatableModelForm):
         if 'parent' in self.changed_data and instance is not None:
             if instance.is_group:
                 raise forms.ValidationError(
-                    _('This product has variants (children), you need to '
-                      'unassign or delete them before you can change this '
-                      'value.'))
+                    _('Other products have set this product as their parent, '
+                      'you need to unassign or delete them before you can '
+                      'change this value.'))
 
         return self.cleaned_data['parent']
 
     def get_parent_queryset(self):
         instance = getattr(self, 'instance', None)
 
-        queryset = Product.objects.all()
-        pks = [obj.pk for obj in queryset if obj.is_top_level]
+        queryset = Product.objects.top_level()
+        pks = queryset.values_list('pk', flat=True)
 
         if instance is not None and instance.pk in pks:
             pks.remove(instance.pk)
