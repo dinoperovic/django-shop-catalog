@@ -47,7 +47,7 @@ class ProductModelForm(CatalogModelFormBase):
         instance = getattr(self, 'instance', None)
 
         queryset = Product.objects.top_level()
-        pks = queryset.values_list('pk', flat=True)
+        pks = list(queryset.values_list('pk', flat=True))
 
         if instance is not None and instance.pk in pks:
             pks.remove(instance.pk)
