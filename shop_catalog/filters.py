@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
+from django.db.models import Q
 from django.contrib.admin import SimpleListFilter
 from django.utils.translation import ugettext_lazy as _
 
@@ -22,8 +23,7 @@ class ProductParentListFilter(SimpleListFilter):
 
     def queryset(self, request, queryset):
         if self.value():
-            try:
-                return queryset.get(pk=self.value()).variants.all()
-            except Product.DoesNotExist:
-                pass
+            queryset = queryset.filter(
+                Q(pk=self.value()) | Q(parent_id=self.value()))
+
         return queryset
