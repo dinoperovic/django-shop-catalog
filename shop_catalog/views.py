@@ -27,7 +27,7 @@ class CategoryDetailView(ShopDetailView):
         slug = self.kwargs.get(self.slug_url_kwarg, None)
         try:
             obj = Category.objects.get_by_slug(slug)
-        except Product.DoesNotExist:
+        except Category.DoesNotExist:
             raise Http404
 
         return obj
@@ -35,7 +35,7 @@ class CategoryDetailView(ShopDetailView):
     def get_context_data(self, **kwargs):
         context = super(CategoryDetailView, self).get_context_data(**kwargs)
         if self.object:
-            context['object_list'] = Product.objects.active().filter(
+            context['object_list'] = Product.objects.active(
                 category_id=self.object.pk)
         return context
 
