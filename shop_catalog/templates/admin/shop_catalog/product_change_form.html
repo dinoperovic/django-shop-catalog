@@ -1,0 +1,54 @@
+{% extends "admin/hvad/change_form.html" %}
+{% load url from future %}
+
+{% block extrahead %}
+    {{ block.super }}
+    <script>
+        var jQuery = window.jQuery || django.jQuery;
+
+        var shopCatalogAttrValueUpdate = function ($row) {
+            (function ($) {
+
+                var $attribute = $row.find('.field-attribute select');
+                var $kinds = $row.find('.field-kinds select');
+                var $kinds_map = $row.find('.field-kinds_map select');
+                var $empty = $row.find('.field-empty');
+
+                var kinds = [];
+
+                $kinds.find('option').each(function () {
+                    kinds.push($(this).val());
+                });
+
+                kindId = $attribute.find('option:selected').val() || undefined;
+                kindVal = $kinds_map.find('option:contains('+ kindId +')').val();
+
+                for (var item in kinds) {
+                    $row.find('.field-value_' + kinds[item]).hide();
+                }
+                $row.find('.field-value_' + kindVal).show();
+
+                if (typeof kindVal === 'undefined') {
+                    $empty.show();
+                } else {
+                    $empty.hide();
+                }
+
+            })(jQuery);
+        };
+
+        var shopCatalogAttrValueOnChange = function (event) {
+            shopCatalogAttrValueUpdate(jQuery(event.target).parent().parent());
+        };
+
+        jQuery(document).ready(function ($) {
+            $('#attribute_values-group .form-row').each(function () {
+                shopCatalogAttrValueUpdate($(this));
+            });
+        });
+    </script>
+    <style>
+        #attribute_values-group .form-row > td:not(.original):not(.delete):not(.field-attribute):not(.field-empty) {display: none;}
+        #attribute_values-group table tr:first-child th:not(:first-child):not(:last-child):not(:nth-child(2)) {display: none;}
+    </style>
+{% endblock %}

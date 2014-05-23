@@ -1,0 +1,8 @@
+*.sw[op]
+*.pyc
+*.orig
+.DS_Store
+.coverage
+dist/
+*.egg-info/
+docs/_build
