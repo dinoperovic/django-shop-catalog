@@ -235,8 +235,6 @@ class Attribute(TranslatableModel):
         name=models.CharField(_('Name'), max_length=128)
     )
 
-    objects = CatalogManager()
-
     class Meta:
         db_table = 'shop_catalog_attributes'
         ordering = ('code', )
@@ -244,7 +242,7 @@ class Attribute(TranslatableModel):
         verbose_name_plural = _('Attributes')
 
     def __str__(self):
-        return '{} - {}'.format(
+        return '{} ({})'.format(
             self.get_name(), dict(self.KIND_CHOICES)[self.kind])
 
     def get_name(self):

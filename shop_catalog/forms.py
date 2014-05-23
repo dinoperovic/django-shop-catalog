@@ -15,7 +15,6 @@ class ProductModelForm(TranslatableModelForm):
 
     def __init__(self, *args, **kwargs):
         super(ProductModelForm, self).__init__(*args, **kwargs)
-
         self.fields['parent'].queryset = self.get_parent_queryset()
 
     def clean_parent(self):
@@ -52,7 +51,7 @@ class ProductAttributeValueModelForm(forms.ModelForm):
 
     class Meta:
         model = ProductAttributeValue
-        labels = {'attribute': _('Attribute - Type')}
+        labels = {'attribute': _('Attribute (Type)')}
         fields = (
             'attribute',
             'empty',
