@@ -82,6 +82,7 @@ class ProductAttributeValueModelForm(forms.ModelForm):
             'value_float',
             'value_richtext',
             'value_date',
+            'value_option',
             'value_file',
             'value_image',
             'kinds',

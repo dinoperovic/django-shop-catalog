@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
+from itertools import chain
+
 from django.db import models
 from django.core.urlresolvers import reverse
 from django.utils.translation import ugettext_lazy as _
@@ -127,6 +129,8 @@ class Manufacturer(TranslatableModel, CategoryBase):
 
 @python_2_unicode_compatible
 class ProductBase(MPTTModel, CatalogModel):
+    attrs = None
+
     parent = TreeForeignKey(
         'self', blank=True, null=True, related_name='variants',
         verbose_name=_('Parent'),
@@ -174,6 +178,32 @@ class ProductBase(MPTTModel, CatalogModel):
     @property
     def is_price_inherited(self):
         return self.is_variant and not self.unit_price
+
+    @property
+    def attrs(self):
+        """
+        If product is a base product (has variants) returns a list of
+        attribute dictionaries with 'name', 'code' and 'values' keys.
+        """
+        attrs = {}
+
+        if self.is_group:
+            variants = self.variants.select_related().all()
+            attr_values = list(chain(
+                *[x.attribute_values.all() for x in variants]))
+
+            for value in attr_values:
+                attr_slug = value.attribute.get_slug()
+                attr_name = value.attribute.get_name()
+
+                if attr_slug not in attrs:
+                    attrs[attr_slug] = {
+                        'name': attr_name,
+                        'code': attr_slug,
+                        'values': [],
+                    }
+                attrs[attr_slug]['values'].append(value.value)
+        return attrs.values()
 
 
 class Product(TranslatableModel, ProductBase):
@@ -223,6 +253,7 @@ class Attribute(TranslatableModel):
         ('float', _('Float')),
         ('richtext', _('Richtext')),
         ('date', _('Date')),
+        ('option', _('Option')),
         ('file', _('File')),
         ('image', _('Image')),
     )
@@ -233,7 +264,15 @@ class Attribute(TranslatableModel):
 
     kind = models.CharField(
         max_length=20, choices=KIND_CHOICES, default=KIND_CHOICES[0][0],
-        verbose_name=_('Type'))
+        verbose_name=_('Type'),
+        help_text=_('Select data type. If you choose "Option" data type, '
+                    'specify the options below.'))
+
+    template = models.CharField(
+        _('Template'), max_length=255, blank=True, null=True,
+        choices=scs.ATTRIBUTE_TEMPLATE_CHOICES,
+        help_text=_('You can select a template for rendering this "Attribute" '
+                    'or leave it empty for the default (dropdown) look.'))
 
     translations = TranslatedFields(
         name=models.CharField(_('Name'), max_length=128)
@@ -259,6 +298,10 @@ class Attribute(TranslatableModel):
     def type(self):
         return self.kind
 
+    @property
+    def is_option(self):
+        return self.kind == 'option'
+
 
 class AttributeValueBase(models.Model):
     attribute = models.ForeignKey(Attribute, verbose_name=_('Attribute'))
@@ -270,6 +313,8 @@ class AttributeValueBase(models.Model):
     value_float = models.FloatField(_('Float'), blank=True, null=True)
     value_richtext = models.TextField(_('Richtext'), blank=True, null=True)
     value_date = models.DateField(_('Date'), blank=True, null=True)
+    value_option = models.ForeignKey(
+        'AttributeOption', blank=True, null=True, verbose_name=_('Option'))
     value_file = models.FileField(
         _('File'), upload_to='shop_catalog/', max_length=255,
         blank=True, null=True)
@@ -297,3 +342,19 @@ class ProductAttributeValue(AttributeValueBase):
         verbose_name = _('Attribute')
         verbose_name_plural = _('Attributes')
         unique_together = ('attribute', 'product')
+
+
+@python_2_unicode_compatible
+class AttributeOption(models.Model):
+    attribute = models.ForeignKey(
+        Attribute, related_name='options', verbose_name=_('Attribute'))
+    name = models.CharField(_('Name'), max_length=128)
+    value = models.CharField(_('Value'), max_length=128, blank=True, null=True)
+
+    class Meta:
+        db_table = 'shop_catalog_attribute_options'
+        verbose_name = _('Option')
+        verbose_name_plural = _('Options')
+
+    def __str__(self):
+        return self.value or self.name

@@ -9,7 +9,8 @@ from cms.admin.placeholderadmin import (
 from hvad.admin import TranslatableAdmin
 
 from shop_catalog.models import (
-    Category, Brand, Manufacturer, Product, Attribute, ProductAttributeValue)
+    Category, Brand, Manufacturer, Product, Attribute, ProductAttributeValue,
+    AttributeOption)
 from shop_catalog.forms import ProductModelForm, ProductAttributeValueModelForm
 from shop_catalog.filters import ProductParentListFilter
 from shop_catalog import settings as scs
@@ -90,14 +91,21 @@ class ProductAdmin(
     get_slug.short_description = _('Slug')
 
 
+class AttributeOptionInline(admin.TabularInline):
+    model = AttributeOption
+    extra = 0
+
+
 class AttributeAdmin(TranslatableAdmin):
     list_display = ('get_name', 'code', 'kind')
     list_filter = ('kind', )
 
+    inlines = (AttributeOptionInline, )
+
     def __init__(self, *args, **kwargs):
         super(AttributeAdmin, self).__init__(*args, **kwargs)
         self.prepopulated_fields = {'code': ('name', )}
-        self.fields = ('name', 'code', 'kind')
+        self.fields = ('name', 'code', 'kind', 'template')
 
     def get_name(self, obj):
         return obj.get_name()

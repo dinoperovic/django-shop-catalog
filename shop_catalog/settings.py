@@ -10,3 +10,5 @@ SLUG_FIELD_HELP_TEXT = _(
 
 PRODUCT_CHANGE_FORM_TEMPLATE = (
     'admin/shop_catalog/product_change_form.html')
+
+ATTRIBUTE_TEMPLATE_CHOICES = ()
