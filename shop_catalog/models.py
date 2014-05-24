@@ -9,20 +9,12 @@ from django.utils.text import slugify
 
 from shop.util.fields import CurrencyField
 from hvad.models import TranslatableModel, TranslatedFields
-from hvad.manager import TranslationManager, TranslationQueryset
 from mptt.models import MPTTModel
 from mptt.fields import TreeForeignKey
 
+from shop_catalog.managers import CatalogManager, ProductManager
 from shop_catalog.utils.noconflict import classmaker
 from shop_catalog import settings as scs
-
-
-class CatalogManager(TranslationManager):
-    def active(self, language_code=None, **kwargs):
-        return self.language(language_code).filter(active=True, **kwargs)
-
-    def get_by_slug(self, slug, language_code=None):
-        return self.active(language_code).get(slug=slug)
 
 
 @python_2_unicode_compatible
@@ -182,22 +174,6 @@ class ProductBase(MPTTModel, CatalogModel):
     @property
     def is_price_inherited(self):
         return self.is_variant and not self.unit_price
-
-
-class ProductQuerySet(TranslationQueryset):
-    def top_level(self):
-        return self.filter(parent_id=None)
-
-
-class ProductManager(CatalogManager):
-    queryset_class = ProductQuerySet
-
-    def active(self, language_code=None, **kwargs):
-        queryset = super(ProductManager, self).active(language_code, **kwargs)
-        return queryset.top_level()
-
-    def top_level(self, language_code=None, **kwargs):
-        return self.language(language_code).top_level()
 
 
 class Product(TranslatableModel, ProductBase):

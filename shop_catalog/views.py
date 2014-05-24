@@ -44,7 +44,7 @@ class ProductListView(ShopListView):
     template_name = 'shop/product_list.html'
 
     def get_queryset(self):
-        return Product.objects.active()
+        return Product.objects.active().top_level()
 
 
 class ProductDetailView(ProductDetailViewBase):
