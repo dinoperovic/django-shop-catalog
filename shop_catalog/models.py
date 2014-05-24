@@ -154,10 +154,7 @@ class ProductBase(MPTTModel, CatalogModel):
         return self.get_name()
 
     def get_price(self):
-        """
-        Returns price of a unit. If price is inherited returns parents
-        unit price.
-        """
+        """ Checks if price is inherited and returns the correct price. """
         if self.is_price_inherited:
             return self.parent.get_price()
         return self.unit_price
@@ -167,7 +164,8 @@ class ProductBase(MPTTModel, CatalogModel):
 
     @property
     def can_be_added_to_cart(self):
-        return self.active
+        """ Checks that product is active and doesn't have variants. """
+        return self.active and not self.is_group
 
     @property
     def is_top_level(self):
