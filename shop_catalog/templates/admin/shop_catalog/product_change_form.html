@@ -1,4 +1,5 @@
 {% extends "admin/hvad/change_form.html" %}
+{% load i18n %}
 {% load url from future %}
 
 {% block extrahead %}
@@ -6,29 +7,69 @@
     <script>
         var jQuery = window.jQuery || django.jQuery;
 
+        // Main update value function. Accepts field row as a jQuery object.
         var shopCatalogAttrValueUpdate = function ($row) {
             (function ($) {
 
+                // Get important fields from current row.
                 var $attribute = $row.find('.field-attribute select');
                 var $kinds = $row.find('.field-kinds select');
                 var $kinds_map = $row.find('.field-kinds_map select');
                 var $empty = $row.find('.field-empty');
 
+                // Populate kinds list with all available kinds.
                 var kinds = [];
-
                 $kinds.find('option').each(function () {
                     kinds.push($(this).val());
                 });
 
+                // Get current kind data.
                 kindId = $attribute.find('option:selected').val() || undefined;
-                kindVal = $kinds_map.find('option:contains('+ kindId +')').val();
+                $kindsMapOption = $kinds_map.find('option:contains('+ kindId +')');
+                kindVal = $kindsMapOption.val();
+                kindChoices = $kindsMapOption.attr('data-choices');
 
+                // Hide all value fields in a current row.
                 for (var item in kinds) {
                     $row.find('.field-value_' + kinds[item]).hide();
                 }
-                $row.find('.field-value_' + kindVal).show();
 
-                if (typeof kindVal === 'undefined') {
+                // Show the field value selected as attribute.
+                var $fieldValue = $row.find('.field-value_' + kindVal);
+                $fieldValue.show();
+
+                // Check if field has choices (attribute kind is 'option') and
+                // handle custom select fields for each attribute.
+                if (kindChoices !== undefined) {
+
+                    // Split choices into a list.
+                    var choices = kindChoices.split(',');
+
+                    // Select the main select field and clone it.
+                    var $select = $fieldValue.find('select:first-child');
+                    var $newSelect = $select.clone();
+
+                    // Mark the clone and remove the options.
+                    $newSelect.addClass('select-choices-clone');
+                    $newSelect.find('option:not(:first-child)').remove();
+
+                    // Add only choices in current attribute to the new select.
+                    for (var choice in choices) {
+                        choice = choices[choice];
+                        var options = $fieldValue.find('select > option:contains('+ choice +')');
+                        options.clone().appendTo($newSelect);
+                    }
+
+                    // Remove all the previous clones, hide the original,
+                    // append and display the new select.
+                    $fieldValue.find('.select-choices-clone').remove();
+                    $select.hide();
+                    $newSelect.show();
+                    $newSelect.appendTo($fieldValue);
+                }
+
+                // Show and hide the empty placeholder field.
+                if (kindVal === undefined) {
                     $empty.show();
                 } else {
                     $empty.hide();
@@ -37,11 +78,14 @@
             })(jQuery);
         };
 
+        // Event listener that is triggered on every attribute change.
         var shopCatalogAttrValueOnChange = function (event) {
             shopCatalogAttrValueUpdate(jQuery(event.target).parent().parent());
         };
 
         jQuery(document).ready(function ($) {
+
+            // Initialize all rows.
             $('#attribute_values-group .form-row').each(function () {
                 shopCatalogAttrValueUpdate($(this));
             });
@@ -51,4 +95,9 @@
         #attribute_values-group .form-row > td:not(.original):not(.delete):not(.field-attribute):not(.field-empty) {display: none;}
         #attribute_values-group table tr:first-child th:not(:first-child):not(:last-child):not(:nth-child(2)) {display: none;}
     </style>
+{% endblock %}
+
+{% block object-tools-items %}
+    <li><a href="{% url 'admin:shop_catalog_product_add_variant' original.pk %}" class="historylink">{% trans "Add a variant" %}</a></li>
+    {{ block.super }}
 {% endblock %}

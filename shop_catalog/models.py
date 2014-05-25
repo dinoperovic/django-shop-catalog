@@ -203,6 +203,7 @@ class ProductBase(MPTTModel, CatalogModel):
                         'values': [],
                     }
                 attrs[attr_slug]['values'].append(value.value)
+
         return attrs.values()
 
 
@@ -246,6 +247,7 @@ class Product(TranslatableModel, ProductBase):
 
 @python_2_unicode_compatible
 class Attribute(TranslatableModel):
+    KIND_OPTION = 'option'
     KIND_CHOICES = (
         ('text', _('Text')),
         ('integer', _('Integer')),
@@ -253,7 +255,7 @@ class Attribute(TranslatableModel):
         ('float', _('Float')),
         ('richtext', _('Richtext')),
         ('date', _('Date')),
-        ('option', _('Option')),
+        (KIND_OPTION, _('Option')),
         ('file', _('File')),
         ('image', _('Image')),
     )
@@ -300,7 +302,7 @@ class Attribute(TranslatableModel):
 
     @property
     def is_option(self):
-        return self.kind == 'option'
+        return self.kind == self.KIND_OPTION
 
 
 class AttributeValueBase(models.Model):
@@ -348,8 +350,7 @@ class ProductAttributeValue(AttributeValueBase):
 class AttributeOption(models.Model):
     attribute = models.ForeignKey(
         Attribute, related_name='options', verbose_name=_('Attribute'))
-    name = models.CharField(_('Name'), max_length=128)
-    value = models.CharField(_('Value'), max_length=128, blank=True, null=True)
+    value = models.CharField(_('Value'), max_length=128)
 
     class Meta:
         db_table = 'shop_catalog_attribute_options'
@@ -357,4 +358,4 @@ class AttributeOption(models.Model):
         verbose_name_plural = _('Options')
 
     def __str__(self):
-        return self.value or self.name
+        return self.value

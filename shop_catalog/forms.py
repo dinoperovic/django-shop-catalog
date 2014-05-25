@@ -6,7 +6,9 @@ from django.utils.translation import ugettext_lazy as _
 
 from hvad.forms import TranslatableModelForm
 
-from shop_catalog.models import Product, Attribute, ProductAttributeValue
+from shop_catalog.models import (
+    Product, Attribute, ProductAttributeValue)
+from shop_catalog.widgets import AttributeValueKindsMapSelect
 
 
 class CatalogModelFormBase(TranslatableModelForm):
@@ -92,7 +94,7 @@ class ProductAttributeValueModelForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super(ProductAttributeValueModelForm, self).__init__(*args, **kwargs)
 
-        self.fields['kinds_map'].widget = forms.Select(
+        self.fields['kinds_map'].widget = AttributeValueKindsMapSelect(
             choices=self.get_kinds_map_choices())
 
         self.fields['attribute'].widget = forms.Select(

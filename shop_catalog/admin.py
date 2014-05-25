@@ -1,7 +1,12 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
+from django.core.urlresolvers import reverse
+from django.http import HttpResponseRedirect
+from django.conf.urls import url, patterns
 from django.contrib import admin
+from django.shortcuts import get_object_or_404
+from django.utils.http import urlencode
 from django.utils.translation import ugettext_lazy as _
 
 from cms.admin.placeholderadmin import (
@@ -13,6 +18,7 @@ from shop_catalog.models import (
     AttributeOption)
 from shop_catalog.forms import ProductModelForm, ProductAttributeValueModelForm
 from shop_catalog.filters import ProductParentListFilter
+from shop_catalog.utils import slug_num_suffix
 from shop_catalog import settings as scs
 
 
@@ -80,6 +86,16 @@ class ProductAdmin(
             }),
         )
 
+    def get_urls(self):
+        urls = super(ProductAdmin, self).get_urls()
+        product_urls = patterns(
+            '',
+            url(r'^(?P<pk>\d+)/add_variant/$',
+                self.admin_site.admin_view(self.add_variant),
+                name='shop_catalog_product_add_variant'),
+        )
+        return product_urls + urls
+
     def get_name(self, obj):
         if obj.is_variant:
             return '{} > {}'.format(obj.parent.get_name(), obj.get_name())
@@ -89,6 +105,20 @@ class ProductAdmin(
     def get_slug(self, obj):
         return obj.get_slug()
     get_slug.short_description = _('Slug')
+
+    def add_variant(self, request, pk):
+        product = get_object_or_404(Product, pk=pk)
+        if product.is_variant:
+            product = product.parent
+
+        num = slug_num_suffix(product.get_slug(), Product.objects.language())
+        data = {
+            'name': '{} #{}'.format(product.get_name(), num),
+            'slug': '{}-{}'.format(product.get_slug(), num),
+            'parent': product.pk,
+        }
+        return HttpResponseRedirect('{}?{}'.format(
+            reverse('admin:shop_catalog_product_add'), urlencode(data)))
 
 
 class AttributeOptionInline(admin.TabularInline):
