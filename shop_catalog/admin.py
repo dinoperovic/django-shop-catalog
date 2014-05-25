@@ -107,6 +107,10 @@ class ProductAdmin(
     get_slug.short_description = _('Slug')
 
     def add_variant(self, request, pk):
+        """
+        Redirects to product add view and prepopulates values for
+        a variant product.
+        """
         product = get_object_or_404(Product, pk=pk)
         if product.is_variant:
             product = product.parent

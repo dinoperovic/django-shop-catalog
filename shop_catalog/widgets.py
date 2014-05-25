@@ -19,7 +19,6 @@ class AttributeValueKindsMapSelect(forms.Select):
         if option_value in selected_choices:
             selected_html = mark_safe(' selected="selected"')
             if not self.allow_multiple_selected:
-                # Only allow for a single selection.
                 selected_choices.remove(option_value)
         else:
             selected_html = ''
@@ -28,6 +27,8 @@ class AttributeValueKindsMapSelect(forms.Select):
             opts = AttributeOption.objects.filter(attribute__id=option_label).\
                 values_list('value', flat=True)
             choices = mark_safe(' data-choices="{0}"'.format(','.join(opts)))
+        else:
+            choices = ''
 
         return format_html('<option value="{0}"{1}{2}>{3}</option>',
                            option_value,

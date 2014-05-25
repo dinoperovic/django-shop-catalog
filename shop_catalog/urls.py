@@ -7,6 +7,7 @@ from shop_catalog.views import (
     ProductListView, ProductDetailView,
     CategoryListView, CategoryDetailView)
 
+
 urlpatterns = patterns(
     '',
     url(r'^categories/$', CategoryListView.as_view(), name='category_list'),
