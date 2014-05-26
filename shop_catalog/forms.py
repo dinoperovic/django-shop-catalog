@@ -37,19 +37,20 @@ class ProductModelForm(CatalogModelFormBase):
         instance = getattr(self, 'instance', None)
         data = self.cleaned_data.get('parent')
 
-        if instance is not None:
-            if instance.is_group:
-                raise forms.ValidationError(
-                    _('Other products have set this product as their parent, '
-                      'you need to unassign or delete them before you can '
-                      'change this value.'))
-            if data is not None and data == instance:
-                raise forms.ValidationError(
-                    _('Cannot assign itself as a parent Product.'))
+        if data is not None:
+            if instance is not None:
+                if instance.is_group:
+                    raise forms.ValidationError(
+                        _('Other products have set this product as their '
+                          'parent, you need to unassign or delete them before '
+                          'you can change this value.'))
+                if data == instance:
+                    raise forms.ValidationError(
+                        _('Cannot assign itself as a parent Product.'))
 
-        if data is not None and data.is_variant:
-            raise forms.ValidationError(
-                _('Cannot assign "variant" as a parent Product.'))
+            if data.is_variant:
+                raise forms.ValidationError(
+                    _('Cannot assign "variant" as a parent Product.'))
 
         return data
 

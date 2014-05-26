@@ -202,7 +202,9 @@ class ProductBase(MPTTModel, CatalogModel):
                         'code': attr_slug,
                         'values': [],
                     }
-                attrs[attr_slug]['values'].append(value.value)
+
+                if value.value not in attrs[attr_slug]['values']:
+                    attrs[attr_slug]['values'].append(value.value)
 
         return attrs.values()
 
