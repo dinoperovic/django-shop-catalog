@@ -208,6 +208,37 @@ class ProductBase(MPTTModel, CatalogModel):
 
         return attrs.values()
 
+    @property
+    def as_json(self):
+        return dict(
+            pk=unicode(self.pk),
+            parent=unicode(self.parent_id),
+            name=unicode(self.get_name()),
+            slug=unicode(self.get_slug()),
+            price=unicode(self.get_price())
+        )
+
+    def get_variant(self, **kwargs):
+        """
+        Returns a variant which attributes match the given kwargs.
+        """
+        if not self.is_group:
+            return None
+
+        # Cast keys and values to unicode.
+        kwargs = [(unicode(k), unicode(v)) for k, v in kwargs.iteritems()]
+
+        # Loop throug variants and compare their attribute values to
+        # kwargs. If they match, return that variant.
+        for obj in self.variants.select_related().all():
+            attrs = [tuple([unicode(x.attribute.get_slug()), unicode(x.value)])
+                     for x in obj.attribute_values.select_related().all()]
+            if attrs == kwargs:
+                return obj
+
+        # No variants match the given kwargs, return None.
+        return None
+
 
 class Product(TranslatableModel, ProductBase):
     __metaclass__ = classmaker()
@@ -308,7 +339,8 @@ class Attribute(TranslatableModel):
 
 
 class AttributeValueBase(models.Model):
-    attribute = models.ForeignKey(Attribute, verbose_name=_('Attribute'))
+    attribute = models.ForeignKey(
+        Attribute, related_name='values', verbose_name=_('Attribute'))
 
     value_text = models.CharField(
         _('Text'), max_length=255, blank=True, null=True)

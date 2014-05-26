@@ -1,9 +1,11 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
-from django.http import Http404
+import json
 
-from shop.views import ShopListView, ShopDetailView
+from django.http import Http404, HttpResponse
+
+from shop.views import ShopView, ShopListView, ShopDetailView
 from shop.views.product import ProductDetailView as ProductDetailViewBase
 
 from shop_catalog.models import Category, Product
@@ -62,3 +64,32 @@ class ProductDetailView(ProductDetailViewBase):
             raise Http404
 
         return obj
+
+
+class ProductVariantsJSONView(ShopView):
+    """
+    If GET kwargs not specified, returns all product variants.
+    Otherwise tries to match kwargs with a variant by it's attributes or
+    returns None (raises Http404 if request is not ajax).
+    """
+    def get(self, request, slug, *args, **kwargs):
+        try:
+            product = Product.objects.get_by_slug(slug)
+        except Product.DoesNotExist:
+            raise Http404
+
+        attrs = dict(request.GET.items())
+
+        response = None
+        if attrs:
+            variant = product.get_variant(**attrs)
+            if variant is not None:
+                response = variant.as_json
+            elif not request.is_ajax():
+                raise Http404
+        else:
+            variants = product.variants.select_related().all()
+            response = [x.as_json for x in variants]
+
+        return HttpResponse(
+            json.dumps(response), content_type='application/json')
