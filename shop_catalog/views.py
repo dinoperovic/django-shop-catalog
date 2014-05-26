@@ -9,6 +9,7 @@ from shop.views import ShopView, ShopListView, ShopDetailView
 from shop.views.product import ProductDetailView as ProductDetailViewBase
 
 from shop_catalog.models import Category, Product
+from shop_catalog.utils.shortcuts import get_by_slug_or_404
 
 
 class CategoryListView(ShopListView):
@@ -27,12 +28,7 @@ class CategoryDetailView(ShopDetailView):
             queryset = self.get_queryset()
 
         slug = self.kwargs.get(self.slug_url_kwarg, None)
-        try:
-            obj = Category.objects.get_by_slug(slug)
-        except Category.DoesNotExist:
-            raise Http404
-
-        return obj
+        return get_by_slug_or_404(Category, slug)
 
     def get_context_data(self, **kwargs):
         context = super(CategoryDetailView, self).get_context_data(**kwargs)
@@ -58,12 +54,7 @@ class ProductDetailView(ProductDetailViewBase):
             queryset = self.get_queryset()
 
         slug = self.kwargs.get(self.slug_url_kwarg, None)
-        try:
-            obj = Product.objects.get_by_slug(slug)
-        except Product.DoesNotExist:
-            raise Http404
-
-        return obj
+        return get_by_slug_or_404(Product, slug)
 
 
 class ProductVariantsJSONView(ShopView):
@@ -73,11 +64,7 @@ class ProductVariantsJSONView(ShopView):
     returns None (raises Http404 if request is not ajax).
     """
     def get(self, request, slug, *args, **kwargs):
-        try:
-            product = Product.objects.get_by_slug(slug)
-        except Product.DoesNotExist:
-            raise Http404
-
+        product = get_by_slug_or_404(Product, slug)
         attrs = dict(request.GET.items())
 
         response = None
@@ -89,7 +76,10 @@ class ProductVariantsJSONView(ShopView):
                 raise Http404
         else:
             variants = product.variants.select_related().all()
-            response = [x.as_json for x in variants]
+            if variants:
+                response = [x.as_json for x in variants]
+            elif not request.is_ajax():
+                raise Http404
 
         return HttpResponse(
             json.dumps(response), content_type='application/json')
