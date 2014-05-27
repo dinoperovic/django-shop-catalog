@@ -158,14 +158,23 @@ class ProductBase(MPTTModel, CatalogModel):
 
     def get_price(self):
         """ Checks if price is inherited and returns the correct price. """
-        price = self.unit_price
-        if self.is_price_inherited:
-            price = self.parent.get_price()
+        price = self.get_unit_price()
+        discount = self.get_discount_percent()
 
-        if self.is_discounted:
-            price -= (self.discount_percent * price) / Decimal('100')
+        if discount:
+            price -= (discount * price) / Decimal('100')
 
         return price
+
+    def get_unit_price(self):
+        if self.is_price_inherited:
+            return self.parent.unit_price
+        return self.unit_price
+
+    def get_discount_percent(self):
+        if self.is_discount_inherited and self.parent.is_discounted:
+            return self.parent.discount_percent
+        return self.discount_percent
 
     def get_product_reference(self):
         return str(self.pk)
@@ -192,20 +201,26 @@ class ProductBase(MPTTModel, CatalogModel):
         return self.is_variant and not self.unit_price
 
     @property
+    def is_discount_inherited(self):
+        return self.is_variant and not self.discount_percent
+
+    @property
     def is_discounted(self):
+        if self.is_discount_inherited:
+            return self.parent.is_discount_inherited
         return not not self.discount_percent
 
     @property
     def as_json(self):
         return dict(
-            pk=unicode(self.pk),
-            parent=unicode(self.parent_id),
-            name=unicode(self.get_name()),
-            slug=unicode(self.get_slug()),
-            unit_price=unicode(self.unit_price),
-            price=unicode(self.get_price()),
+            pk=str(self.pk),
+            parent=str(self.parent_id),
+            name=str(self.get_name()),
+            slug=str(self.get_slug()),
+            unit_price=str(self.get_unit_price()),
+            price=str(self.get_price()),
             is_discounted=self.is_discounted,
-            discount_percent=unicode(self.discount_percent or 0),
+            discount_percent=str(self.get_discount_percent() or 0),
             can_be_added_to_cart=self.can_be_added_to_cart,
             attrs=self.get_attrs(),
         )
@@ -216,7 +231,6 @@ class ProductBase(MPTTModel, CatalogModel):
         formated list of dictionaries with product attributes.
         """
         attrs = []
-
         if not self.is_group:
             attr_values = self.attribute_values.select_related().all()
 
@@ -225,7 +239,7 @@ class ProductBase(MPTTModel, CatalogModel):
                     'name': value.attribute.get_name(),
                     'code': value.attribute.get_slug(),
                     'template': value.attribute.template,
-                    'value': unicode(value.value),
+                    'value': str(value.value),
                 })
 
         return attrs
@@ -263,8 +277,8 @@ class ProductBase(MPTTModel, CatalogModel):
         if not self.is_group:
             return None
 
-        # Cast keys and values to unicode.
-        kwargs = [(unicode(k), unicode(v)) for k, v in kwargs.iteritems()]
+        # Cast keys and values to str.
+        kwargs = [(str(k), str(v)) for k, v in kwargs.iteritems()]
 
         # Loop throug variants and compare their attribute values to
         # kwargs. If they match, return that variant.
