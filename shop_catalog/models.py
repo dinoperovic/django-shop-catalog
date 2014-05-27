@@ -198,12 +198,16 @@ class ProductBase(MPTTModel, CatalogModel):
     @property
     def as_json(self):
         return dict(
-            pk=self.pk,
-            parent=self.parent_id,
+            pk=unicode(self.pk),
+            parent=unicode(self.parent_id),
             name=unicode(self.get_name()),
             slug=unicode(self.get_slug()),
-            price=float(self.get_price()),
+            unit_price=unicode(self.unit_price),
+            price=unicode(self.get_price()),
+            is_discounted=self.is_discounted,
+            discount_percent=unicode(self.discount_percent or 0),
             can_be_added_to_cart=self.can_be_added_to_cart,
+            attrs=self.get_attrs(),
         )
 
     def get_attrs(self):
@@ -221,7 +225,7 @@ class ProductBase(MPTTModel, CatalogModel):
                     'name': value.attribute.get_name(),
                     'code': value.attribute.get_slug(),
                     'template': value.attribute.template,
-                    'value': value.value,
+                    'value': unicode(value.value),
                 })
 
         return attrs
@@ -266,7 +270,7 @@ class ProductBase(MPTTModel, CatalogModel):
         # kwargs. If they match, return that variant.
         for obj in self.variants.select_related().all():
             attrs = [(x['code'], x['value']) for x in obj.get_attrs()]
-            if attrs == kwargs:
+            if sorted(attrs) == sorted(kwargs):
                 return obj
 
         # No variants match the given kwargs, return None.
@@ -399,10 +403,7 @@ class AttributeValueBase(models.Model):
 
     @property
     def value(self):
-        value = getattr(self, 'value_%s' % self.attribute.kind, None)
-        if self.attribute.is_option:
-            return value.value
-        return value
+        return getattr(self, 'value_%s' % self.attribute.kind, None)
 
 
 class ProductAttributeValue(AttributeValueBase):
