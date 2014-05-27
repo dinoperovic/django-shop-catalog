@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
-from itertools import chain
+from itertools import chain, groupby
 
 from django.db import models
 from django.core.urlresolvers import reverse
@@ -180,43 +180,58 @@ class ProductBase(MPTTModel, CatalogModel):
         return self.is_variant and not self.unit_price
 
     @property
-    def attrs(self):
+    def as_json(self):
+        return dict(
+            pk=self.pk,
+            parent=self.parent_id,
+            name=unicode(self.get_name()),
+            slug=unicode(self.get_slug()),
+            price=float(self.get_price()),
+            can_be_added_to_cart=self.can_be_added_to_cart,
+        )
+
+    def get_attrs(self):
         """
-        If product is a base product (has variants) returns a list of
-        attribute dictionaries with 'name', 'code' and 'values' keys.
+        If product is not a group (doesn't have variants) returns a
+        formated list of dictionaries with product attributes.
+        """
+        attrs = []
+
+        if not self.is_group:
+            attr_values = self.attribute_values.select_related().all()
+
+            for value in attr_values:
+                attrs.append({
+                    'name': value.attribute.get_name(),
+                    'code': value.attribute.get_slug(),
+                    'value': value.value,
+                })
+        return attrs
+
+    def get_variations(self):
+        """
+        If product is a group product (has variants) returns a list of
+        all it's variants attributes grouped by code in a dictionary with
+        'name', 'code' and 'values' keys.
         """
         attrs = {}
 
         if self.is_group:
             variants = self.variants.select_related().all()
-            attr_values = list(chain(
-                *[x.attribute_values.all() for x in variants]))
+            attr_values = list(chain(*[x.get_attrs() for x in variants]))
 
             for value in attr_values:
-                attr_slug = value.attribute.get_slug()
-                attr_name = value.attribute.get_name()
-
-                if attr_slug not in attrs:
-                    attrs[attr_slug] = {
-                        'name': attr_name,
-                        'code': attr_slug,
+                if value['code'] not in attrs:
+                    attrs[value['code']] = {
+                        'name': value['name'],
+                        'code': value['code'],
                         'values': [],
                     }
 
-                if value.value not in attrs[attr_slug]['values']:
-                    attrs[attr_slug]['values'].append(value.value)
+                if value['value'] not in attrs[value['code']]['values']:
+                    attrs[value['code']]['values'].append(value['value'])
 
         return attrs.values()
-
-    @property
-    def as_json(self):
-        return dict(
-            pk=unicode(self.pk),
-            parent=unicode(self.parent_id),
-            name=unicode(self.get_name()),
-            slug=unicode(self.get_slug()),
-            price=unicode(self.get_price())
-        )
 
     def get_variant(self, **kwargs):
         """
@@ -231,8 +246,7 @@ class ProductBase(MPTTModel, CatalogModel):
         # Loop throug variants and compare their attribute values to
         # kwargs. If they match, return that variant.
         for obj in self.variants.select_related().all():
-            attrs = [tuple([unicode(x.attribute.get_slug()), unicode(x.value)])
-                     for x in obj.attribute_values.select_related().all()]
+            attrs = [(x['code'], x['value']) for x in obj.get_attrs()]
             if attrs == kwargs:
                 return obj
 
@@ -366,7 +380,10 @@ class AttributeValueBase(models.Model):
 
     @property
     def value(self):
-        return getattr(self, 'value_%s' % self.attribute.kind, None)
+        value = getattr(self, 'value_%s' % self.attribute.kind, None)
+        if self.attribute.is_option:
+            return value.value
+        return value
 
 
 class ProductAttributeValue(AttributeValueBase):
