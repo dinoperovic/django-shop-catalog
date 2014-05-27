@@ -1,9 +1,11 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
-from itertools import chain, groupby
+from itertools import chain
+from decimal import Decimal
 
 from django.db import models
+from django.core.validators import MinValueValidator
 from django.core.urlresolvers import reverse
 from django.utils.translation import ugettext_lazy as _
 from django.utils.encoding import python_2_unicode_compatible
@@ -143,6 +145,11 @@ class ProductBase(MPTTModel, CatalogModel):
         help_text=_('If Product is a "variant" (parent is selected) and price '
                     'is "0", unit price is inherited from its parent.'))
 
+    discount_percent = models.DecimalField(
+        _('Discount percent'), blank=True, null=True,
+        max_digits=4, decimal_places=2,
+        validators=[MinValueValidator(Decimal('0.01'))])
+
     class Meta:
         abstract = True
 
@@ -151,9 +158,14 @@ class ProductBase(MPTTModel, CatalogModel):
 
     def get_price(self):
         """ Checks if price is inherited and returns the correct price. """
+        price = self.unit_price
         if self.is_price_inherited:
-            return self.parent.get_price()
-        return self.unit_price
+            price = self.parent.get_price()
+
+        if self.is_discounted:
+            price -= (self.discount_percent * price) / Decimal('100')
+
+        return price
 
     def get_product_reference(self):
         return str(self.pk)
@@ -180,6 +192,10 @@ class ProductBase(MPTTModel, CatalogModel):
         return self.is_variant and not self.unit_price
 
     @property
+    def is_discounted(self):
+        return not not self.discount_percent
+
+    @property
     def as_json(self):
         return dict(
             pk=self.pk,
@@ -204,8 +220,10 @@ class ProductBase(MPTTModel, CatalogModel):
                 attrs.append({
                     'name': value.attribute.get_name(),
                     'code': value.attribute.get_slug(),
+                    'template': value.attribute.template,
                     'value': value.value,
                 })
+
         return attrs
 
     def get_variations(self):
@@ -214,24 +232,25 @@ class ProductBase(MPTTModel, CatalogModel):
         all it's variants attributes grouped by code in a dictionary with
         'name', 'code' and 'values' keys.
         """
-        attrs = {}
+        variations = {}
 
         if self.is_group:
             variants = self.variants.select_related().all()
             attr_values = list(chain(*[x.get_attrs() for x in variants]))
 
             for value in attr_values:
-                if value['code'] not in attrs:
-                    attrs[value['code']] = {
+                if value['code'] not in variations:
+                    variations[value['code']] = {
                         'name': value['name'],
                         'code': value['code'],
+                        'template': value['template'],
                         'values': [],
                     }
 
-                if value['value'] not in attrs[value['code']]['values']:
-                    attrs[value['code']]['values'].append(value['value'])
+                if value['value'] not in variations[value['code']]['values']:
+                    variations[value['code']]['values'].append(value['value'])
 
-        return attrs.values()
+        return variations.values()
 
     def get_variant(self, **kwargs):
         """

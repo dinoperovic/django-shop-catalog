@@ -78,7 +78,7 @@ class ProductAdmin(
                 'fields': ('category', 'brand', 'manufacturer'),
             }),
             (_('Price'), {
-                'fields': ('unit_price', ),
+                'fields': ('unit_price', 'discount_percent'),
             }),
             (_('Date information'), {
                 'fields': ('date_added', 'last_modified'),
