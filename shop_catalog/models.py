@@ -16,6 +16,7 @@ from hvad.models import TranslatableModel, TranslatedFields
 from mptt.models import MPTTModel
 from mptt.fields import TreeForeignKey
 
+from shop_catalog.fields import NullableCharField
 from shop_catalog.managers import CatalogManager, ProductManager
 from shop_catalog.utils.noconflict import classmaker
 from shop_catalog import settings as scs
@@ -161,7 +162,7 @@ class ProductBase(MPTTModel, CatalogModel):
     Base fields and calculations are defined here and all objects that
     can be added to cart must inherit from this model.
     """
-    upc = models.CharField(
+    upc = NullableCharField(
         _('UPC'), max_length=64, blank=True, null=True, unique=True,
         help_text=_('Universal Product Code (UPC) is an identifier for a '
                     'product which is not specific to a particular supplier. '
@@ -187,6 +188,12 @@ class ProductBase(MPTTModel, CatalogModel):
                     'set, discount percent is inherited from its parent. '
                     'If you dont wan\'t this to happen, set discount percent '
                     'to "0".'))
+
+    quantity = models.PositiveIntegerField(
+        _('Quantity'), blank=True, null=True,
+        help_text=_('Number of products available, if product is unavailable '
+                    '("out of stock") set this to "0". If left empty, product '
+                    'will be treated as if it\'s always available.'))
 
     class Meta:
         abstract = True
@@ -298,6 +305,10 @@ class ProductBase(MPTTModel, CatalogModel):
     @property
     def is_variant(self):
         return not self.is_top_level
+
+    @property
+    def is_available(self):
+        return self.quantity is None or self.quantity > 0
 
     @property
     def is_discounted(self):

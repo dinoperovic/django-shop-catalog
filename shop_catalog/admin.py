@@ -77,6 +77,9 @@ class ProductAdmin(
         )
         self.fieldsets += self.get_categorization_fieldset()
         self.fieldsets += (
+            (None, {
+                'fields': ('quantity', ),
+            }),
             (_('Price'), {
                 'fields': ('unit_price', 'discount_percent'),
             }),
