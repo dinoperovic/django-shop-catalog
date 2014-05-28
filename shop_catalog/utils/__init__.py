@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
+from decimal import Decimal
+
 from django.core.exceptions import ObjectDoesNotExist
 
 
@@ -13,3 +15,7 @@ def slug_num_suffix(slug, queryset, template='{slug}-{num}'):
             num += 1
         except ObjectDoesNotExist:
             return num
+
+
+def round_2(num):
+    return Decimal(num).quantize(Decimal('0.00'))

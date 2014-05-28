@@ -19,6 +19,7 @@ from mptt.fields import TreeForeignKey
 from shop_catalog.fields import NullableCharField
 from shop_catalog.managers import CatalogManager, ProductManager
 from shop_catalog.utils.noconflict import classmaker
+from shop_catalog.utils import round_2
 from shop_catalog import settings as scs
 
 
@@ -208,19 +209,17 @@ class ProductBase(MPTTModel, CatalogModel):
         if discount:
             price -= (discount * price) / Decimal('100')
 
-        return price
+        return round_2(price)
 
     def get_unit_price(self):
         if self.is_price_inherited:
-            return self.parent.unit_price
-        return self.unit_price
+            return self.parent.get_unit_price()
+        return round_2(self.unit_price)
 
     def get_discount_percent(self):
-        if self.is_discount_inherited and self.parent.is_discounted:
+        if self.is_discount_inherited:
             return self.parent.discount_percent
-        elif self.is_discounted:
-            return self.discount_percent
-        return None
+        return self.discount_percent
 
     def get_product_reference(self):
         return self.upc or str(self.pk)
@@ -344,7 +343,7 @@ class ProductBase(MPTTModel, CatalogModel):
             is_available=self.is_available,
             is_discounted=self.is_discounted,
             is_discount_inherited=self.is_discount_inherited,
-            discount_percent=str(self.get_discount_percent() or 0),
+            discount_percent=str(self.get_discount_percent()),
             can_be_added_to_cart=self.can_be_added_to_cart,
             attrs=self.get_attrs(),
         )

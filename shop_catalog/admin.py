@@ -12,6 +12,7 @@ from django.utils.translation import ugettext_lazy as _
 from cms.admin.placeholderadmin import (
     PlaceholderAdminMixin, FrontendEditableAdminMixin)
 from hvad.admin import TranslatableAdmin
+from mptt.admin import MPTTModelAdmin
 
 from shop_catalog.models import (
     Category, Brand, Manufacturer, Product, Attribute, ProductAttributeValue,
@@ -23,22 +24,22 @@ from shop_catalog import settings as scs
 
 
 class CategoryAdmin(
-        TranslatableAdmin, FrontendEditableAdminMixin, PlaceholderAdminMixin,
-        admin.ModelAdmin):
+        TranslatableAdmin, MPTTModelAdmin, FrontendEditableAdminMixin,
+        PlaceholderAdminMixin, admin.ModelAdmin):
     frontend_editable_fields = ()
     readonly_fields = ('date_added', 'last_modified')
 
 
 class BrandAdmin(
-        TranslatableAdmin, FrontendEditableAdminMixin, PlaceholderAdminMixin,
-        admin.ModelAdmin):
+        TranslatableAdmin, MPTTModelAdmin, FrontendEditableAdminMixin,
+        PlaceholderAdminMixin, admin.ModelAdmin):
     frontend_editable_fields = ()
     readonly_fields = ('date_added', 'last_modified')
 
 
 class ManufacturerAdmin(
-        TranslatableAdmin, FrontendEditableAdminMixin, PlaceholderAdminMixin,
-        admin.ModelAdmin):
+        TranslatableAdmin, MPTTModelAdmin, FrontendEditableAdminMixin,
+        PlaceholderAdminMixin, admin.ModelAdmin):
     frontend_editable_fields = ()
     readonly_fields = ('date_added', 'last_modified')
 
@@ -50,13 +51,15 @@ class ProductAttributeValueInline(admin.TabularInline):
 
 
 class ProductAdmin(
-        TranslatableAdmin, FrontendEditableAdminMixin,
+        TranslatableAdmin, MPTTModelAdmin, FrontendEditableAdminMixin,
         PlaceholderAdminMixin, admin.ModelAdmin):
     form = ProductModelForm
     change_form_template = scs.PRODUCT_CHANGE_FORM_TEMPLATE
 
-    list_display = ('get_name', 'get_slug', 'parent', 'unit_price')
-    list_filter = (ProductParentListFilter,)
+    list_display = (
+        'get_name', 'get_slug', 'get_unit_price', 'get_discount_percent',
+        'get_price', 'get_product_reference')
+    list_filter = (ProductParentListFilter, )
 
     frontend_editable_fields = ()
     readonly_fields = ('date_added', 'last_modified')
@@ -66,6 +69,8 @@ class ProductAdmin(
     def __init__(self, *args, **kwargs):
         super(ProductAdmin, self).__init__(*args, **kwargs)
         self.prepopulated_fields = {'slug': ('name', )}
+        self.list_filter += self.get_categorization_list_filter()
+
         self.fieldsets = (
             (None, {
                 'fields': ('upc', 'name', 'slug'),
@@ -98,6 +103,16 @@ class ProductAdmin(
         )
         return product_urls + urls
 
+    def get_categorization_list_filter(self):
+        list_filter = ()
+        if scs.HAS_CATEGORIES:
+            list_filter += 'category',
+        if scs.HAS_BRANDS:
+            list_filter += 'brand',
+        if scs.HAS_MANUFACTURERS:
+            list_filter += 'manufacturer',
+        return list_filter
+
     def get_categorization_fieldset(self):
         fields = ()
         if scs.HAS_CATEGORIES:
@@ -120,6 +135,22 @@ class ProductAdmin(
     def get_slug(self, obj):
         return obj.get_slug()
     get_slug.short_description = _('Slug')
+
+    def get_unit_price(self, obj):
+        return obj.get_unit_price()
+    get_unit_price.short_description = _('Unit price')
+
+    def get_discount_percent(self, obj):
+        return '{}%'.format(obj.get_discount_percent())
+    get_discount_percent.short_description = _('Discount percent')
+
+    def get_price(self, obj):
+        return obj.get_price()
+    get_price.short_description = _('Price')
+
+    def get_product_reference(self, obj):
+        return obj.get_product_reference()
+    get_product_reference.short_description = _('Reference')
 
     def add_variant(self, request, pk):
         """
