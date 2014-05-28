@@ -72,14 +72,13 @@ class ProductVariantsJSONView(ShopView):
             variant = product.get_variant(**attrs)
             if variant is not None:
                 response = variant.as_json
-            elif not request.is_ajax():
-                raise Http404
         else:
             variants = product.variants.select_related().all()
             if variants:
                 response = [x.as_json for x in variants]
-            elif not request.is_ajax():
-                raise Http404
+
+        if response is None and not request.is_ajax():
+            raise Http404
 
         return HttpResponse(
             json.dumps(response), content_type='application/json')
