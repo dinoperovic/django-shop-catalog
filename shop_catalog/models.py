@@ -131,7 +131,11 @@ class Manufacturer(TranslatableModel, CategoryBase):
 
 @python_2_unicode_compatible
 class ProductBase(MPTTModel, CatalogModel):
-    attrs = None
+    upc = models.CharField(
+        _('UPC'), max_length=64, blank=True, null=True, unique=True,
+        help_text=_('Universal Product Code (UPC) is an identifier for a '
+                    'product which is not specific to a particular supplier. '
+                    'Eg. an ISBN for a book.'))
 
     parent = TreeForeignKey(
         'self', blank=True, null=True, related_name='variants',
@@ -142,13 +146,17 @@ class ProductBase(MPTTModel, CatalogModel):
 
     unit_price = CurrencyField(
         verbose_name=_('Unit price'),
-        help_text=_('If Product is a "variant" (parent is selected) and price '
+        help_text=_('If Product is a "variant" and price '
                     'is "0", unit price is inherited from its parent.'))
 
     discount_percent = models.DecimalField(
         _('Discount percent'), blank=True, null=True,
         max_digits=4, decimal_places=2,
-        validators=[MinValueValidator(Decimal('0.01'))])
+        validators=[MinValueValidator(Decimal('0.00'))],
+        help_text=_('If Product is a "variant" and discount percent is not '
+                    'set, discount percent is inherited from its parent. '
+                    'If you dont wan\'t this to happen, set discount percent '
+                    'to "0".'))
 
     class Meta:
         abstract = True
@@ -177,11 +185,10 @@ class ProductBase(MPTTModel, CatalogModel):
         return self.discount_percent
 
     def get_product_reference(self):
-        return str(self.pk)
+        return self.upc or str(self.pk)
 
     @property
     def can_be_added_to_cart(self):
-        """ Checks that product is active and doesn't have variants. """
         return self.active and not self.is_group
 
     @property
@@ -197,29 +204,36 @@ class ProductBase(MPTTModel, CatalogModel):
         return not self.is_top_level
 
     @property
+    def is_discounted(self):
+        if self.is_discount_inherited:
+            return self.parent.is_discounted
+        return not not self.discount_percent
+
+    @property
     def is_price_inherited(self):
         return self.is_variant and not self.unit_price
 
     @property
     def is_discount_inherited(self):
-        return self.is_variant and not self.discount_percent
-
-    @property
-    def is_discounted(self):
-        if self.is_discount_inherited:
-            return self.parent.is_discount_inherited
-        return not not self.discount_percent
+        return self.is_variant and self.discount_percent is None
 
     @property
     def as_json(self):
+        """
+        Returns a dicionary with product properties.
+        """
+        parent = str(self.parent_id) if self.is_variant else None
+
         return dict(
             pk=str(self.pk),
-            parent=str(self.parent_id),
+            parent=parent,
             name=str(self.get_name()),
             slug=str(self.get_slug()),
             unit_price=str(self.get_unit_price()),
             price=str(self.get_price()),
+            is_price_inherited=self.is_price_inherited,
             is_discounted=self.is_discounted,
+            is_discount_inherited=self.is_discount_inherited,
             discount_percent=str(self.get_discount_percent() or 0),
             can_be_added_to_cart=self.can_be_added_to_cart,
             attrs=self.get_attrs(),
