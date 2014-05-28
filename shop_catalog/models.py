@@ -23,6 +23,14 @@ from shop_catalog import settings as scs
 
 @python_2_unicode_compatible
 class CatalogModel(models.Model):
+    """
+    Catalog model.
+    Defines common fields for catalog objects to use and abstracts some
+    standard getter methods.
+
+    When an object inherits from CatalogModel, it can define a
+    CatalogManager as a manager for ease of getting "active" objects.
+    """
     active = models.BooleanField(default=True, verbose_name=_('Active'))
     date_added = models.DateTimeField(_('Date added'), auto_now_add=True)
     last_modified = models.DateTimeField(_('Last modified'), auto_now=True)
@@ -41,6 +49,11 @@ class CatalogModel(models.Model):
 
 
 class CategoryBase(MPTTModel, CatalogModel):
+    """
+    Category base model.
+    Base model for categorization, uses django-mptt for it's tree
+    management.
+    """
     parent = TreeForeignKey(
         'self', blank=True, null=True, related_name='children')
 
@@ -49,6 +62,10 @@ class CategoryBase(MPTTModel, CatalogModel):
 
 
 class Category(TranslatableModel, CategoryBase):
+    """
+    Category model.
+    A categorization layer inherited from CategoryBase.
+    """
     __metaclass__ = classmaker()
 
     translations = TranslatedFields(
@@ -76,6 +93,10 @@ class Category(TranslatableModel, CategoryBase):
 
 
 class Brand(TranslatableModel, CategoryBase):
+    """
+    Brand model.
+    A categorization layer inherited from CategoryBase.
+    """
     __metaclass__ = classmaker()
 
     translations = TranslatedFields(
@@ -103,6 +124,10 @@ class Brand(TranslatableModel, CategoryBase):
 
 
 class Manufacturer(TranslatableModel, CategoryBase):
+    """
+    Manufacturer model.
+    A categorization layer inherited from CategoryBase.
+    """
     __metaclass__ = classmaker()
 
     translations = TranslatedFields(
@@ -131,6 +156,11 @@ class Manufacturer(TranslatableModel, CategoryBase):
 
 @python_2_unicode_compatible
 class ProductBase(MPTTModel, CatalogModel):
+    """
+    Product base model.
+    Base fields and calculations are defined here and all objects that
+    can be added to cart must inherit from this model.
+    """
     upc = models.CharField(
         _('UPC'), max_length=64, blank=True, null=True, unique=True,
         help_text=_('Universal Product Code (UPC) is an identifier for a '
@@ -307,6 +337,11 @@ class ProductBase(MPTTModel, CatalogModel):
 
 
 class Product(TranslatableModel, ProductBase):
+    """
+    Product model.
+    Inherits from ProductBase and adds more specific fields like
+    categorization etc.
+    """
     __metaclass__ = classmaker()
 
     category = TreeForeignKey(
@@ -346,6 +381,12 @@ class Product(TranslatableModel, ProductBase):
 
 @python_2_unicode_compatible
 class Attribute(TranslatableModel):
+    """
+    Attribute model.
+    Used to define different types of attributes to be assigned on a
+    Product variant. Eg. For a t-shirt attributes could be size, color,
+    pattern...
+    """
     KIND_OPTION = 'option'
     KIND_CHOICES = (
         ('text', _('Text')),
@@ -405,6 +446,10 @@ class Attribute(TranslatableModel):
 
 
 class AttributeValueBase(models.Model):
+    """
+    Attribute Value base model.
+    Used to define values on a Product with relation to Attribute.
+    """
     attribute = models.ForeignKey(
         Attribute, related_name='values', verbose_name=_('Attribute'))
 
@@ -436,6 +481,10 @@ class AttributeValueBase(models.Model):
 
 
 class ProductAttributeValue(AttributeValueBase):
+    """
+    Product Attribute Value model.
+    Through model for Product M2M relation to Attribute.
+    """
     product = models.ForeignKey(
         Product, related_name='attribute_values', verbose_name=_('Product'))
 
@@ -448,6 +497,10 @@ class ProductAttributeValue(AttributeValueBase):
 
 @python_2_unicode_compatible
 class AttributeOption(models.Model):
+    """
+    Attribute Option model.
+    Option values for Attribute used when kind is Attribute.KIND_OPTION.
+    """
     attribute = models.ForeignKey(
         Attribute, related_name='options', verbose_name=_('Attribute'))
     value = models.CharField(_('Value'), max_length=128)

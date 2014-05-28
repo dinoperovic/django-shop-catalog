@@ -7,6 +7,10 @@ from hvad.manager import TranslationManager, TranslationQueryset
 
 
 class CatalogQuerySet(QuerySet):
+    """
+    Catalog QuerySet class.
+    Defines "active" filter for getting active objects.
+    """
     def active(self, **kwargs):
         return self.filter(active=True, **kwargs)
 
@@ -16,6 +20,11 @@ class CatalogTranslationQuerySet(TranslationQueryset, CatalogQuerySet):
 
 
 class CatalogManager(TranslationManager):
+    """
+    Catalog Manager class.
+    Defines basic methods and should be used on CatalogModel
+    inherited models.
+    """
     queryset_class = CatalogTranslationQuerySet
     default_class = CatalogQuerySet
 
