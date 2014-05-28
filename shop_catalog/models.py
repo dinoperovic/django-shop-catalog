@@ -26,7 +26,7 @@ from shop_catalog import settings as scs
 class CatalogModel(models.Model):
     """
     Catalog model.
-    Defines common fields for catalog objects to use and abstracts some
+    Defines common fields for catalog objects and abstracts some
     standard getter methods.
 
     When an object inherits from CatalogModel, it can define a
@@ -177,15 +177,15 @@ class ProductBase(MPTTModel, CatalogModel):
 
     unit_price = CurrencyField(
         verbose_name=_('Unit price'),
-        help_text=_('If Product is a "variant" and price '
-                    'is "0", unit price is inherited from its parent.'))
+        help_text=_('If Product is a "variant" and price is "0", unit price '
+                    'is inherited from it\'s parent.'))
 
     discount_percent = models.DecimalField(
         _('Discount percent'), blank=True, null=True,
         max_digits=4, decimal_places=2,
         validators=[MinValueValidator(Decimal('0.00'))],
         help_text=_('If Product is a "variant" and discount percent is not '
-                    'set, discount percent is inherited from its parent. '
+                    'set, discount percent is inherited from it\'s parent. '
                     'If you dont wan\'t this to happen, set discount percent '
                     'to "0".'))
 
@@ -247,8 +247,7 @@ class ProductBase(MPTTModel, CatalogModel):
     def get_variations(self):
         """
         If product is a group product (has variants) returns a list of
-        all it's variants attributes grouped by code in a dictionary with
-        'name', 'code' and 'values' keys.
+        all it's variants attributes grouped by code in a dictionary.
         """
         variations = {}
 
