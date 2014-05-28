@@ -165,7 +165,6 @@ class ProductBase(MPTTModel, CatalogModel):
         return self.get_name()
 
     def get_price(self):
-        """ Checks if price is inherited and returns the correct price. """
         price = self.get_unit_price()
         discount = self.get_discount_percent()
 
@@ -182,7 +181,9 @@ class ProductBase(MPTTModel, CatalogModel):
     def get_discount_percent(self):
         if self.is_discount_inherited and self.parent.is_discounted:
             return self.parent.discount_percent
-        return self.discount_percent
+        elif self.is_discounted:
+            return self.discount_percent
+        return None
 
     def get_product_reference(self):
         return self.upc or str(self.pk)
