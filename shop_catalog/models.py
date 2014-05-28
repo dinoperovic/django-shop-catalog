@@ -188,58 +188,6 @@ class ProductBase(MPTTModel, CatalogModel):
     def get_product_reference(self):
         return self.upc or str(self.pk)
 
-    @property
-    def can_be_added_to_cart(self):
-        return self.active and not self.is_group
-
-    @property
-    def is_top_level(self):
-        return self.parent_id is None
-
-    @property
-    def is_group(self):
-        return self.is_top_level and self.variants.exists()
-
-    @property
-    def is_variant(self):
-        return not self.is_top_level
-
-    @property
-    def is_discounted(self):
-        if self.is_discount_inherited:
-            return self.parent.is_discounted
-        return not not self.discount_percent
-
-    @property
-    def is_price_inherited(self):
-        return self.is_variant and not self.unit_price
-
-    @property
-    def is_discount_inherited(self):
-        return self.is_variant and self.discount_percent is None
-
-    @property
-    def as_json(self):
-        """
-        Returns a dicionary with product properties.
-        """
-        parent = str(self.parent_id) if self.is_variant else None
-
-        return dict(
-            pk=str(self.pk),
-            parent=parent,
-            name=str(self.get_name()),
-            slug=str(self.get_slug()),
-            unit_price=str(self.get_unit_price()),
-            price=str(self.get_price()),
-            is_price_inherited=self.is_price_inherited,
-            is_discounted=self.is_discounted,
-            is_discount_inherited=self.is_discount_inherited,
-            discount_percent=str(self.get_discount_percent() or 0),
-            can_be_added_to_cart=self.can_be_added_to_cart,
-            attrs=self.get_attrs(),
-        )
-
     def get_attrs(self):
         """
         If product is not a group (doesn't have variants) returns a
@@ -304,6 +252,58 @@ class ProductBase(MPTTModel, CatalogModel):
 
         # No variants match the given kwargs, return None.
         return None
+
+    @property
+    def can_be_added_to_cart(self):
+        return self.active and not self.is_group
+
+    @property
+    def is_top_level(self):
+        return self.parent_id is None
+
+    @property
+    def is_group(self):
+        return self.is_top_level and self.variants.exists()
+
+    @property
+    def is_variant(self):
+        return not self.is_top_level
+
+    @property
+    def is_discounted(self):
+        if self.is_discount_inherited:
+            return self.parent.is_discounted
+        return not not self.discount_percent
+
+    @property
+    def is_price_inherited(self):
+        return self.is_variant and not self.unit_price
+
+    @property
+    def is_discount_inherited(self):
+        return self.is_variant and self.discount_percent is None
+
+    @property
+    def as_json(self):
+        """
+        Returns a dicionary with product properties.
+        """
+        parent = str(self.parent_id) if self.is_variant else None
+
+        return dict(
+            pk=str(self.pk),
+            parent=parent,
+            name=str(self.get_name()),
+            slug=str(self.get_slug()),
+            unit_price=str(self.get_unit_price()),
+            price=str(self.get_price()),
+            is_price_inherited=self.is_price_inherited,
+            is_discounted=self.is_discounted,
+            is_discount_inherited=self.is_discount_inherited,
+            discount_percent=str(self.get_discount_percent() or 0),
+            can_be_added_to_cart=self.can_be_added_to_cart,
+            attrs=self.get_attrs(),
+        )
 
 
 class Product(TranslatableModel, ProductBase):
