@@ -295,7 +295,7 @@ class ProductBase(MPTTModel, CatalogModel):
         # Cast keys and values to str.
         kwargs = [(str(k), str(v)) for k, v in kwargs.iteritems()]
 
-        # Loop throug variants and compare their attribute values to
+        # Loop through variants and compare their attribute values to
         # kwargs. If they match, return that variant.
         for obj in self.variants.select_related().all():
             attrs = [(x['code'], x['value']) for x in obj.get_attrs()]
