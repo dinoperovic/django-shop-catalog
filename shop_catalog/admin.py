@@ -69,14 +69,14 @@ class ProductAdmin(
         self.fieldsets = (
             (None, {
                 'fields': (
-                    'name', 'slug', 'active'),
+                    'upc', 'name', 'slug', 'active'),
             }),
             (None, {
                 'fields': ('parent', ),
             }),
-            (_('Categorization'), {
-                'fields': ('category', 'brand', 'manufacturer'),
-            }),
+        )
+        self.fieldsets += self.get_categorization_fieldset()
+        self.fieldsets += (
             (_('Price'), {
                 'fields': ('unit_price', 'discount_percent'),
             }),
@@ -95,6 +95,19 @@ class ProductAdmin(
                 name='shop_catalog_product_add_variant'),
         )
         return product_urls + urls
+
+    def get_categorization_fieldset(self):
+        fields = ()
+        if scs.HAS_CATEGORIES:
+            fields += 'category',
+        if scs.HAS_BRANDS:
+            fields += 'brand',
+        if scs.HAS_MANUFACTURERS:
+            fields += 'manufacturer',
+
+        if fields:
+            return (_('Categorization'), {'fields': fields}),
+        return ()
 
     def get_name(self, obj):
         if obj.is_variant:
@@ -146,8 +159,12 @@ class AttributeAdmin(TranslatableAdmin):
     get_name.short_description = _('Name')
 
 
-admin.site.register(Category, CategoryAdmin)
-admin.site.register(Brand, BrandAdmin)
-admin.site.register(Manufacturer, ManufacturerAdmin)
+if scs.HAS_CATEGORIES:
+    admin.site.register(Category, CategoryAdmin)
+if scs.HAS_BRANDS:
+    admin.site.register(Brand, BrandAdmin)
+if scs.HAS_MANUFACTURERS:
+    admin.site.register(Manufacturer, ManufacturerAdmin)
+
 admin.site.register(Attribute, AttributeAdmin)
 admin.site.register(Product, ProductAdmin)
