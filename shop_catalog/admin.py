@@ -68,8 +68,11 @@ class ProductAdmin(
         self.prepopulated_fields = {'slug': ('name', )}
         self.fieldsets = (
             (None, {
+                'fields': ('upc', 'name', 'slug'),
+            }),
+            (None, {
                 'fields': (
-                    'upc', 'name', 'slug', 'active'),
+                    'active', 'date_added', 'last_modified', ),
             }),
             (None, {
                 'fields': ('parent', ),
@@ -77,15 +80,11 @@ class ProductAdmin(
         )
         self.fieldsets += self.get_categorization_fieldset()
         self.fieldsets += (
-            (None, {
-                'fields': ('quantity', ),
-            }),
             (_('Price'), {
                 'fields': ('unit_price', 'discount_percent'),
             }),
-            (_('Date information'), {
-                'fields': ('date_added', 'last_modified'),
-                'classes': ('collapse', ),
+            (None, {
+                'fields': ('quantity', ),
             }),
         )
 

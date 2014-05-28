@@ -7,7 +7,7 @@ from django.db import models
 class NullableCharField(models.CharField):
     """
     Nullable CharField.
-    Enables blank and null fields to be unique.
+    Enables blank and null char fields to be unique.
     """
     description = 'CharField that stores NULL but returns \'\''
     __metaclass__ = models.SubfieldBase

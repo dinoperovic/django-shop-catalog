@@ -330,15 +330,19 @@ class ProductBase(MPTTModel, CatalogModel):
         Returns a dicionary with product properties.
         """
         parent = str(self.parent_id) if self.is_variant else None
+        quantity = str(self.quantity) if self.quantity else None
 
         return dict(
             pk=str(self.pk),
+            upc=self.upc,
             parent=parent,
             name=str(self.get_name()),
             slug=str(self.get_slug()),
             unit_price=str(self.get_unit_price()),
             price=str(self.get_price()),
             is_price_inherited=self.is_price_inherited,
+            quantity=quantity,
+            is_available=self.is_available,
             is_discounted=self.is_discounted,
             is_discount_inherited=self.is_discount_inherited,
             discount_percent=str(self.get_discount_percent() or 0),
