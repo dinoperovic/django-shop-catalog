@@ -522,11 +522,11 @@ class AttributeValueBase(models.Model):
     @property
     def as_dict(self):
         return dict(
-            code=self.attribute.get_slug(),
-            name=self.attribute.get_name(),
-            type=self.attribute.kind,
-            template=self.attribute.template,
-            value=self.value,
+            code=str(self.attribute.get_slug()),
+            name=str(self.attribute.get_name()),
+            type=str(self.attribute.kind),
+            template=str(self.attribute.template),
+            value=str(self.value),
         )
 
 
