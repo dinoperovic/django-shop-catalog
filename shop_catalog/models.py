@@ -343,7 +343,7 @@ class ProductBase(MPTTModel, CatalogModel):
             is_available=self.is_available,
             is_discounted=self.is_discounted,
             is_discount_inherited=self.is_discount_inherited,
-            discount_percent=str(self.get_discount_percent()),
+            discount_percent=str(self.get_discount_percent() or 0),
             can_be_added_to_cart=self.can_be_added_to_cart,
             attrs=self.get_attrs(),
         )
