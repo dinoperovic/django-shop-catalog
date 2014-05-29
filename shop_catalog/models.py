@@ -235,7 +235,7 @@ class ProductBase(MPTTModel, CatalogModel):
             attr_values = self.attribute_values.select_related().all()
             for value in attr_values:
                 if value.value is not None:
-                    attrs.append(value.as_json)
+                    attrs.append(value.as_dict)
 
         return attrs
 
@@ -323,7 +323,7 @@ class ProductBase(MPTTModel, CatalogModel):
         return self.is_variant and self.discount_percent is None
 
     @property
-    def as_json(self):
+    def as_dict(self):
         """
         Returns a dicionary with product properties.
         """
@@ -516,11 +516,11 @@ class AttributeValueBase(models.Model):
         if self.attribute.is_option:
             value = value.value
         elif self.attribute.is_file:
-            value = (value.name, value.url) if value else None
+            value = value.url if value else None
         return value
 
     @property
-    def as_json(self):
+    def as_dict(self):
         return dict(
             code=self.attribute.get_slug(),
             name=self.attribute.get_name(),
