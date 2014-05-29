@@ -230,17 +230,16 @@ class ProductBase(MPTTModel, CatalogModel):
         formated list of dictionaries with product attributes.
         """
         attrs = []
+
         if not self.is_group:
             attr_values = self.attribute_values.select_related().all()
-
             for value in attr_values:
                 attrs.append({
                     'name': value.attribute.get_name(),
                     'code': value.attribute.get_slug(),
                     'template': value.attribute.template,
-                    'value': str(value.value),
+                    'value': value.value,
                 })
-
         return attrs
 
     def get_variations(self):
@@ -490,7 +489,10 @@ class AttributeValueBase(models.Model):
 
     @property
     def value(self):
-        return getattr(self, 'value_%s' % self.attribute.kind, None)
+        value = getattr(self, 'value_%s' % self.attribute.kind, None)
+        if self.attribute.is_option:
+            value = value.value
+        return value
 
 
 class ProductAttributeValue(AttributeValueBase):
