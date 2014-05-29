@@ -6,6 +6,8 @@ from django.conf.urls import patterns, url
 from shop_catalog.views import (
     ProductListView, ProductDetailView,
     CategoryListView, CategoryDetailView,
+    BrandListView, BrandDetailView,
+    ManufacturerListView, ManufacturerDetailView,
     ProductVariantsJSONView)
 from shop_catalog import settings as scs
 
@@ -22,10 +24,20 @@ if scs.HAS_CATEGORIES:
     ])
 
 if scs.HAS_BRANDS:
-    pats.extend([])
+    pats.extend([
+        url(r'^brands/$', BrandListView.as_view(),
+            name='brand_list'),
+        url(r'^brands/(?P<slug>[0-9A-Za-z-_.//]+)/$',
+            BrandDetailView.as_view(), name='brand_detail'),
+    ])
 
 if scs.HAS_MANUFACTURERS:
-    pats.extend([])
+    pats.extend([
+        url(r'^manufacturers/$', ManufacturerListView.as_view(),
+            name='manufacturer_list'),
+        url(r'^manufacturers/(?P<slug>[0-9A-Za-z-_.//]+)/$',
+            ManufacturerDetailView.as_view(), name='manufacturer_detail'),
+    ])
 
 # Main patterns.
 pats.extend([

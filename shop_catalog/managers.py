@@ -39,11 +39,24 @@ class CatalogManager(TranslationManager):
 
 
 class ProductQuerySet(CatalogQuerySet):
+    """
+    Product QuerySet class.
+    Adds a Product specific QuerySet methods.
+    """
     def top_level(self, **kwargs):
         return self.filter(parent_id=None, **kwargs)
 
 
+class ProductTranslationQuerySet(TranslationQueryset, ProductQuerySet):
+    pass
+
+
 class ProductManager(CatalogManager):
+    """
+    Product Manager class.
+    Adds a Product specific manager methods.
+    """
+    queryset_class = ProductTranslationQuerySet
     default_class = ProductQuerySet
 
     def top_level(self, language_code=None, **kwargs):
