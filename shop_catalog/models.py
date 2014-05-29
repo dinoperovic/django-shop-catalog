@@ -234,12 +234,9 @@ class ProductBase(MPTTModel, CatalogModel):
         if not self.is_group:
             attr_values = self.attribute_values.select_related().all()
             for value in attr_values:
-                attrs.append({
-                    'name': value.attribute.get_name(),
-                    'code': value.attribute.get_slug(),
-                    'template': value.attribute.template,
-                    'value': value.value,
-                })
+                if value.value is not None:
+                    attrs.append(value.as_json)
+
         return attrs
 
     def get_variations(self):
@@ -255,10 +252,14 @@ class ProductBase(MPTTModel, CatalogModel):
 
             for value in attr_values:
                 if value['code'] not in variations:
+                    is_nullable = Attribute.is_nullable(value['code'], self)
+
                     variations[value['code']] = {
                         'name': value['name'],
                         'code': value['code'],
+                        'type': value['type'],
                         'template': value['template'],
+                        'is_nullable': is_nullable,
                         'values': [],
                     }
 
@@ -274,8 +275,8 @@ class ProductBase(MPTTModel, CatalogModel):
         if not self.is_group:
             return None
 
-        # Cast keys and values to str.
-        kwargs = [(str(k), str(v)) for k, v in kwargs.iteritems()]
+        # Cast keys and values to str and filter out empty values.
+        kwargs = [(str(k), str(v)) for k, v in kwargs.iteritems() if v]
 
         # Loop through variants and compare their attribute values to
         # kwargs. If they match, return that variant.
@@ -400,6 +401,8 @@ class Attribute(TranslatableModel):
     pattern...
     """
     KIND_OPTION = 'option'
+    KIND_FILE = 'file'
+    KIND_IMAGE = 'image'
     KIND_CHOICES = (
         ('text', _('Text')),
         ('integer', _('Integer')),
@@ -408,8 +411,8 @@ class Attribute(TranslatableModel):
         ('richtext', _('Richtext')),
         ('date', _('Date')),
         (KIND_OPTION, _('Option')),
-        ('file', _('File')),
-        ('image', _('Image')),
+        (KIND_FILE, _('File')),
+        (KIND_IMAGE, _('Image')),
     )
 
     code = models.SlugField(
@@ -456,6 +459,25 @@ class Attribute(TranslatableModel):
     def is_option(self):
         return self.kind == self.KIND_OPTION
 
+    @property
+    def is_file(self):
+        return self.kind in (self.KIND_FILE, self.KIND_IMAGE)
+
+    @classmethod
+    def is_nullable(cls, attr_code, obj):
+        if obj.is_group:
+            for variant in obj.variants.select_related().all():
+                if attr_code not in [x['code'] for x in variant.get_attrs()]:
+                    return True
+            return False
+
+    @classmethod
+    def template_for(cls, attr_code):
+        try:
+            return cls.objects.get(code=attr_code).template
+        except cls.DoesNotExist:
+            return None
+
 
 class AttributeValueBase(models.Model):
     """
@@ -490,9 +512,22 @@ class AttributeValueBase(models.Model):
     @property
     def value(self):
         value = getattr(self, 'value_%s' % self.attribute.kind, None)
+
         if self.attribute.is_option:
             value = value.value
+        elif self.attribute.is_file:
+            value = (value.name, value.url) if value else None
         return value
+
+    @property
+    def as_json(self):
+        return dict(
+            code=self.attribute.get_slug(),
+            name=self.attribute.get_name(),
+            type=self.attribute.kind,
+            template=self.attribute.template,
+            value=self.value,
+        )
 
 
 class ProductAttributeValue(AttributeValueBase):
