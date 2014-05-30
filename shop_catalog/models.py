@@ -398,7 +398,7 @@ class Attribute(TranslatableModel):
     Attribute model.
     Used to define different types of attributes to be assigned on a
     Product variant. Eg. For a t-shirt attributes could be size, color,
-    pattern...
+    pattern etc.
     """
     KIND_OPTION = 'option'
     KIND_FILE = 'file'
