@@ -465,6 +465,12 @@ class Attribute(TranslatableModel):
 
     @classmethod
     def is_nullable(cls, attr_code, obj):
+        """
+        If any of 'obj.variants' miss the given attribute means that
+        this attribute can be null and returns True.
+        If all 'obj.variants' have defined this attribute, then it's
+        required and returns False.
+        """
         if obj.is_group:
             for variant in obj.variants.select_related().all():
                 if attr_code not in [x['code'] for x in variant.get_attrs()]:
@@ -473,6 +479,9 @@ class Attribute(TranslatableModel):
 
     @classmethod
     def template_for(cls, attr_code):
+        """
+        Returns an attribute template for attribute with a given code.
+        """
         try:
             return cls.objects.get(code=attr_code).template
         except cls.DoesNotExist:
@@ -521,11 +530,14 @@ class AttributeValueBase(models.Model):
 
     @property
     def as_dict(self):
+        template = (
+            str(self.attribute.template) if self.attribute.template else None)
+
         return dict(
             code=str(self.attribute.get_slug()),
             name=str(self.attribute.get_name()),
             type=str(self.attribute.kind),
-            template=str(self.attribute.template),
+            template=template,
             value=str(self.value),
         )
 
