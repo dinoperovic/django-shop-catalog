@@ -41,11 +41,12 @@ if scs.HAS_MANUFACTURERS:
 
 # Main patterns.
 pats.extend([
-    url(r'^$', ProductListView.as_view(), name='product_list'),
-    url(r'^(?P<slug>[0-9A-Za-z-_.//]+)/variants/$',
+    url(r'^products/$', ProductListView.as_view(), name='product_list'),
+    url(r'^products/(?P<slug>[0-9A-Za-z-_.//]+)/variants/$',
         ProductVariantsJSONView.as_view(),
         name='product_variants'),
-    url(r'^(?P<slug>[0-9A-Za-z-_.//]+)/$', ProductDetailView.as_view(),
+    url(r'^products/(?P<slug>[0-9A-Za-z-_.//]+)/$',
+        ProductDetailView.as_view(),
         name='product_detail'),
 ])
 
