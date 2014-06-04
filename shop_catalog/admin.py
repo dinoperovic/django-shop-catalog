@@ -23,25 +23,51 @@ from shop_catalog.utils import slug_num_suffix
 from shop_catalog import settings as scs
 
 
-class CategoryAdmin(
+class CategoryAdminBase(
         TranslatableAdmin, MPTTModelAdmin, FrontendEditableAdminMixin,
         PlaceholderAdminMixin, admin.ModelAdmin):
+    list_display = ('get_name', 'get_slug')
+    list_filter = ('date_added', 'last_modified', 'parent')
+
     frontend_editable_fields = ()
     readonly_fields = ('date_added', 'last_modified')
 
+    def __init__(self, *args, **kwargs):
+        super(CategoryAdminBase, self).__init__(*args, **kwargs)
+        self.prepopulated_fields = {'slug': ('name', )}
 
-class BrandAdmin(
-        TranslatableAdmin, MPTTModelAdmin, FrontendEditableAdminMixin,
-        PlaceholderAdminMixin, admin.ModelAdmin):
-    frontend_editable_fields = ()
-    readonly_fields = ('date_added', 'last_modified')
+        self.fieldsets = (
+            (None, {
+                'fields': ('name', 'slug'),
+            }),
+            (None, {
+                'fields': ('active', 'date_added', 'last_modified'),
+            }),
+            (None, {
+                'fields': ('parent', ),
+            }),
+        )
+
+    def get_name(self, obj):
+        names = [x.get_name() for x in obj.get_ancestors(include_self=True)]
+        return ' > '.join(names)
+    get_name.short_description = _('Name')
+
+    def get_slug(self, obj):
+        return obj.get_slug()
+    get_slug.short_description = _('Slug')
 
 
-class ManufacturerAdmin(
-        TranslatableAdmin, MPTTModelAdmin, FrontendEditableAdminMixin,
-        PlaceholderAdminMixin, admin.ModelAdmin):
-    frontend_editable_fields = ()
-    readonly_fields = ('date_added', 'last_modified')
+class CategoryAdmin(CategoryAdminBase):
+    pass
+
+
+class BrandAdmin(CategoryAdminBase):
+    pass
+
+
+class ManufacturerAdmin(CategoryAdminBase):
+    pass
 
 
 class ProductAttributeValueInline(admin.TabularInline):
@@ -59,7 +85,7 @@ class ProductAdmin(
     list_display = (
         'get_name', 'get_slug', 'get_unit_price', 'get_discount_percent',
         'get_price', 'get_product_reference')
-    list_filter = (ProductParentListFilter, )
+    list_filter = ('date_added', 'last_modified', ProductParentListFilter)
 
     frontend_editable_fields = ()
     readonly_fields = ('date_added', 'last_modified')
@@ -76,8 +102,7 @@ class ProductAdmin(
                 'fields': ('upc', 'name', 'slug'),
             }),
             (None, {
-                'fields': (
-                    'active', 'date_added', 'last_modified', ),
+                'fields': ('active', 'date_added', 'last_modified'),
             }),
             (None, {
                 'fields': ('parent', ),
