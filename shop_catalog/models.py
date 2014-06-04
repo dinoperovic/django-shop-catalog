@@ -224,6 +224,66 @@ class ProductBase(MPTTModel, CatalogModel):
     def get_product_reference(self):
         return self.upc or str(self.pk)
 
+    @property
+    def can_be_added_to_cart(self):
+        return self.active and not self.is_group
+
+    @property
+    def is_top_level(self):
+        return self.parent_id is None
+
+    @property
+    def is_group(self):
+        return self.is_top_level and self.variants.exists()
+
+    @property
+    def is_variant(self):
+        return not self.is_top_level
+
+    @property
+    def is_available(self):
+        return self.quantity is None or self.quantity > 0
+
+    @property
+    def is_discounted(self):
+        if self.is_discount_inherited:
+            return self.parent.is_discounted
+        return not not self.discount_percent
+
+    @property
+    def is_price_inherited(self):
+        return self.is_variant and not self.unit_price
+
+    @property
+    def is_discount_inherited(self):
+        return self.is_variant and self.discount_percent is None
+
+    @property
+    def as_dict(self):
+        """
+        Returns a dicionary with product properties.
+        """
+        parent = str(self.parent_id) if self.is_variant else None
+        quantity = str(self.quantity) if self.quantity else None
+
+        return dict(
+            pk=str(self.pk),
+            upc=self.upc,
+            parent=parent,
+            name=str(self.get_name()),
+            slug=str(self.get_slug()),
+            unit_price=str(self.get_unit_price()),
+            price=str(self.get_price()),
+            is_price_inherited=self.is_price_inherited,
+            quantity=quantity,
+            is_available=self.is_available,
+            is_discounted=self.is_discounted,
+            is_discount_inherited=self.is_discount_inherited,
+            discount_percent=str(self.get_discount_percent()),
+            can_be_added_to_cart=self.can_be_added_to_cart,
+            attrs=self.get_attrs(),
+        )
+
     def get_attrs(self):
         """
         If product is not a group (doesn't have variants) returns a
@@ -288,65 +348,17 @@ class ProductBase(MPTTModel, CatalogModel):
         # No variants match the given kwargs, return None.
         return None
 
-    @property
-    def can_be_added_to_cart(self):
-        return self.active and not self.is_group
-
-    @property
-    def is_top_level(self):
-        return self.parent_id is None
-
-    @property
-    def is_group(self):
-        return self.is_top_level and self.variants.exists()
-
-    @property
-    def is_variant(self):
-        return not self.is_top_level
-
-    @property
-    def is_available(self):
-        return self.quantity is None or self.quantity > 0
-
-    @property
-    def is_discounted(self):
-        if self.is_discount_inherited:
-            return self.parent.is_discounted
-        return not not self.discount_percent
-
-    @property
-    def is_price_inherited(self):
-        return self.is_variant and not self.unit_price
-
-    @property
-    def is_discount_inherited(self):
-        return self.is_variant and self.discount_percent is None
-
-    @property
-    def as_dict(self):
+    def get_primary_image(self):
         """
-        Returns a dicionary with product properties.
+        Returns a first (primary) image from product images.
+        If product has no images returns None.
         """
-        parent = str(self.parent_id) if self.is_variant else None
-        quantity = str(self.quantity) if self.quantity else None
+        images = self.images.select_related().all()
 
-        return dict(
-            pk=str(self.pk),
-            upc=self.upc,
-            parent=parent,
-            name=str(self.get_name()),
-            slug=str(self.get_slug()),
-            unit_price=str(self.get_unit_price()),
-            price=str(self.get_price()),
-            is_price_inherited=self.is_price_inherited,
-            quantity=quantity,
-            is_available=self.is_available,
-            is_discounted=self.is_discounted,
-            is_discount_inherited=self.is_discount_inherited,
-            discount_percent=str(self.get_discount_percent()),
-            can_be_added_to_cart=self.can_be_added_to_cart,
-            attrs=self.get_attrs(),
-        )
+        try:
+            return images[0]
+        except IndexError:
+            return None
 
 
 class Product(TranslatableModel, ProductBase):
@@ -432,7 +444,7 @@ class Attribute(TranslatableModel):
                     'or leave it empty for the default (dropdown) look.'))
 
     translations = TranslatedFields(
-        name=models.CharField(_('Name'), max_length=128)
+        name=models.CharField(_('Name'), max_length=128),
     )
 
     class Meta:
@@ -574,3 +586,41 @@ class AttributeOption(models.Model):
 
     def __str__(self):
         return self.value
+
+
+@python_2_unicode_compatible
+class ProductImageBase(models.Model):
+    product = models.ForeignKey(
+        Product, related_name='images', verbose_name=_('Product'))
+    position = models.PositiveIntegerField(
+        _('Position'), default=0,
+        help_text=_('If display order is "0" this image will be used as a '
+                    'primary image.'))
+    date_added = models.DateTimeField(_('Date added'), auto_now_add=True)
+
+    class Meta:
+        abstract = True
+        ordering = ('position', )
+        unique_together = ('product', 'position')
+
+    def __str__(self):
+        return '{} {}'.format(_('Image of'), self.product)
+
+    @property
+    def is_primary(self):
+        return self.position == 0
+
+
+class ProductImage(TranslatableModel, ProductImageBase):
+    image = models.ImageField(
+        _('Image'), upload_to='shop_catalog/', max_length=255)
+
+    translations = TranslatedFields(
+        caption=models.CharField(
+            _('Caption'), max_length=200, blank=True, null=True),
+    )
+
+    class Meta:
+        db_table = 'shop_catalog_product_images'
+        verbose_name = _('Image')
+        verbose_name_plural = _('Images')

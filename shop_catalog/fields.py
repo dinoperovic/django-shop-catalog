@@ -4,6 +4,13 @@ from __future__ import unicode_literals
 from django.db import models
 
 
+try:
+    from south.modelsinspector import add_introspection_rules
+    add_introspection_rules([], ['^shop_catalog\.fields\.NullableCharField$'])
+except ImportError:
+    pass
+
+
 class NullableCharField(models.CharField):
     """
     Nullable CharField.
