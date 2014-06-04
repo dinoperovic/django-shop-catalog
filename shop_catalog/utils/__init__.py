@@ -7,7 +7,9 @@ from django.core.exceptions import ObjectDoesNotExist
 
 
 def slug_num_suffix(slug, queryset, template='{slug}-{num}'):
-    """ Returns next available suffix number in a given queryset. """
+    """
+    Returns next available suffix number in a given queryset.
+    """
     num = 1
     while True:
         try:
@@ -18,4 +20,7 @@ def slug_num_suffix(slug, queryset, template='{slug}-{num}'):
 
 
 def round_2(num):
+    """
+    Returns num forced 2 decimal spaces.
+    """
     return Decimal(num).quantize(Decimal('0.00'))
