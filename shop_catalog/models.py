@@ -193,7 +193,7 @@ class ProductBase(MPTTModel, CatalogModel):
     quantity = models.PositiveIntegerField(
         _('Quantity'), blank=True, null=True,
         help_text=_('Number of products available, if product is unavailable '
-                    '("out of stock") set this to "0". If left empty, product '
+                    '(out of stock) set this to "0". If left empty, product '
                     'will be treated as if it\'s always available.'))
 
     class Meta:

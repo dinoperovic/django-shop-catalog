@@ -89,6 +89,7 @@ class ProductAdmin(
 
     frontend_editable_fields = ()
     readonly_fields = ('date_added', 'last_modified')
+    search_fields = ('upc', 'id')
 
     inlines = (ProductAttributeValueInline, )
 
