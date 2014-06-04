@@ -17,7 +17,9 @@ from mptt.admin import MPTTModelAdmin
 from shop_catalog.models import (
     Category, Brand, Manufacturer, Product, Attribute, ProductAttributeValue,
     AttributeOption)
-from shop_catalog.forms import ProductModelForm, ProductAttributeValueModelForm
+from shop_catalog.forms import (
+    CategoryModelForm, BrandModelForm, ManufacturerModelForm, ProductModelForm,
+    ProductAttributeValueModelForm)
 from shop_catalog.filters import ProductParentListFilter
 from shop_catalog.utils import slug_num_suffix
 from shop_catalog import settings as scs
@@ -59,15 +61,15 @@ class CategoryAdminBase(
 
 
 class CategoryAdmin(CategoryAdminBase):
-    pass
+    form = CategoryModelForm
 
 
 class BrandAdmin(CategoryAdminBase):
-    pass
+    form = BrandModelForm
 
 
 class ManufacturerAdmin(CategoryAdminBase):
-    pass
+    form = ManufacturerModelForm
 
 
 class ProductAttributeValueInline(admin.TabularInline):

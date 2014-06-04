@@ -7,7 +7,7 @@ from django.utils.translation import ugettext_lazy as _
 from hvad.forms import TranslatableModelForm
 
 from shop_catalog.models import (
-    Product, Attribute, ProductAttributeValue)
+    Category, Brand, Manufacturer, Product, Attribute, ProductAttributeValue)
 from shop_catalog.widgets import AttributeValueKindsMapSelect
 
 
@@ -28,6 +28,21 @@ class CatalogModelFormBase(TranslatableModelForm):
             self.fields['active'].help_text = _(
                 'Is this %s active? You can hide it by unchecking this box.' %
                 self.instance.__class__.__name__)
+
+
+class CategoryModelForm(CatalogModelFormBase):
+    class Meta:
+        model = Category
+
+
+class BrandModelForm(CatalogModelFormBase):
+    class Meta:
+        model = Brand
+
+
+class ManufacturerModelForm(CatalogModelFormBase):
+    class Meta:
+        model = Manufacturer
 
 
 class ProductModelForm(CatalogModelFormBase):
