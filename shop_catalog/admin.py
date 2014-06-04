@@ -49,8 +49,8 @@ class CategoryAdminBase(
         )
 
     def get_name(self, obj):
-        names = [x.get_name() for x in obj.get_ancestors(include_self=True)]
-        return ' > '.join(names)
+        dashes = '---' * obj.get_ancestors().count()
+        return '{} {}'.format(dashes, obj.get_name())
     get_name.short_description = _('Name')
 
     def get_slug(self, obj):
@@ -153,7 +153,7 @@ class ProductAdmin(
 
     def get_name(self, obj):
         if obj.is_variant:
-            return '{} > {}'.format(obj.parent.get_name(), obj.get_name())
+            return '--- {}'.format(obj.get_name())
         return obj.get_name()
     get_name.short_description = _('Name')
 
