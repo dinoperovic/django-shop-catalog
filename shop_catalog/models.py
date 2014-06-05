@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
+import json
 from itertools import chain
 from decimal import Decimal
 
@@ -300,6 +301,10 @@ class ProductBase(MPTTModel, CatalogModel):
         if extra_dict:
             data = dict(data.items() + extra_dict.items())
         return data
+
+    @property
+    def as_json(self):
+        return json.dumps(self.as_dict)
 
     def get_attrs(self):
         """
