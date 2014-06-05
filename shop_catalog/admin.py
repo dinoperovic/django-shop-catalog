@@ -117,7 +117,7 @@ class ProductAdmin(
         self.fieldsets += self.get_categorization_fieldset()
         self.fieldsets += (
             (_('Price'), {
-                'fields': ('unit_price', 'discount_percent'),
+                'fields': ('unit_price', 'is_discountable', 'discount_percent'),
             }),
             (None, {
                 'fields': ('quantity', ),

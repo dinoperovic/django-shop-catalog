@@ -46,6 +46,9 @@ class CatalogModel(models.Model):
     def __str__(self):
         return self.get_name()
 
+    def get_absolute_url(self):
+        return None
+
     def get_name(self):
         return str(self.pk)
 
@@ -57,6 +60,9 @@ class CatalogModel(models.Model):
         return dict(
             pk=str(self.pk),
             active=self.active,
+            name=str(self.get_name()),
+            slug=str(self.get_slug()),
+            url=str(self.get_absolute_url()),
             date_added=str(self.date_added),
             last_modified=str(self.last_modified),
         )
@@ -77,13 +83,9 @@ class CategoryBase(MPTTModel, CatalogModel):
     @property
     def as_dict(self):
         parent = str(self.parent_id) if self.parent is not None else None
-
         data = dict(
-            name=str(self.get_name()),
-            slug=str(self.get_slug()),
             parent=parent,
         )
-
         return dict(data.items() + super(CategoryBase, self).as_dict.items())
 
 
@@ -205,6 +207,11 @@ class ProductBase(MPTTModel, CatalogModel):
         help_text=_('If Product is a "variant" and price is "0", unit price '
                     'is inherited from it\'s parent.'))
 
+    is_discountable = models.BooleanField(
+        _('Is discountable?'), default=True,
+        help_text=_('This flag indicates if this product can be used in an '
+                    'offer or not.'))
+
     discount_percent = models.DecimalField(
         _('Discount percent'), blank=True, null=True,
         max_digits=4, decimal_places=2,
@@ -226,18 +233,13 @@ class ProductBase(MPTTModel, CatalogModel):
     def __str__(self):
         return self.get_name()
 
-    def get_absolute_url(self):
-        """
-        Should be overriden to return the cannonical url of a product.
-        """
-        return None
-
     def get_price(self):
         price = self.get_unit_price()
-        discount = self.get_discount_percent()
 
-        if discount:
-            price -= (discount * price) / Decimal('100')
+        if self.is_discounted:
+            discount = self.get_discount_percent()
+            if discount:
+                price -= (discount * price) / Decimal('100')
 
         return round_2(price)
 
@@ -276,9 +278,18 @@ class ProductBase(MPTTModel, CatalogModel):
 
     @property
     def is_discounted(self):
-        if self.is_discount_inherited:
-            return self.parent.is_discounted
-        return not not self.discount_percent
+        # If product is a variant make sure that it's parent is
+        # discountable.
+        if self.is_variant and not self.parent.is_discountable:
+            return False
+
+        if self.is_discountable:
+            if self.is_discount_inherited:
+                return self.parent.is_discounted
+            return not not self.discount_percent
+
+        # If not discountable, return false.
+        return False
 
     @property
     def is_price_inherited(self):
@@ -302,19 +313,17 @@ class ProductBase(MPTTModel, CatalogModel):
         data = dict(
             upc=self.upc,
             parent=parent,
-            name=str(self.get_name()),
-            slug=str(self.get_slug()),
             unit_price=str(self.get_unit_price()),
             price=str(self.get_price()),
             is_price_inherited=self.is_price_inherited,
             quantity=quantity,
             is_available=self.is_available,
+            is_discountable=self.is_discountable,
             is_discounted=self.is_discounted,
             is_discount_inherited=self.is_discount_inherited,
             discount_percent=str(self.get_discount_percent()),
             can_be_added_to_cart=self.can_be_added_to_cart,
             featured_image=featured_image,
-            url=self.get_absolute_url(),
             attrs=self.get_attrs(),
         )
 
@@ -461,18 +470,26 @@ class Product(TranslatableModel, ProductBase):
     def get_featured_image(self):
         return self.featured_image
 
+    def get_extra_dict(self):
+        return self.get_categorization()
+
     def get_categorization(self):
+        """
+        Returns categorization dict, making sure to return a parents
+        categorization if product is a variant.
+        """
         if self.is_variant:
             return self.parent.get_categorization()
 
-        return dict(
-            category=self.category.as_dict,
-            brand=self.brand.as_dict,
-            manufacturer=self.manufacturer.as_dict,
-        )
+        category = self.category.as_dict if self.category else None
+        brand = self.brand.as_dict if self.brand else None
+        manufacturer = self.manufacturer.as_dict if self.manufacturer else None
 
-    def get_extra_dict(self):
-        return self.get_categorization()
+        return dict(
+            category=category,
+            brand=brand,
+            manufacturer=manufacturer,
+        )
 
 
 @python_2_unicode_compatible
