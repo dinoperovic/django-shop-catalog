@@ -85,7 +85,7 @@ class ProductDetailView(ProductDetailViewBase):
     template_name = 'shop/product_detail.html'
 
     def get_queryset(self):
-        return self.model.objects.language().active().top_level()
+        return self.model.objects.language().active()
 
 
 class ProductVariantsJSONView(ShopView):

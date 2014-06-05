@@ -16,7 +16,7 @@ from mptt.admin import MPTTModelAdmin
 
 from shop_catalog.models import (
     Category, Brand, Manufacturer, Product, Attribute, ProductAttributeValue,
-    AttributeOption, ProductImage)
+    AttributeOption)
 from shop_catalog.forms import (
     CategoryModelForm, BrandModelForm, ManufacturerModelForm, ProductModelForm,
     ProductAttributeValueModelForm)
@@ -78,12 +78,6 @@ class ProductAttributeValueInline(admin.TabularInline):
     extra = 0
 
 
-class ProductImageInline(TranslatableTabularInline):
-    model = ProductImage
-    extra = 0
-    readonly_fields = ('date_added', )
-
-
 class ProductAdmin(
         TranslatableAdmin, MPTTModelAdmin, FrontendEditableAdminMixin,
         PlaceholderAdminMixin, admin.ModelAdmin):
@@ -99,7 +93,7 @@ class ProductAdmin(
     readonly_fields = ('date_added', 'last_modified')
     search_fields = ('upc', 'id')
 
-    inlines = (ProductAttributeValueInline, ProductImageInline)
+    inlines = (ProductAttributeValueInline, )
 
     def __init__(self, *args, **kwargs):
         super(ProductAdmin, self).__init__(*args, **kwargs)
@@ -115,6 +109,9 @@ class ProductAdmin(
             }),
             (None, {
                 'fields': ('parent', ),
+            }),
+            (None, {
+                'fields': ('featured_image', ),
             }),
         )
         self.fieldsets += self.get_categorization_fieldset()

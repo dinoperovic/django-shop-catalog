@@ -12,6 +12,7 @@ from django.utils.encoding import python_2_unicode_compatible
 from django.utils.text import slugify
 
 from shop.util.fields import CurrencyField
+from cms.models.fields import PlaceholderField
 from hvad.models import TranslatableModel, TranslatedFields
 from mptt.models import MPTTModel
 from mptt.fields import TreeForeignKey
@@ -202,6 +203,12 @@ class ProductBase(MPTTModel, CatalogModel):
     def __str__(self):
         return self.get_name()
 
+    def get_absolute_url(self):
+        """
+        Should be overriden to return the cannonical url of a product.
+        """
+        return None
+
     def get_price(self):
         price = self.get_unit_price()
         discount = self.get_discount_percent()
@@ -266,7 +273,10 @@ class ProductBase(MPTTModel, CatalogModel):
         parent = str(self.parent_id) if self.is_variant else None
         quantity = str(self.quantity) if self.quantity else None
 
-        return dict(
+        featured_image = self.get_featured_image()
+        featured_image = str(featured_image.url) if featured_image else None
+
+        data = dict(
             pk=str(self.pk),
             upc=self.upc,
             parent=parent,
@@ -281,8 +291,15 @@ class ProductBase(MPTTModel, CatalogModel):
             is_discount_inherited=self.is_discount_inherited,
             discount_percent=str(self.get_discount_percent()),
             can_be_added_to_cart=self.can_be_added_to_cart,
+            featured_image=featured_image,
+            url=self.get_absolute_url(),
             attrs=self.get_attrs(),
         )
+
+        extra_dict = self.get_extra_dict()
+        if extra_dict:
+            data = dict(data.items() + extra_dict.items())
+        return data
 
     def get_attrs(self):
         """
@@ -348,17 +365,19 @@ class ProductBase(MPTTModel, CatalogModel):
         # No variants match the given kwargs, return None.
         return None
 
-    def get_primary_image(self):
+    def get_featured_image(self):
         """
-        Returns a first (primary) image from product images.
-        If product has no images returns None.
+        Returns a featured image for a product.
+        This method should be overriden, by default returns None.
         """
-        images = self.images.select_related().all()
+        return None
 
-        try:
-            return images[0]
-        except IndexError:
-            return None
+    def get_extra_dict(self):
+        """
+        Returns a dict with extra values to be in as_dict property.
+        This method should be overriden, by default returns None.
+        """
+        return None
 
 
 class Product(TranslatableModel, ProductBase):
@@ -368,6 +387,10 @@ class Product(TranslatableModel, ProductBase):
     categorization etc.
     """
     __metaclass__ = classmaker()
+
+    featured_image = models.ImageField(
+        _('Featured image'), upload_to='shop_catalog/',
+        max_length=255, blank=True, null=True)
 
     category = TreeForeignKey(
         Category, blank=True, null=True, related_name='products')
@@ -387,6 +410,11 @@ class Product(TranslatableModel, ProductBase):
             help_text=scs.SLUG_FIELD_HELP_TEXT),
     )
 
+    media = PlaceholderField(
+        'shop_catalog_product_media', related_name='product_media_set')
+    body = PlaceholderField(
+        'shop_catalog_product_body', related_name='product_body_set')
+
     objects = ProductManager()
 
     class Meta:
@@ -402,6 +430,9 @@ class Product(TranslatableModel, ProductBase):
 
     def get_slug(self):
         return self.lazy_translation_getter('slug')
+
+    def get_featured_image(self):
+        return self.featured_image
 
 
 @python_2_unicode_compatible
@@ -586,41 +617,3 @@ class AttributeOption(models.Model):
 
     def __str__(self):
         return self.value
-
-
-@python_2_unicode_compatible
-class ProductImageBase(models.Model):
-    product = models.ForeignKey(
-        Product, related_name='images', verbose_name=_('Product'))
-    position = models.PositiveIntegerField(
-        _('Position'), default=0,
-        help_text=_('If display order is "0" this image will be used as a '
-                    'primary image.'))
-    date_added = models.DateTimeField(_('Date added'), auto_now_add=True)
-
-    class Meta:
-        abstract = True
-        ordering = ('position', )
-        unique_together = ('product', 'position')
-
-    def __str__(self):
-        return '{} {}'.format(_('Image of'), self.product)
-
-    @property
-    def is_primary(self):
-        return self.position == 0
-
-
-class ProductImage(TranslatableModel, ProductImageBase):
-    image = models.ImageField(
-        _('Image'), upload_to='shop_catalog/', max_length=255)
-
-    translations = TranslatedFields(
-        caption=models.CharField(
-            _('Caption'), max_length=200, blank=True, null=True),
-    )
-
-    class Meta:
-        db_table = 'shop_catalog_product_images'
-        verbose_name = _('Image')
-        verbose_name_plural = _('Images')
