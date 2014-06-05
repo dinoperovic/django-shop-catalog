@@ -17,6 +17,7 @@ from cms.models.fields import PlaceholderField
 from hvad.models import TranslatableModel, TranslatedFields
 from mptt.models import MPTTModel
 from mptt.fields import TreeForeignKey
+from filer.fields.image import FilerFileField, FilerImageField
 
 from shop_catalog.fields import NullableCharField
 from shop_catalog.managers import CatalogManager, ProductManager
@@ -51,6 +52,15 @@ class CatalogModel(models.Model):
     def get_slug(self):
         return slugify(self.get_name())
 
+    @property
+    def as_dict(self):
+        return dict(
+            pk=str(self.pk),
+            active=self.active,
+            date_added=str(self.date_added),
+            last_modified=str(self.last_modified),
+        )
+
 
 class CategoryBase(MPTTModel, CatalogModel):
     """
@@ -63,6 +73,18 @@ class CategoryBase(MPTTModel, CatalogModel):
 
     class Meta:
         abstract = True
+
+    @property
+    def as_dict(self):
+        parent = str(self.parent_id) if self.parent is not None else None
+
+        data = dict(
+            name=str(self.get_name()),
+            slug=str(self.get_slug()),
+            parent=parent,
+        )
+
+        return dict(data.items() + super(CategoryBase, self).as_dict.items())
 
 
 class Category(TranslatableModel, CategoryBase):
@@ -278,7 +300,6 @@ class ProductBase(MPTTModel, CatalogModel):
         featured_image = str(featured_image.url) if featured_image else None
 
         data = dict(
-            pk=str(self.pk),
             upc=self.upc,
             parent=parent,
             name=str(self.get_name()),
@@ -300,7 +321,8 @@ class ProductBase(MPTTModel, CatalogModel):
         extra_dict = self.get_extra_dict()
         if extra_dict:
             data = dict(data.items() + extra_dict.items())
-        return data
+
+        return dict(data.items() + super(ProductBase, self).as_dict.items())
 
     @property
     def as_json(self):
@@ -393,9 +415,9 @@ class Product(TranslatableModel, ProductBase):
     """
     __metaclass__ = classmaker()
 
-    featured_image = models.ImageField(
-        _('Featured image'), upload_to='shop_catalog/',
-        max_length=255, blank=True, null=True)
+    featured_image = FilerImageField(
+        blank=True, null=True, related_name='featured_images',
+        verbose_name=_('Featured image'))
 
     category = TreeForeignKey(
         Category, blank=True, null=True, related_name='products')
@@ -438,6 +460,19 @@ class Product(TranslatableModel, ProductBase):
 
     def get_featured_image(self):
         return self.featured_image
+
+    def get_categorization(self):
+        if self.is_variant:
+            return self.parent.get_categorization()
+
+        return dict(
+            category=self.category.as_dict,
+            brand=self.brand.as_dict,
+            manufacturer=self.manufacturer.as_dict,
+        )
+
+    def get_extra_dict(self):
+        return self.get_categorization()
 
 
 @python_2_unicode_compatible
@@ -516,6 +551,7 @@ class Attribute(TranslatableModel):
         """
         If any of 'obj.variants' miss the given attribute means that
         this attribute can be null and returns True.
+
         If all 'obj.variants' have defined this attribute, then it's
         required and returns False.
         """
@@ -553,12 +589,13 @@ class AttributeValueBase(models.Model):
     value_date = models.DateField(_('Date'), blank=True, null=True)
     value_option = models.ForeignKey(
         'AttributeOption', blank=True, null=True, verbose_name=_('Option'))
-    value_file = models.FileField(
-        _('File'), upload_to='shop_catalog/', max_length=255,
-        blank=True, null=True)
-    value_image = models.ImageField(
-        _('Image'), upload_to='shop_catalog/', max_length=255,
-        blank=True, null=True)
+
+    value_file = FilerFileField(
+        blank=True, null=True, related_name='value_files',
+        verbose_name=_('File'))
+    value_image = FilerImageField(
+        blank=True, null=True, related_name='value_images',
+        verbose_name=_('Image'))
 
     class Meta:
         abstract = True
