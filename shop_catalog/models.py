@@ -471,7 +471,19 @@ class Product(TranslatableModel, ProductBase):
         return self.featured_image
 
     def get_extra_dict(self):
-        return self.get_categorization()
+        data = dict(
+            is_media_inherited=self.is_media_inherited,
+            is_body_inherited=self.is_body_inherited,
+        )
+        return dict(data.items() + self.get_categorization().items())
+
+    @property
+    def is_media_inherited(self):
+        return self.is_variant and not self.media.get_plugins().exists()
+
+    @property
+    def is_body_inherited(self):
+        return self.is_variant and not self.body.get_plugins().exists()
 
     def get_categorization(self):
         """
