@@ -85,11 +85,13 @@ class ProductAdmin(
     change_form_template = scs.PRODUCT_CHANGE_FORM_TEMPLATE
 
     list_display = (
-        'get_name', 'get_slug', 'get_unit_price', 'get_discount_percent',
-        'get_price', 'get_product_reference')
+        'get_name', 'get_slug', 'get_product_reference', 'get_unit_price',
+        'get_discount_percent', 'is_discountable', 'get_price', 'get_quantity',
+        'active')
     list_filter = ('date_added', 'last_modified', ProductParentListFilter)
 
     frontend_editable_fields = ()
+    mptt_level_indent = 0
     readonly_fields = ('date_added', 'last_modified')
     search_fields = ('upc', 'id')
 
@@ -182,6 +184,10 @@ class ProductAdmin(
     def get_product_reference(self, obj):
         return obj.get_product_reference()
     get_product_reference.short_description = _('Reference')
+
+    def get_quantity(self, obj):
+        return obj.quantity if obj.quantity is not None else _('~')
+    get_quantity.short_description = _('Quantity')
 
     def add_variant(self, request, pk):
         """
