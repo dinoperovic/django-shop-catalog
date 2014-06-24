@@ -78,16 +78,14 @@ class ProductListView(ShopListView):
     template_name = 'shop/product_list.html'
 
     def get_queryset(self):
-        kwargs = dict(self.request.GET.items())
-
-        # Extract attributes from GET kwargs.
-        attrs = {}
-        attr_codes = [x.code for x in Attribute.objects.all()]
-        for key, value in kwargs.items():
-            if key in attr_codes:
-                attrs[key] = value
-
         queryset = self.model.objects.active().top_level()
+
+        # Extract attributes from GET kwargs for filtering.
+        attr_codes = [x.code for x in Attribute.objects.all()]
+        attrs = dict((key, val) for key, val in self.request.GET.items()
+                     if key in attr_codes)
+
+        # Filter queryset by attributes if there are any.
         return queryset.filter_attrs(**attrs) if any(attrs) else queryset
 
 
