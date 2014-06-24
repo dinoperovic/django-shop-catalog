@@ -87,11 +87,8 @@ class ProductListView(ShopListView):
             if key in attr_codes:
                 attrs[key] = value
 
-        # Filter attributes only if they are any.
         queryset = self.model.objects.active().top_level()
-        if any(attrs):
-            return queryset.filter_attrs(**attrs)
-        return queryset
+        return queryset.filter_attrs(**attrs) if any(attrs) else queryset
 
 
 class ProductDetailView(ProductDetailViewBase):
