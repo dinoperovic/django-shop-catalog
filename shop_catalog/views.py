@@ -8,7 +8,7 @@ from django.http import Http404, HttpResponse
 from shop.views import ShopView, ShopListView, ShopDetailView
 from shop.views.product import ProductDetailView as ProductDetailViewBase
 
-from shop_catalog.models import Category, Brand, Manufacturer, Product
+from shop_catalog.models import Category, Brand, Manufacturer, Product, Attribute
 from shop_catalog.utils.shortcuts import get_by_slug_or_404
 
 
@@ -46,6 +46,7 @@ class CategoryDetailViewBase(ShopDetailView):
         """
         context = {}
 
+        # TODO: Enable filtering objects in categorization.
         if self.object:
             context_object_name = self.get_context_object_name(self.object)
             if hasattr(Product, context_object_name):
@@ -77,7 +78,20 @@ class ProductListView(ShopListView):
     template_name = 'shop/product_list.html'
 
     def get_queryset(self):
-        return self.model.objects.active().top_level()
+        kwargs = dict(self.request.GET.items())
+
+        # Extract attributes from GET kwargs.
+        attrs = {}
+        attr_codes = [x.code for x in Attribute.objects.all()]
+        for key, value in kwargs.items():
+            if key in attr_codes:
+                attrs[key] = value
+
+        # Filter attributes only if they are any.
+        queryset = self.model.objects.active().top_level()
+        if any(attrs):
+            return queryset.filter_attrs(**attrs)
+        return queryset
 
 
 class ProductDetailView(ProductDetailViewBase):

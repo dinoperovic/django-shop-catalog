@@ -46,6 +46,10 @@ class ProductQuerySet(CatalogQuerySet):
     def top_level(self, **kwargs):
         return self.filter(parent_id=None, **kwargs)
 
+    def filter_attrs(self, **kwargs):
+        pks = [x.pk for x in self if x.filter_variants(**kwargs) is not None]
+        return self.filter(pk__in=pks)
+
 
 class ProductTranslationQuerySet(TranslationQueryset, ProductQuerySet):
     pass

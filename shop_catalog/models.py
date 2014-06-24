@@ -256,6 +256,20 @@ class ProductBase(MPTTModel, CatalogModel):
     def get_product_reference(self):
         return self.upc or str(self.pk)
 
+    def get_featured_image(self):
+        """
+        Returns a featured image for a product.
+        This method should be overriden, by default returns None.
+        """
+        return None
+
+    def get_extra_dict(self):
+        """
+        Returns a dict with extra values to be in as_dict property.
+        This method should be overriden, by default returns None.
+        """
+        return None
+
     @property
     def can_be_added_to_cart(self):
         return self.active and not self.is_group
@@ -389,7 +403,7 @@ class ProductBase(MPTTModel, CatalogModel):
             return None
 
         # Cast keys and values to str and filter out empty values.
-        kwargs = [(str(k), str(v)) for k, v in kwargs.iteritems() if v]
+        kwargs = [(str(k), str(v)) for k, v in kwargs.items() if v]
 
         # Loop through variants and compare their attribute values to
         # kwargs. If they match, return that variant.
@@ -401,19 +415,28 @@ class ProductBase(MPTTModel, CatalogModel):
         # No variants match the given kwargs, return None.
         return None
 
-    def get_featured_image(self):
+    def filter_variants(self, **kwargs):
         """
-        Returns a featured image for a product.
-        This method should be overriden, by default returns None.
+        Returns a list of variants filtered (attributes) by the
+        given kwargs.
         """
-        return None
+        if not self.is_group:
+            return None
 
-    def get_extra_dict(self):
-        """
-        Returns a dict with extra values to be in as_dict property.
-        This method should be overriden, by default returns None.
-        """
-        return None
+        variants = []
+
+        # Cast keys and values to str and filter out empty values.
+        kwargs = [(str(k), str(v)) for k, v in kwargs.items() if v]
+
+        # Loop through variants and compare their attribute values
+        # to kwargs. Make sure that all kwargs are a part of attributes.
+        for obj in self.variants.select_related().all():
+            attrs = [(x['code'], x['value']) for x in obj.get_attrs()]
+            if set(kwargs).issubset(attrs):
+                variants.append(obj)
+
+        # Return variants if any.
+        return variants if any(variants) else None
 
 
 class Product(TranslatableModel, ProductBase):
@@ -540,7 +563,7 @@ class Attribute(TranslatableModel):
     template = models.CharField(
         _('Template'), max_length=255, blank=True, null=True,
         choices=scs.ATTRIBUTE_TEMPLATE_CHOICES,
-        help_text=_('You can select a template for rendering this "Attribute" '
+        help_text=_('You can select a template for rendering this attribute '
                     'or leave it empty for the default (dropdown) look.'))
 
     translations = TranslatedFields(
