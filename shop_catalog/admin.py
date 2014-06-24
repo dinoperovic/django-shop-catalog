@@ -119,7 +119,8 @@ class ProductAdmin(
         self.fieldsets += self.get_categorization_fieldset()
         self.fieldsets += (
             (_('Price'), {
-                'fields': ('unit_price', 'is_discountable', 'discount_percent'),
+                'fields': (
+                    'unit_price', 'is_discountable', 'discount_percent'),
             }),
             (None, {
                 'fields': ('quantity', ),
@@ -156,7 +157,11 @@ class ProductAdmin(
             fields += 'manufacturer',
 
         if fields:
-            return (_('Categorization'), {'fields': fields}),
+            return (_('Categorization'), {
+                'fields': fields,
+                'description': _('If product is a variant, categorization '
+                                 'will be inherited from it\'s parent and is '
+                                 'not necessary to specify it again.')}),
         return ()
 
     def get_name(self, obj):
