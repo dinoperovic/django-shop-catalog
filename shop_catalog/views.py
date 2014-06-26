@@ -21,17 +21,17 @@ class CategoryListViewBase(ShopListView):
 
 class CategoryListView(CategoryListViewBase):
     model = Category
-    template_name = 'shop/category_list.html'
+    template_name = 'shop_catalog/category_list.html'
 
 
 class BrandListView(CategoryListViewBase):
     model = Brand
-    template_name = 'shop/brand_list.html'
+    template_name = 'shop_catalog/brand_list.html'
 
 
 class ManufacturerListView(CategoryListViewBase):
     model = Manufacturer
-    template_name = 'shop/manufacturer_list.html'
+    template_name = 'shop_catalog/manufacturer_list.html'
 
 
 class CategoryDetailViewBase(ShopDetailView):
@@ -60,22 +60,22 @@ class CategoryDetailViewBase(ShopDetailView):
 
 class CategoryDetailView(CategoryDetailViewBase):
     model = Category
-    template_name = 'shop/category_detail.html'
+    template_name = 'shop_catalog/category_detail.html'
 
 
 class BrandDetailView(CategoryDetailViewBase):
     model = Brand
-    template_name = 'shop/brand_detail.html'
+    template_name = 'shop_catalog/brand_detail.html'
 
 
 class ManufacturerDetailView(CategoryDetailViewBase):
     model = Manufacturer
-    template_name = 'shop/manufacturer_detail.html'
+    template_name = 'shop_catalog/manufacturer_detail.html'
 
 
 class ProductListView(ShopListView):
     model = Product
-    template_name = 'shop/product_list.html'
+    template_name = 'shop_catalog/product_list.html'
 
     def get_queryset(self):
         queryset = self.model.objects.active().top_level()
@@ -91,7 +91,7 @@ class ProductListView(ShopListView):
 
 class ProductDetailView(ProductDetailViewBase):
     model = Product
-    template_name = 'shop/product_detail.html'
+    template_name = 'shop_catalog/product_detail.html'
 
     def get_queryset(self):
         return self.model.objects.language().active()
