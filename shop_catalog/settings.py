@@ -12,7 +12,10 @@ SLUG_FIELD_HELP_TEXT = _(
 PRODUCT_CHANGE_FORM_TEMPLATE = (
     'admin/shop_catalog/product_change_form.html')
 
-ATTRIBUTE_TEMPLATE_CHOICES = ()
+ATTRIBUTE_TEMPLATE_CHOICES = getattr(
+    settings, 'SHOP_CATALOG_ATTRIBUTE_TEMPLATE_CHOICES', (
+        ('radio', _('Radio')),
+    ))
 
 HAS_CATEGORIES = getattr(settings, 'SHOP_CATALOG_HAS_CATEGORIES', True)
 HAS_BRANDS = getattr(settings, 'SHOP_CATALOG_HAS_BRANDS', True)
