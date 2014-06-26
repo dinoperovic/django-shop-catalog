@@ -86,8 +86,8 @@ class ProductAdmin(
 
     list_display = (
         'get_name', 'get_slug', 'get_product_reference', 'get_unit_price',
-        'get_discount_percent', 'is_discountable', 'get_price', 'get_quantity',
-        'active')
+        'get_discount_percent', 'get_is_discounted', 'get_price',
+        'get_quantity', 'active')
     list_filter = ('date_added', 'last_modified', ProductParentListFilter)
 
     frontend_editable_fields = ()
@@ -181,6 +181,11 @@ class ProductAdmin(
     def get_discount_percent(self, obj):
         return '{}%'.format(obj.get_discount_percent())
     get_discount_percent.short_description = _('Discount percent')
+
+    def get_is_discounted(self, obj):
+        return obj.is_discounted
+    get_is_discounted.boolean = True
+    get_is_discounted.short_description = _('Is discounted?')
 
     def get_price(self, obj):
         return obj.get_price()

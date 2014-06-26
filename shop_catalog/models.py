@@ -111,7 +111,7 @@ class Category(TranslatableModel, CategoryBase):
         verbose_name_plural = _('Categories')
 
     def get_absolute_url(self):
-        return reverse('category_detail', args=[self.get_slug()])
+        return reverse('catalog_category_detail', args=[self.get_slug()])
 
     def get_name(self):
         return self.lazy_translation_getter('name')
@@ -142,7 +142,7 @@ class Brand(TranslatableModel, CategoryBase):
         verbose_name_plural = _('Brands')
 
     def get_absolute_url(self):
-        return reverse('brand_detail', args=[self.get_slug()])
+        return reverse('catalog_brand_detail', args=[self.get_slug()])
 
     def get_name(self):
         return self.lazy_translation_getter('name')
@@ -173,7 +173,7 @@ class Manufacturer(TranslatableModel, CategoryBase):
         verbose_name_plural = _('Manufacturers')
 
     def get_absolute_url(self):
-        return reverse('manufacturer_detail', args=[self.get_slug()])
+        return reverse('catalog_manufacturer_detail', args=[self.get_slug()])
 
     def get_name(self):
         return self.lazy_translation_getter('name')
@@ -482,7 +482,7 @@ class Product(TranslatableModel, ProductBase):
         verbose_name_plural = _('Products')
 
     def get_absolute_url(self):
-        return reverse('product_detail', args=[self.get_slug()])
+        return reverse('catalog_product_detail', args=[self.get_slug()])
 
     def get_name(self):
         return self.lazy_translation_getter('name')
