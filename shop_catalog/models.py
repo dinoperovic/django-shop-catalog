@@ -292,18 +292,9 @@ class ProductBase(MPTTModel, CatalogModel):
 
     @property
     def is_discounted(self):
-        # If product is a variant make sure that it's parent is
-        # discountable.
-        if self.is_variant and not self.parent.is_discountable:
-            return False
-
-        if self.is_discountable:
-            if self.is_discount_inherited:
-                return self.parent.is_discounted
-            return not not self.discount_percent
-
-        # If not discountable, return false.
-        return False
+        if self.is_discount_inherited:
+            return self.parent.is_discounted
+        return not not self.discount_percent
 
     @property
     def is_price_inherited(self):
