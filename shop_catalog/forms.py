@@ -7,7 +7,8 @@ from django.utils.translation import ugettext_lazy as _
 from hvad.forms import TranslatableModelForm
 
 from shop_catalog.models import (
-    Category, Brand, Manufacturer, Product, Attribute, ProductAttributeValue)
+    Category, Brand, Manufacturer, Product, Attribute, ProductAttributeValue,
+    ProductMeasurement)
 from shop_catalog.widgets import AttributeValueKindsMapSelect
 
 

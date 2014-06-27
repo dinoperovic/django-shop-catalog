@@ -8,7 +8,6 @@ from decimal import Decimal
 from django.db import models
 from django.core.validators import MinValueValidator
 from django.core.urlresolvers import reverse
-from django.contrib.gis.measure import D
 from django.utils.translation import ugettext_lazy as _
 from django.utils.encoding import python_2_unicode_compatible
 from django.utils.text import slugify
@@ -19,6 +18,8 @@ from hvad.models import TranslatableModel, TranslatedFields
 from mptt.models import MPTTModel
 from mptt.fields import TreeForeignKey
 from filer.fields.image import FilerFileField, FilerImageField
+from measurement.measures import Distance, Weight
+from measurement.base import MeasureBase
 
 from shop_catalog.fields import NullableCharField
 from shop_catalog.managers import CatalogManager, ProductManager
@@ -486,6 +487,8 @@ class Product(TranslatableModel, ProductBase):
         return self.featured_image
 
     def get_extra_dict(self):
+        measurements = self.get_measurements()
+
         data = dict(
             is_media_inherited=self.is_media_inherited,
             is_body_inherited=self.is_body_inherited,
@@ -517,6 +520,20 @@ class Product(TranslatableModel, ProductBase):
             brand=brand,
             manufacturer=manufacturer,
         )
+
+    def get_measurements(self):
+        """
+        Check if measure is inherited and returns correct list of
+        product measurements.
+        """
+        measurements = self.measurements.select_related().all()
+
+        if self.is_variant:
+            kinds = measurements.values_list('kind', flat=True)
+            parent_mesurements = self.parent.measurements.select_related()
+            parent_mesurements = parent_mesurements.exclude(kind__in=kinds)
+            measurements = chain(measurements, parent_mesurements)
+        return list(measurements)
 
 
 @python_2_unicode_compatible
@@ -706,8 +723,21 @@ class AttributeOption(models.Model):
         return self.value
 
 
+def get_measure_alias(measure):
+    """
+    Adds prefixes to SI aliases and returns them in a dict.
+    """
+    SI_ALIAS = {}
+    for unit in measure.SI_UNITS:
+        alias = dict((v, k) for k, v in measure.ALIAS.items())[unit]
+        for prefix_alias, prefix_unit in MeasureBase.SI_PREFIXES.items():
+            SI_ALIAS['{}{}'.format(prefix_alias, alias)] = '{}{}'.\
+                format(prefix_unit, unit)
+    return dict(measure.ALIAS.items() + SI_ALIAS.items())
+
+
 @python_2_unicode_compatible
-class MeasureBase(models.Model):
+class MeasurementBase(models.Model):
     KIND_WIDTH = 'width'
     KIND_HEIGHT = 'height'
     KIND_DEPTH = 'depth'
@@ -718,34 +748,51 @@ class MeasureBase(models.Model):
         (KIND_DEPTH, _('Depth')),
         (KIND_WEIGHT, _('Weight')),
     )
-    UNIT_CHOICES = tuple((v, k.capitalize()) for k, v in D.ALIAS.items())
+
+    aliases = [get_measure_alias(Distance), get_measure_alias(Weight)]
+    UNIT_CHOICES = tuple(
+        (v, k.capitalize()) for x in aliases for k, v in x.items())
 
     kind = models.CharField(
-        _('Measure'), max_length=20,
+        _('Kind'), max_length=20,
         choices=KIND_CHOICES, default=KIND_CHOICES[0][0])
     value = models.DecimalField(
         _('Value'), max_digits=10, decimal_places=3)
     unit = models.CharField(
         _('Unit'), max_length=20,
-        choices=UNIT_CHOICES, default=D.STANDARD_UNIT)
+        choices=UNIT_CHOICES, default=UNIT_CHOICES[0][0])
 
     class Meta:
         abstract = True
 
     def __str__(self):
-        return self.distance
+        return self.distance or self.weight
 
     @property
     def distance(self):
-        return D(**{self.unit: self.value})
+        if self.unit in get_measure_alias(Distance).values():
+            return Distance(**{self.unit: self.value})
+        return None
+
+    @property
+    def weight(self):
+        if self.unit in get_measure_alias(Weight).values():
+            return Weight(**{self.unit: self.value})
+        return None
+
+    @property
+    def as_dict(self):
+        return dict(
+
+        )
 
 
-class ProductMeasure(MeasureBase):
+class ProductMeasurement(MeasurementBase):
     product = models.ForeignKey(
-        Product, related_name='measures', verbose_name=_('Product'))
+        Product, related_name='measurements', verbose_name=_('Product'))
 
     class Meta:
-        db_table = 'shop_catalog_product_measures'
-        verbose_name = _('Measure')
-        verbose_name_plural = _('Measures')
+        db_table = 'shop_catalog_product_measurements'
+        verbose_name = _('Measurement')
+        verbose_name_plural = _('Measurements')
         unique_together = ('product', 'kind')

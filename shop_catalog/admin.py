@@ -16,7 +16,7 @@ from mptt.admin import MPTTModelAdmin
 
 from shop_catalog.models import (
     Category, Brand, Manufacturer, Product, Attribute, ProductAttributeValue,
-    AttributeOption, ProductMeasure)
+    AttributeOption, ProductMeasurement)
 from shop_catalog.forms import (
     CategoryModelForm, BrandModelForm, ManufacturerModelForm, ProductModelForm,
     ProductAttributeValueModelForm)
@@ -79,10 +79,10 @@ class ProductAttributeValueInline(admin.TabularInline):
     max_num = Attribute.objects.count()
 
 
-class ProductMeasureInline(admin.TabularInline):
-    model = ProductMeasure
+class ProductMeasurementInline(admin.TabularInline):
+    model = ProductMeasurement
     extra = 0
-    max_num = len(ProductMeasure.KIND_CHOICES)
+    max_num = len(ProductMeasurement.KIND_CHOICES)
 
 
 class ProductAdmin(
@@ -102,7 +102,7 @@ class ProductAdmin(
     readonly_fields = ('date_added', 'last_modified')
     search_fields = ('upc', 'id')
 
-    inlines = (ProductMeasureInline, ProductAttributeValueInline)
+    inlines = (ProductMeasurementInline, ProductAttributeValueInline)
 
     def __init__(self, *args, **kwargs):
         super(ProductAdmin, self).__init__(*args, **kwargs)

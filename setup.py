@@ -26,6 +26,7 @@ setup(
         'django-filer==0.9.5',
         'django-mptt>=0.6.0',
         'django-hvad>=0.4.0',
+        'measurement>=1.7.2',
     ),
     include_package_data=True,
     zip_safe=False,
