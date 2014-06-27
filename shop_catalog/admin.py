@@ -11,12 +11,12 @@ from django.utils.translation import ugettext_lazy as _
 
 from cms.admin.placeholderadmin import (
     PlaceholderAdminMixin, FrontendEditableAdminMixin)
-from hvad.admin import TranslatableAdmin, TranslatableTabularInline
+from hvad.admin import TranslatableAdmin
 from mptt.admin import MPTTModelAdmin
 
 from shop_catalog.models import (
     Category, Brand, Manufacturer, Product, Attribute, ProductAttributeValue,
-    AttributeOption)
+    AttributeOption, ProductMeasure)
 from shop_catalog.forms import (
     CategoryModelForm, BrandModelForm, ManufacturerModelForm, ProductModelForm,
     ProductAttributeValueModelForm)
@@ -76,6 +76,13 @@ class ProductAttributeValueInline(admin.TabularInline):
     model = ProductAttributeValue
     form = ProductAttributeValueModelForm
     extra = 0
+    max_num = Attribute.objects.count()
+
+
+class ProductMeasureInline(admin.TabularInline):
+    model = ProductMeasure
+    extra = 0
+    max_num = len(ProductMeasure.KIND_CHOICES)
 
 
 class ProductAdmin(
@@ -95,7 +102,7 @@ class ProductAdmin(
     readonly_fields = ('date_added', 'last_modified')
     search_fields = ('upc', 'id')
 
-    inlines = (ProductAttributeValueInline, )
+    inlines = (ProductMeasureInline, ProductAttributeValueInline)
 
     def __init__(self, *args, **kwargs):
         super(ProductAdmin, self).__init__(*args, **kwargs)

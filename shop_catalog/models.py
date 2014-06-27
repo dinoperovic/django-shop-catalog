@@ -8,6 +8,7 @@ from decimal import Decimal
 from django.db import models
 from django.core.validators import MinValueValidator
 from django.core.urlresolvers import reverse
+from django.contrib.gis.measure import D
 from django.utils.translation import ugettext_lazy as _
 from django.utils.encoding import python_2_unicode_compatible
 from django.utils.text import slugify
@@ -615,6 +616,7 @@ class Attribute(TranslatableModel):
             return None
 
 
+@python_2_unicode_compatible
 class AttributeValueBase(models.Model):
     """
     Attribute Value base model.
@@ -702,3 +704,48 @@ class AttributeOption(models.Model):
 
     def __str__(self):
         return self.value
+
+
+@python_2_unicode_compatible
+class MeasureBase(models.Model):
+    KIND_WIDTH = 'width'
+    KIND_HEIGHT = 'height'
+    KIND_DEPTH = 'depth'
+    KIND_WEIGHT = 'weight'
+    KIND_CHOICES = (
+        (KIND_WIDTH, _('Width')),
+        (KIND_HEIGHT, _('Height')),
+        (KIND_DEPTH, _('Depth')),
+        (KIND_WEIGHT, _('Weight')),
+    )
+    UNIT_CHOICES = tuple((v, k.capitalize()) for k, v in D.ALIAS.items())
+
+    kind = models.CharField(
+        _('Measure'), max_length=20,
+        choices=KIND_CHOICES, default=KIND_CHOICES[0][0])
+    value = models.DecimalField(
+        _('Value'), max_digits=10, decimal_places=3)
+    unit = models.CharField(
+        _('Unit'), max_length=20,
+        choices=UNIT_CHOICES, default=D.STANDARD_UNIT)
+
+    class Meta:
+        abstract = True
+
+    def __str__(self):
+        return self.distance
+
+    @property
+    def distance(self):
+        return D(**{self.unit: self.value})
+
+
+class ProductMeasure(MeasureBase):
+    product = models.ForeignKey(
+        Product, related_name='measures', verbose_name=_('Product'))
+
+    class Meta:
+        db_table = 'shop_catalog_product_measures'
+        verbose_name = _('Measure')
+        verbose_name_plural = _('Measures')
+        unique_together = ('product', 'kind')
