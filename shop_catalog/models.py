@@ -70,7 +70,55 @@ class CatalogModel(models.Model):
         )
 
 
-class CategoryBase(MPTTModel, CatalogModel):
+class Modifier(TranslatableModel, CatalogModel):
+    """
+    Modifier model.
+    Defines different amounts to be applied to a product or a category.
+    """
+    amount = CurrencyField(
+        verbose_name=_('Amount'),
+        help_text=_('Absolute amount that should be applied. '
+                    'Can be negative.'))
+
+    percent = models.DecimalField(
+        _('Percent'), blank=True, null=True,
+        max_digits=4, decimal_places=2,
+        help_text=_('If percent is set, it will override the absolute '
+                    'amount. Can be negative.'))
+
+    translations = TranslatedFields(
+        name=models.CharField(_('Name'), max_length=128),
+    )
+
+    objects = CatalogManager()
+
+    class Meta:
+        db_table = 'shop_catalog_modifiers'
+        verbose_name = _('Modifier')
+        verbose_name_plural = _('Modifiers')
+
+    def get_name(self):
+        return self.lazy_translation_getter('name')
+
+    def calculate_price(self, current_total):
+        if self.percent:
+            return (self.percent / 100) * current_total
+        return current_total + self.amount
+
+
+class ModifierModel(models.Model):
+    modifiers = models.ManyToManyField(
+        Modifier, blank=True, null=True, verbose_name=_('Modifiers'))
+
+    class Meta:
+        abstract = True
+
+    def get_modifiers(self):
+        # TODO: Fetch all modifiers from categorization.
+        return self.modifiers.select_related().all()
+
+
+class CategoryBase(MPTTModel, CatalogModel, ModifierModel):
     """
     Category base model.
     Base model for categorization, uses django-mptt for it's tree
@@ -432,7 +480,7 @@ class ProductBase(MPTTModel, CatalogModel):
         return variants if any(variants) else None
 
 
-class Product(TranslatableModel, ProductBase):
+class Product(TranslatableModel, ProductBase, ModifierModel):
     """
     Product model.
     Inherits from ProductBase and adds more specific fields like

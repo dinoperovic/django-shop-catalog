@@ -15,14 +15,39 @@ from hvad.admin import TranslatableAdmin, TranslatableTabularInline
 from mptt.admin import MPTTModelAdmin
 
 from shop_catalog.models import (
-    Category, Brand, Manufacturer, Product, Attribute, ProductAttributeValue,
-    AttributeOption, ProductMeasurement)
+    Modifier, Category, Brand, Manufacturer, Product, Attribute,
+    ProductAttributeValue, AttributeOption, ProductMeasurement)
+
 from shop_catalog.forms import (
-    CategoryModelForm, BrandModelForm, ManufacturerModelForm, ProductModelForm,
-    ProductAttributeValueModelForm)
+    ModifierModelForm, CategoryModelForm, BrandModelForm,
+    ManufacturerModelForm, ProductModelForm, ProductAttributeValueModelForm)
+
 from shop_catalog.filters import ProductParentListFilter
 from shop_catalog.utils import slug_num_suffix
 from shop_catalog import settings as scs
+
+
+class ModifierAdmin(TranslatableAdmin):
+    form = ModifierModelForm
+    list_display = ('get_name', 'amount', 'percent')
+    list_filter = ('date_added', 'last_modified')
+
+    readonly_fields = ('date_added', 'last_modified')
+
+    def __init__(self, *args, **kwargs):
+        super(ModifierAdmin, self).__init__(*args, **kwargs)
+        self.fieldsets = (
+            (None, {
+                'fields': ('name', 'amount', 'percent'),
+            }),
+            (None, {
+                'fields': ('active', 'date_added', 'last_modified'),
+            }),
+        )
+
+    def get_name(self, obj):
+        return obj.get_name()
+    get_name.short_description = _('Name')
 
 
 class CategoryAdminBase(
@@ -47,6 +72,9 @@ class CategoryAdminBase(
             }),
             (None, {
                 'fields': ('parent', ),
+            }),
+            (None, {
+                'fields': ('modifiers', ),
             }),
         )
 
@@ -131,6 +159,9 @@ class ProductAdmin(
             }),
             (None, {
                 'fields': ('quantity', ),
+            }),
+            (None, {
+                'fields': ('modifiers', ),
             }),
         )
 
@@ -248,5 +279,6 @@ if scs.HAS_BRANDS:
 if scs.HAS_MANUFACTURERS:
     admin.site.register(Manufacturer, ManufacturerAdmin)
 
+admin.site.register(Modifier, ModifierAdmin)
 admin.site.register(Attribute, AttributeAdmin)
 admin.site.register(Product, ProductAdmin)
