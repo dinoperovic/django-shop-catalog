@@ -745,7 +745,8 @@ def get_measure_alias(measure):
     # Only return keys that are specified in MEASUREMENT_UNITS setting.
     if scs.MEASUREMENT_UNITS:
         for key, value in aliases.copy().items():
-            if value not in scs.MEASUREMENT_UNITS:
+            if (value not in scs.MEASUREMENT_UNITS and
+                    value != measure.STANDARD_UNIT):
                 del aliases[key]
     return aliases
 
