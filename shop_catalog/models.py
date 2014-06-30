@@ -745,6 +745,10 @@ def get_measure_alias(measure):
 
 @python_2_unicode_compatible
 class MeasurementBase(models.Model):
+    """
+    Measurement base model.
+    A base model used for setting measurements to objects.
+    """
     KIND_WIDTH = 'width'
     KIND_HEIGHT = 'height'
     KIND_DEPTH = 'depth'
@@ -810,6 +814,10 @@ class MeasurementBase(models.Model):
 
 
 class ProductMeasurement(MeasurementBase):
+    """
+    Product measurement model.
+    Through model for product measurements.
+    """
     product = models.ForeignKey(
         Product, related_name='measurements', verbose_name=_('Product'))
 

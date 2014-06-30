@@ -71,6 +71,13 @@ This value is a number of product units currently available to buy.
 It can be left empty in which case, a product will be treated as if it's
 always available. If a product is out of stock, set quantity value to 0.
 
+Measurements
+------------
+You can add this fields to define product measurements. When product is
+a variant, parents values are inherited but can be overidden. In a case
+when variant has defined a measurement for eg. 'width' but it's parent
+doesn't have that value set, value will be ignored.
+
 Attributes
 ----------
 This fields should only be used when a product is a variant to specify

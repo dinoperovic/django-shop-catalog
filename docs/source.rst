@@ -25,6 +25,10 @@ Models
     :members:
 .. autoclass:: shop_catalog.models.AttributeOption
     :members:
+.. autoclass:: shop_catalog.models.MeasurementBase
+    :members:
+.. autoclass:: shop_catalog.models.ProductMeasurement
+    :members:
 
 Admin
 #####
