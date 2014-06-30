@@ -115,7 +115,7 @@ class ModifierModel(models.Model):
 
     def get_modifiers(self):
         # TODO: Fetch all modifiers from categorization.
-        return self.modifiers.select_related().all()
+        return self.modifiers.select_related().active()
 
 
 class CategoryBase(MPTTModel, CatalogModel, ModifierModel):
