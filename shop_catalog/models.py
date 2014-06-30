@@ -2,7 +2,7 @@
 from __future__ import unicode_literals
 
 import json
-from itertools import chain, groupby
+from itertools import chain
 from decimal import Decimal
 
 from django.db import models
