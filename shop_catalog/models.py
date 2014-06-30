@@ -487,11 +487,11 @@ class Product(TranslatableModel, ProductBase):
         return self.featured_image
 
     def get_extra_dict(self):
-        measurements = self.get_measurements()
 
         data = dict(
             is_media_inherited=self.is_media_inherited,
             is_body_inherited=self.is_body_inherited,
+            measurements=self.get_measurements(),
         )
         return dict(data.items() + self.get_categorization().items())
 
@@ -523,7 +523,7 @@ class Product(TranslatableModel, ProductBase):
 
     def get_measurements(self):
         """
-        Check if measure is inherited and returns correct list of
+        Check if measure is inherited and returns correct dict of all
         product measurements.
         """
         measurements = self.measurements.select_related().all()
@@ -532,8 +532,15 @@ class Product(TranslatableModel, ProductBase):
             kinds = measurements.values_list('kind', flat=True)
             parent_mesurements = self.parent.measurements.select_related()
             parent_mesurements = parent_mesurements.exclude(kind__in=kinds)
-            measurements = chain(measurements, parent_mesurements)
-        return list(measurements)
+            measurements = measurements | parent_mesurements
+
+        measurements_dict = {}
+        for kind in dict(MeasurementBase.KIND_CHOICES).keys():
+            try:
+                measurements_dict[kind] = measurements.get(kind=kind).as_dict
+            except ProductMeasurement.DoesNotExist:
+                measurements_dict[kind] = None
+        return measurements_dict
 
 
 @python_2_unicode_compatible
@@ -760,13 +767,13 @@ class MeasurementBase(models.Model):
         _('Value'), max_digits=10, decimal_places=3)
     unit = models.CharField(
         _('Unit'), max_length=20,
-        choices=UNIT_CHOICES, default=UNIT_CHOICES[0][0])
+        choices=UNIT_CHOICES, default=Distance.STANDARD_UNIT)
 
     class Meta:
         abstract = True
 
     def __str__(self):
-        return self.distance or self.weight
+        return '{}'.format(self.distance or self.weight)
 
     @property
     def distance(self):
@@ -782,9 +789,15 @@ class MeasurementBase(models.Model):
 
     @property
     def as_dict(self):
-        return dict(
+        values = []
+        measure = self.distance or self.weight
 
-        )
+        if measure:
+            for unit in get_measure_alias(measure).values():
+                values.append((unit, getattr(measure, unit, None)))
+
+        # Cast all values to strings, remove null's and return the dict.
+        return dict([(x[0], str(x[1])) for x in values if x[1] is not None])
 
 
 class ProductMeasurement(MeasurementBase):
