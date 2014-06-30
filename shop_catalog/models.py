@@ -793,6 +793,15 @@ class MeasurementBase(models.Model):
         measure = self.distance or self.weight
 
         if measure:
+            # Add standard and original units to dict.
+            values.append(('standard_unit', measure.STANDARD_UNIT))
+            values.append(('standard_value',
+                           getattr(measure, measure.STANDARD_UNIT, None)))
+            values.append(('original_unit', self.unit))
+            values.append(('original_value',
+                           getattr(measure, self.unit, None)))
+
+            # Add all values to dict.
             for unit in get_measure_alias(measure).values():
                 values.append((unit, getattr(measure, unit, None)))
 
