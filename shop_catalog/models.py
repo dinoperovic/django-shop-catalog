@@ -2,7 +2,7 @@
 from __future__ import unicode_literals
 
 import json
-from itertools import chain
+from itertools import chain, groupby
 from decimal import Decimal
 
 from django.db import models
@@ -740,7 +740,14 @@ def get_measure_alias(measure):
         for prefix_alias, prefix_unit in MeasureBase.SI_PREFIXES.items():
             SI_ALIAS['{}{}'.format(prefix_alias, alias)] = '{}{}'.\
                 format(prefix_unit, unit)
-    return dict(measure.ALIAS.items() + SI_ALIAS.items())
+    aliases = dict(measure.ALIAS.items() + SI_ALIAS.items())
+
+    # Only return keys that are specified in MEASUREMENT_UNITS setting.
+    if scs.MEASUREMENT_UNITS:
+        for key, value in aliases.copy().items():
+            if value not in scs.MEASUREMENT_UNITS:
+                del aliases[key]
+    return aliases
 
 
 @python_2_unicode_compatible
