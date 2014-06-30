@@ -44,8 +44,8 @@ Main image for this product.
 
 Categorization
 --------------
-Thease are optional fields for categorizing a product. There are separeted
-into **Category**, **Brand** and **Manufacturer**.
+Thease are optional fields for categorizing a product. There are
+separeted into **Category**, **Brand** and **Manufacturer**.
 
 Unit price
 ----------

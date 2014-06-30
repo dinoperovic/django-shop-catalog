@@ -8,7 +8,8 @@ from django.http import Http404, HttpResponse
 from shop.views import ShopView, ShopListView, ShopDetailView
 from shop.views.product import ProductDetailView as ProductDetailViewBase
 
-from shop_catalog.models import Category, Brand, Manufacturer, Product, Attribute
+from shop_catalog.models import (
+    Category, Brand, Manufacturer, Product, Attribute)
 from shop_catalog.utils.shortcuts import get_by_slug_or_404
 
 
