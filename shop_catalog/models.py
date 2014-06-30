@@ -677,7 +677,7 @@ class AttributeValueBase(models.Model):
         value = getattr(self, 'value_%s' % self.attribute.kind, None)
 
         if self.attribute.is_option:
-            value = value.value
+            value = value.get_value()
         elif self.attribute.is_file:
             value = value.url if value else None
         return value
@@ -712,14 +712,17 @@ class ProductAttributeValue(AttributeValueBase):
 
 
 @python_2_unicode_compatible
-class AttributeOption(models.Model):
+class AttributeOption(TranslatableModel):
     """
     Attribute Option model.
     Option values for Attribute used when kind is Attribute.KIND_OPTION.
     """
     attribute = models.ForeignKey(
         Attribute, related_name='options', verbose_name=_('Attribute'))
-    value = models.CharField(_('Value'), max_length=128)
+
+    translations = TranslatedFields(
+        value=models.CharField(_('Value'), max_length=128),
+    )
 
     class Meta:
         db_table = 'shop_catalog_attribute_options'
@@ -727,7 +730,10 @@ class AttributeOption(models.Model):
         verbose_name_plural = _('Options')
 
     def __str__(self):
-        return self.value
+        return self.get_value()
+
+    def get_value(self):
+        return self.lazy_translation_getter('value')
 
 
 def get_measure_alias(measure):

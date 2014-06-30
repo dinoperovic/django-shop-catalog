@@ -11,7 +11,7 @@ from django.utils.translation import ugettext_lazy as _
 
 from cms.admin.placeholderadmin import (
     PlaceholderAdminMixin, FrontendEditableAdminMixin)
-from hvad.admin import TranslatableAdmin
+from hvad.admin import TranslatableAdmin, TranslatableTabularInline
 from mptt.admin import MPTTModelAdmin
 
 from shop_catalog.models import (
@@ -28,7 +28,7 @@ from shop_catalog import settings as scs
 class CategoryAdminBase(
         TranslatableAdmin, MPTTModelAdmin, FrontendEditableAdminMixin,
         PlaceholderAdminMixin, admin.ModelAdmin):
-    list_display = ('get_name', 'get_slug')
+    list_display = ('get_name', 'get_slug', 'all_translations')
     list_filter = ('date_added', 'last_modified', 'parent')
 
     frontend_editable_fields = ()
@@ -94,7 +94,7 @@ class ProductAdmin(
     list_display = (
         'get_name', 'get_slug', 'get_product_reference', 'get_unit_price',
         'get_discount_percent', 'get_price', 'get_quantity', 'is_discountable',
-        'active')
+        'active', 'all_translations')
     list_filter = ('date_added', 'last_modified', ProductParentListFilter)
 
     frontend_editable_fields = ()
@@ -220,13 +220,13 @@ class ProductAdmin(
             reverse('admin:shop_catalog_product_add'), urlencode(data)))
 
 
-class AttributeOptionInline(admin.TabularInline):
+class AttributeOptionInline(TranslatableTabularInline):
     model = AttributeOption
     extra = 0
 
 
 class AttributeAdmin(TranslatableAdmin):
-    list_display = ('get_name', 'code', 'kind')
+    list_display = ('get_name', 'code', 'kind', 'all_translations')
     list_filter = ('kind', )
 
     inlines = (AttributeOptionInline, )
