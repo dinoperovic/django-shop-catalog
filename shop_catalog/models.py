@@ -162,6 +162,19 @@ class Modifier(TranslatableModel, CatalogModel):
         return cls.objects.active(kind=cls.KIND_CART_MODIFIER)
 
 
+class ModifierModel(models.Model):
+    modifiers = models.ManyToManyField(
+        Modifier, blank=True, null=True, verbose_name=_('Modifiers'),
+        limit_choices_to=~Q(kind=Modifier.KIND_CART_MODIFIER))
+
+    class Meta:
+        abstract = True
+
+    def get_modifiers(self):
+        # TODO: Fetch all modifiers from categorization.
+        return self.modifiers.select_related().active()
+
+
 def get_modifier_condition_choices():
     choices = ()
     for path in scs.MODIFIER_CONDITIONS:
@@ -207,19 +220,6 @@ class ModifierCondition(models.Model):
         except ImportError:
             pass
         return True
-
-
-class ModifierModel(models.Model):
-    modifiers = models.ManyToManyField(
-        Modifier, blank=True, null=True, verbose_name=_('Modifiers'),
-        limit_choices_to=~Q(kind=Modifier.KIND_CART_MODIFIER))
-
-    class Meta:
-        abstract = True
-
-    def get_modifiers(self):
-        # TODO: Fetch all modifiers from categorization.
-        return self.modifiers.select_related().active()
 
 
 class CategoryBase(MPTTModel, CatalogModel, ModifierModel):
