@@ -100,10 +100,14 @@ class Modifier(TranslatableModel, CatalogModel):
     def get_name(self):
         return self.lazy_translation_getter('name')
 
-    def calculate_price(self, current_total):
+    def get_extra_cart_item_price_field(self, cart_item, request=None):
+        return (self.get_name(), self.calculate_add_price(
+            cart_item.current_total, cart_item.quantity))
+
+    def calculate_add_price(self, price, quantity):
         if self.percent:
-            return (self.percent / 100) * current_total
-        return current_total + self.amount
+            return (self.percent / 100) * price
+        return self.amount * quantity
 
 
 class ModifierModel(models.Model):

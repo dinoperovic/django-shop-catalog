@@ -16,6 +16,5 @@ class ShopCatalogCartModifier(BaseCartModifier):
     def get_extra_cart_item_price_field(self, cart_item, request):
         fields = []
         for modifier in cart_item._product_cache.get_modifiers():
-            price = modifier.calculate_price(cart_item.current_total)
-            fields.append((modifier.get_name(), price))
+            fields.append(modifier.get_extra_cart_item_price_field(cart_item))
         return fields
