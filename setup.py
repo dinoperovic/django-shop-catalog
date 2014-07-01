@@ -17,7 +17,7 @@ setup(
     author='Dino Perovic',
     author_email='dino.perovic@gmail.com',
     url='http://pypi.python.org/pypi/django-shop-catalog/',
-    packages=find_packages(),
+    packages=find_packages(exclude=('tests', 'tests.*')),
     license='BSD',
     install_requires=(
         'django>=1.6',
@@ -39,4 +39,8 @@ setup(
         'Programming Language :: Python',
         'Topic :: Internet :: WWW/HTTP',
     ],
+    test_suite='runtests.main',
+    tests_require=(
+        'django-nose==1.2',
+    ),
 )
