@@ -34,7 +34,8 @@ class ModifierConditionInline(admin.TabularInline):
 
 class ModifierAdmin(TranslatableAdmin):
     form = ModifierModelForm
-    list_display = ('get_name', 'amount', 'percent', 'kind', 'active')
+    list_display = (
+        'get_name', 'amount', 'percent', 'kind', 'active', 'all_translations')
     list_filter = ('date_added', 'last_modified', 'active', 'kind')
 
     readonly_fields = ('date_added', 'last_modified')
