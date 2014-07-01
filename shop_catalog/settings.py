@@ -4,7 +4,6 @@ from __future__ import unicode_literals
 from django.conf import settings
 from django.utils.translation import ugettext_lazy as _
 
-
 SLUG_FIELD_HELP_TEXT = _(
     'Can only contain the letters a-z, A-Z, digits, minus and underscores, '
     'and can\'t start with a digit.')
@@ -22,3 +21,18 @@ HAS_BRANDS = getattr(settings, 'SHOP_CATALOG_HAS_BRANDS', True)
 HAS_MANUFACTURERS = getattr(settings, 'SHOP_CATALOG_HAS_MANUFACTURERS', True)
 
 MEASUREMENT_UNITS = getattr(settings, 'SHOP_CATALOG_MEASUREMENT_UNITS', [])
+
+MODIFIER_CONDITIONS = getattr(settings, 'SHOP_CATALOG_MODIFIER_CONDITIONS', [
+    'shop_catalog.modifier_conditions.PriceGreaterThanModifierCondition',
+    'shop_catalog.modifier_conditions.PriceLessThanModifierCondition',
+    'shop_catalog.modifier_conditions.QuantityGreaterThanModifierCondition',
+    'shop_catalog.modifier_conditions.QuantityLessThanModifierCondition',
+    'shop_catalog.modifier_conditions.WidthGreaterThanModifierCondition',
+    'shop_catalog.modifier_conditions.WidthLessThanModifierCondition',
+    'shop_catalog.modifier_conditions.HeightGreaterThanModifierCondition',
+    'shop_catalog.modifier_conditions.HeightLessThanModifierCondition',
+    'shop_catalog.modifier_conditions.DepthGreaterThanModifierCondition',
+    'shop_catalog.modifier_conditions.DepthLessThanModifierCondition',
+    'shop_catalog.modifier_conditions.WeightGreaterThanModifierCondition',
+    'shop_catalog.modifier_conditions.WeightLessThanModifierCondition',
+])

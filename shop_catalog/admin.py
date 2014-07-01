@@ -15,8 +15,8 @@ from hvad.admin import TranslatableAdmin, TranslatableTabularInline
 from mptt.admin import MPTTModelAdmin
 
 from shop_catalog.models import (
-    Modifier, Category, Brand, Manufacturer, Product, Attribute,
-    ProductAttributeValue, AttributeOption, ProductMeasurement)
+    Modifier, ModifierCondition, Category, Brand, Manufacturer, Product,
+    Attribute, ProductAttributeValue, AttributeOption, ProductMeasurement)
 
 from shop_catalog.forms import (
     ModifierModelForm, CategoryModelForm, BrandModelForm,
@@ -27,12 +27,19 @@ from shop_catalog.utils import slug_num_suffix
 from shop_catalog import settings as scs
 
 
+class ModifierConditionInline(admin.TabularInline):
+    model = ModifierCondition
+    extra = 0
+
+
 class ModifierAdmin(TranslatableAdmin):
     form = ModifierModelForm
     list_display = ('get_name', 'amount', 'percent', 'kind', 'active')
     list_filter = ('date_added', 'last_modified', 'active', 'kind')
 
     readonly_fields = ('date_added', 'last_modified')
+
+    inlines = (ModifierConditionInline, )
 
     def __init__(self, *args, **kwargs):
         super(ModifierAdmin, self).__init__(*args, **kwargs)

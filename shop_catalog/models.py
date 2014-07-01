@@ -12,6 +12,7 @@ from django.core.urlresolvers import reverse
 from django.utils.translation import ugettext_lazy as _
 from django.utils.encoding import python_2_unicode_compatible
 from django.utils.text import slugify
+from django.utils.module_loading import import_by_path
 
 from shop.util.fields import CurrencyField
 from cms.models.fields import PlaceholderField
@@ -120,6 +121,9 @@ class Modifier(TranslatableModel, CatalogModel):
         Returns extra price field for the given cart item.
         """
         if self.is_eligible_product(cart_item.product):
+            for condition in self.conditions.select_related().all():
+                if not condition.is_met(cart_item=cart_item, request=request):
+                    return None
             return (self.get_name(), self.calculate_add_price(
                 cart_item.current_total, cart_item.quantity))
 
@@ -127,6 +131,9 @@ class Modifier(TranslatableModel, CatalogModel):
         """
         Returns extra price field for entire cart.
         """
+        for condition in self.conditions.select_related().all():
+            if not condition.is_met(cart=cart, request=request):
+                return None
         return (self.get_name(), self.calculate_add_price(cart.current_total))
 
     def calculate_add_price(self, price, quantity=1):
@@ -153,6 +160,53 @@ class Modifier(TranslatableModel, CatalogModel):
         Returns all active cart modifiers.
         """
         return cls.objects.active(kind=cls.KIND_CART_MODIFIER)
+
+
+def get_modifier_condition_choices():
+    choices = ()
+    for path in scs.MODIFIER_CONDITIONS:
+        try:
+            module = import_by_path(path)()
+            choices += (path, module.get_name()),
+        except ImportError:
+            pass
+    return choices
+
+
+@python_2_unicode_compatible
+class ModifierCondition(models.Model):
+    MODIFIER_CONDITION_CHOICES = get_modifier_condition_choices()
+
+    modifier = models.ForeignKey(
+        Modifier, related_name='conditions', verbose_name=_('Modifier'))
+    path = models.CharField(
+        _('Condition'), max_length=255, choices=MODIFIER_CONDITION_CHOICES)
+    arg = models.DecimalField(
+        _('Argument'), blank=True, null=True, max_digits=10, decimal_places=3)
+
+    class Meta:
+        db_table = 'shop_catalog_modifier_conditions'
+        verbose_name = _('Condition')
+        verbose_name_plural = _('Conditions')
+
+    def __str__(self):
+        return '{}: {}'.format(
+            dict(self.MODIFIER_CONDITION_CHOICES).get(self.path), self.arg)
+
+    def is_met(self, cart_item=None, cart=None, request=None):
+        """
+        Checks if condition is met and returns a boolean.
+        """
+        try:
+            module = import_by_path(self.path)()
+            if cart_item and not module.cart_item_condition(
+                    cart_item, self.arg, request):
+                return False
+            if cart and not module.cart_condition(cart, self.arg, request):
+                return False
+        except ImportError:
+            pass
+        return True
 
 
 class ModifierModel(models.Model):
