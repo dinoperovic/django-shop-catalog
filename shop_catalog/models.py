@@ -116,14 +116,23 @@ class Modifier(TranslatableModel, CatalogModel):
         return self.lazy_translation_getter('name')
 
     def get_extra_cart_item_price_field(self, cart_item, request=None):
+        """
+        Returns extra price field for the given cart item.
+        """
         if self.is_eligible_product(cart_item.product):
             return (self.get_name(), self.calculate_add_price(
                 cart_item.current_total, cart_item.quantity))
 
     def get_extra_cart_price_field(self, cart, request=None):
+        """
+        Returns extra price field for entire cart.
+        """
         return (self.get_name(), self.calculate_add_price(cart.current_total))
 
     def calculate_add_price(self, price, quantity=1):
+        """
+        Calculates and returns an amount to be added to the given price.
+        """
         if self.percent:
             add_price = (self.percent / 100) * price
         else:
@@ -131,12 +140,18 @@ class Modifier(TranslatableModel, CatalogModel):
         return add_price if price + add_price > 0 else price * -1
 
     def is_eligible_product(self, product):
+        """
+        Returns if modifier can be applied to a given product.
+        """
         if self.kind == self.KIND_DISCOUNT:
             return product.is_discountable
         return self.kind != self.KIND_CART_MODIFIER
 
     @classmethod
     def get_cart_modifiers(cls):
+        """
+        Returns all active cart modifiers.
+        """
         return cls.objects.active(kind=cls.KIND_CART_MODIFIER)
 
 
