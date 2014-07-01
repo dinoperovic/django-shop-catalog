@@ -171,7 +171,8 @@ class ModifierModel(models.Model):
         abstract = True
 
     def get_modifiers(self):
-        # TODO: Fetch all modifiers from categorization.
+        # TODO: Fetch all modifiers from categorization and inherit
+        # from parent if variant.
         return self.modifiers.select_related().active()
 
 
@@ -188,6 +189,11 @@ def get_modifier_condition_choices():
 
 @python_2_unicode_compatible
 class ModifierCondition(models.Model):
+    """
+    Modifier condition model.
+    Inline model to modifier that holds the condition that have to
+    be met in order to apply the modifier.
+    """
     MODIFIER_CONDITION_CHOICES = get_modifier_condition_choices()
 
     modifier = models.ForeignKey(
