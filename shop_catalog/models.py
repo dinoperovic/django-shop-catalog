@@ -209,8 +209,9 @@ class ModifierCondition(models.Model):
         verbose_name_plural = _('Conditions')
 
     def __str__(self):
-        return '{}: {}'.format(
-            dict(self.MODIFIER_CONDITION_CHOICES).get(self.path), self.arg)
+        return '{} {}'.format(
+            dict(self.MODIFIER_CONDITION_CHOICES).get(self.path),
+            self.arg or '')
 
     def is_met(self, cart_item=None, cart=None, request=None):
         """
@@ -381,6 +382,7 @@ class ProductBase(MPTTModel, CatalogModel):
                     'If you dont wan\'t this to happen, set discount percent '
                     'to "0".'))
 
+    # TODO: decrese quantity when purchase is completed.
     quantity = models.PositiveIntegerField(
         _('Quantity'), blank=True, null=True,
         help_text=_('Number of products available, if product is unavailable '

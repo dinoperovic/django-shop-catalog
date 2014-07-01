@@ -37,7 +37,7 @@ class PriceGreaterThanModifierCondition(ModifierConditionBase):
 
     def cart_item_condition(self, cart_item, arg=None, request=None):
         arg = arg or 0
-        return cart_item.current_total > arg
+        return cart_item.product.get_price() > arg
 
     def cart_condition(self, cart, arg=None, request=None):
         arg = arg or 0
@@ -49,7 +49,7 @@ class PriceLessThanModifierCondition(ModifierConditionBase):
 
     def cart_item_condition(self, cart_item, arg=None, request=None):
         arg = arg or 0
-        return cart_item.current_total < arg
+        return cart_item.product.get_price() < arg
 
     def cart_condition(self, cart, arg=None, request=None):
         arg = arg or 0
