@@ -29,8 +29,8 @@ from shop_catalog import settings as scs
 
 class ModifierAdmin(TranslatableAdmin):
     form = ModifierModelForm
-    list_display = ('get_name', 'amount', 'percent')
-    list_filter = ('date_added', 'last_modified')
+    list_display = ('get_name', 'amount', 'percent', 'kind', 'active')
+    list_filter = ('date_added', 'last_modified', 'active', 'kind')
 
     readonly_fields = ('date_added', 'last_modified')
 
@@ -39,6 +39,9 @@ class ModifierAdmin(TranslatableAdmin):
         self.fieldsets = (
             (None, {
                 'fields': ('name', 'amount', 'percent'),
+            }),
+            (None, {
+                'fields': ('kind', ),
             }),
             (None, {
                 'fields': ('active', 'date_added', 'last_modified'),
@@ -54,10 +57,11 @@ class CategoryAdminBase(
         TranslatableAdmin, MPTTModelAdmin, FrontendEditableAdminMixin,
         PlaceholderAdminMixin, admin.ModelAdmin):
     list_display = ('get_name', 'get_slug', 'all_translations')
-    list_filter = ('date_added', 'last_modified', 'parent')
+    list_filter = ('date_added', 'last_modified', 'active', 'parent')
 
     frontend_editable_fields = ()
     readonly_fields = ('date_added', 'last_modified')
+    filter_horizontal = ('modifiers', )
 
     def __init__(self, *args, **kwargs):
         super(CategoryAdminBase, self).__init__(*args, **kwargs)
@@ -123,12 +127,14 @@ class ProductAdmin(
         'get_name', 'get_slug', 'get_product_reference', 'get_unit_price',
         'get_discount_percent', 'get_price', 'get_quantity', 'is_discountable',
         'active', 'all_translations')
-    list_filter = ('date_added', 'last_modified', ProductParentListFilter)
+    list_filter = (
+        'date_added', 'last_modified', 'active', ProductParentListFilter)
 
     frontend_editable_fields = ()
     mptt_level_indent = 0
     readonly_fields = ('date_added', 'last_modified')
     search_fields = ('upc', 'id')
+    filter_horizontal = ('modifiers', )
 
     inlines = (ProductMeasurementInline, ProductAttributeValueInline)
 

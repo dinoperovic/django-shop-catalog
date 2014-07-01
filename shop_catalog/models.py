@@ -6,6 +6,7 @@ from itertools import chain
 from decimal import Decimal
 
 from django.db import models
+from django.db.models import Q
 from django.core.validators import MinValueValidator
 from django.core.urlresolvers import reverse
 from django.utils.translation import ugettext_lazy as _
@@ -75,6 +76,15 @@ class Modifier(TranslatableModel, CatalogModel):
     Modifier model.
     Defines different amounts to be applied to a product or a category.
     """
+    KIND_STANDARD = 'standard'
+    KIND_DISCOUNT = 'discount'
+    KIND_CART_MODIFIER = 'cart_modifier'
+    KIND_CHOICES = (
+        (KIND_STANDARD, _('Standard')),
+        (KIND_DISCOUNT, _('Discount')),
+        (KIND_CART_MODIFIER, _('Cart modifier')),
+    )
+
     amount = CurrencyField(
         verbose_name=_('Amount'),
         help_text=_('Absolute amount that should be applied. '
@@ -85,6 +95,11 @@ class Modifier(TranslatableModel, CatalogModel):
         max_digits=4, decimal_places=2,
         help_text=_('If percent is set, it will override the absolute '
                     'amount. Can be negative.'))
+
+    kind = models.CharField(
+        _('Kind'), max_length=128, choices=KIND_CHOICES, default=KIND_STANDARD,
+        help_text=_('Select a modifier kind. If "Cart modifier" is selected, '
+                    'modifier will be constant and affect entire cart.'))
 
     translations = TranslatedFields(
         name=models.CharField(_('Name'), max_length=128),
@@ -101,18 +116,34 @@ class Modifier(TranslatableModel, CatalogModel):
         return self.lazy_translation_getter('name')
 
     def get_extra_cart_item_price_field(self, cart_item, request=None):
-        return (self.get_name(), self.calculate_add_price(
-            cart_item.current_total, cart_item.quantity))
+        if self.is_eligible_product(cart_item.product):
+            return (self.get_name(), self.calculate_add_price(
+                cart_item.current_total, cart_item.quantity))
 
-    def calculate_add_price(self, price, quantity):
+    def get_extra_cart_price_field(self, cart, request=None):
+        return (self.get_name(), self.calculate_add_price(cart.current_total))
+
+    def calculate_add_price(self, price, quantity=1):
         if self.percent:
-            return (self.percent / 100) * price
-        return self.amount * quantity
+            add_price = (self.percent / 100) * price
+        else:
+            add_price = self.amount * quantity
+        return add_price if price + add_price > 0 else price * -1
+
+    def is_eligible_product(self, product):
+        if self.kind == self.KIND_DISCOUNT:
+            return product.is_discountable
+        return self.kind != self.KIND_CART_MODIFIER
+
+    @classmethod
+    def get_cart_modifiers(cls):
+        return cls.objects.active(kind=cls.KIND_CART_MODIFIER)
 
 
 class ModifierModel(models.Model):
     modifiers = models.ManyToManyField(
-        Modifier, blank=True, null=True, verbose_name=_('Modifiers'))
+        Modifier, blank=True, null=True, verbose_name=_('Modifiers'),
+        limit_choices_to=~Q(kind=Modifier.KIND_CART_MODIFIER))
 
     class Meta:
         abstract = True
