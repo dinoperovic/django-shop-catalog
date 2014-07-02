@@ -389,7 +389,6 @@ class ProductBase(MPTTModel, CatalogModel):
                     'If you dont wan\'t this to happen, set discount percent '
                     'to "0".'))
 
-    # TODO: decrese quantity when purchase is completed.
     quantity = models.PositiveIntegerField(
         _('Quantity'), blank=True, null=True,
         help_text=_('Number of products available, if product is unavailable '
@@ -441,7 +440,7 @@ class ProductBase(MPTTModel, CatalogModel):
 
     @property
     def can_be_added_to_cart(self):
-        return self.active and not self.is_group
+        return self.active and self.is_available and not self.is_group
 
     @property
     def is_top_level(self):
