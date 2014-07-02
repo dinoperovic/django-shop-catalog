@@ -116,7 +116,6 @@ class ProductAttributeValueInline(admin.TabularInline):
     model = ProductAttributeValue
     form = ProductAttributeValueModelForm
     extra = 0
-    max_num = Attribute.objects.count()
 
 
 class ProductMeasurementInline(admin.TabularInline):
