@@ -71,6 +71,11 @@ This value is a number of product units currently available to buy.
 It can be left empty in which case, a product will be treated as if it's
 always available. If a product is out of stock, set quantity value to 0.
 
+Modifiers
+---------
+You can select modifers that will affect this product in a checkout
+process. Read about it more on `Modifiers`_ section.
+
 Measurements
 ------------
 You can add this fields to define product measurements. When product is
