@@ -390,6 +390,10 @@ class ProductBase(MPTTModel, CatalogModel):
                     '(out of stock) set this to "0". If left empty, product '
                     'will be treated as if it\'s always available.'))
 
+    attributes = models.ManyToManyField(
+        'Attribute', through='ProductAttributeValue',
+        related_name='attributes', verbose_name=_('Attributes'))
+
     class Meta:
         abstract = True
 
@@ -610,10 +614,6 @@ class Product(TranslatableModel, ProductBase, ModifierModel):
         Brand, blank=True, null=True, related_name='products')
     manufacturer = TreeForeignKey(
         Manufacturer, blank=True, null=True, related_name='products')
-
-    attributes = models.ManyToManyField(
-        'Attribute', through='ProductAttributeValue',
-        related_name='attributes', verbose_name=_('Attributes'))
 
     translations = TranslatedFields(
         name=models.CharField(_('Name'), max_length=128),
