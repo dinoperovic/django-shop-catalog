@@ -3,31 +3,7 @@ Source
 
 Models
 ######
-.. autoclass:: shop_catalog.models.CatalogModel
-    :members:
-.. autoclass:: shop_catalog.models.CategoryBase
-    :members:
-.. autoclass:: shop_catalog.models.Category
-    :members:
-.. autoclass:: shop_catalog.models.Brand
-    :members:
-.. autoclass:: shop_catalog.models.Manufacturer
-    :members:
-.. autoclass:: shop_catalog.models.ProductBase
-    :members:
-.. autoclass:: shop_catalog.models.Product
-    :members:
-.. autoclass:: shop_catalog.models.Attribute
-    :members:
-.. autoclass:: shop_catalog.models.AttributeValueBase
-    :members:
-.. autoclass:: shop_catalog.models.ProductAttributeValue
-    :members:
-.. autoclass:: shop_catalog.models.AttributeOption
-    :members:
-.. autoclass:: shop_catalog.models.MeasurementBase
-    :members:
-.. autoclass:: shop_catalog.models.ProductMeasurement
+.. automodule:: shop_catalog.models
     :members:
 
 Admin

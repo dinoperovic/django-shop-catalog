@@ -346,10 +346,6 @@ class Manufacturer(TranslatableModel, CategoryBase):
         return self.lazy_translation_getter('slug')
 
 
-class ClassBase(models.Model):
-    pass
-
-
 @python_2_unicode_compatible
 class ProductBase(MPTTModel, CatalogModel):
     """
