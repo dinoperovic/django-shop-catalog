@@ -136,7 +136,8 @@ class ProductAdmin(
         'get_discount_percent', 'get_price', 'get_quantity', 'is_discountable',
         'active', 'all_translations')
     list_filter = (
-        'date_added', 'last_modified', 'active', ProductParentListFilter)
+        'date_added', 'last_modified', 'active', 'is_discountable',
+        ProductParentListFilter)
 
     frontend_editable_fields = ()
     mptt_level_indent = 0

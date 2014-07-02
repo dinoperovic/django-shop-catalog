@@ -170,10 +170,9 @@ class ModifierModel(models.Model):
     class Meta:
         abstract = True
 
-    def get_modifiers(self):
-        # TODO: Fetch all modifiers from categorization and inherit
-        # from parent if variant.
-        return self.modifiers.select_related().active()
+    def get_modifiers(self, distinct=True):
+        mods = self.modifiers.select_related().active()
+        return mods.distinct() if distinct else mods
 
 
 def get_modifier_condition_choices():
@@ -240,6 +239,15 @@ class CategoryBase(MPTTModel, CatalogModel, ModifierModel):
 
     class Meta:
         abstract = True
+
+    def get_modifiers(self, distinct=True):
+        """
+        Fetches all modifiers from a tree and returns them.
+        """
+        mods = self.modifiers.select_related().active()
+        for obj in self.get_ancestors():
+            mods = mods | obj.modifiers.select_related().active()
+        return mods.distinct() if distinct else mods
 
     @property
     def as_dict(self):
@@ -647,13 +655,30 @@ class Product(TranslatableModel, ProductBase, ModifierModel):
         return self.featured_image
 
     def get_extra_dict(self):
-
         data = dict(
             is_media_inherited=self.is_media_inherited,
             is_body_inherited=self.is_body_inherited,
             measurements=self.get_measurements(),
         )
         return dict(data.items() + self.get_categorization().items())
+
+    def get_modifiers(self, distinct=True):
+        """
+        Returns all modifiers from products gategorization.
+        """
+        mods = self.modifiers.select_related().active()
+
+        if self.is_variant:
+            mods = mods | self.parent.get_modifiers(distinct=False)
+        else:
+            if self.category:
+                mods = mods | self.category.get_modifiers(distinct=False)
+            if self.brand:
+                mods = mods | self.brand.get_modifiers(distinct=False)
+            if self.manufacturer:
+                mods = mods | self.manufacturer.get_modifiers(distinct=False)
+
+        return mods.distinct() if distinct else mods
 
     @property
     def is_media_inherited(self):
