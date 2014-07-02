@@ -11,7 +11,7 @@ from shop_catalog.models import Attribute, AttributeOption
 
 class AttributeValueKindsMapSelect(forms.Select):
     """
-    A custom Select widget for generating 'data-options' attribute when
+    A custom Select widget for generating 'data-choices' attribute when
     selected attributes kind is Attribute.KIND_OPTION.
     """
     def render_option(self, selected_choices, option_value, option_label):

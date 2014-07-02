@@ -33,7 +33,6 @@ from shop_catalog import settings as scs
 @python_2_unicode_compatible
 class CatalogModel(models.Model):
     """
-    Catalog model.
     Defines common fields for catalog objects and abstracts some
     standard getter methods.
 
@@ -74,7 +73,6 @@ class CatalogModel(models.Model):
 
 class Modifier(TranslatableModel, CatalogModel):
     """
-    Modifier model.
     Defines different amounts to be applied to a product or a category.
     """
     KIND_STANDARD = 'standard'
@@ -163,6 +161,9 @@ class Modifier(TranslatableModel, CatalogModel):
 
 
 class ModifierModel(models.Model):
+    """
+    Base model for a class that implements modifiers.
+    """
     modifiers = models.ManyToManyField(
         Modifier, blank=True, null=True, verbose_name=_('Modifiers'),
         limit_choices_to=~Q(kind=Modifier.KIND_CART_MODIFIER))
@@ -188,7 +189,6 @@ def get_modifier_condition_choices():
 @python_2_unicode_compatible
 class ModifierCondition(models.Model):
     """
-    Modifier condition model.
     Inline model to modifier that holds the condition that have to
     be met in order to apply the modifier.
     """
@@ -229,7 +229,6 @@ class ModifierCondition(models.Model):
 
 class CategoryBase(MPTTModel, CatalogModel, ModifierModel):
     """
-    Category base model.
     Base model for categorization, uses django-mptt for it's tree
     management.
     """
@@ -259,7 +258,6 @@ class CategoryBase(MPTTModel, CatalogModel, ModifierModel):
 
 class Category(TranslatableModel, CategoryBase):
     """
-    Category model.
     A categorization layer inherited from CategoryBase.
     """
     __metaclass__ = classmaker()
@@ -290,7 +288,6 @@ class Category(TranslatableModel, CategoryBase):
 
 class Brand(TranslatableModel, CategoryBase):
     """
-    Brand model.
     A categorization layer inherited from CategoryBase.
     """
     __metaclass__ = classmaker()
@@ -321,7 +318,6 @@ class Brand(TranslatableModel, CategoryBase):
 
 class Manufacturer(TranslatableModel, CategoryBase):
     """
-    Manufacturer model.
     A categorization layer inherited from CategoryBase.
     """
     __metaclass__ = classmaker()
@@ -350,10 +346,13 @@ class Manufacturer(TranslatableModel, CategoryBase):
         return self.lazy_translation_getter('slug')
 
 
+class ClassBase(models.Model):
+    pass
+
+
 @python_2_unicode_compatible
 class ProductBase(MPTTModel, CatalogModel):
     """
-    Product base model.
     Base fields and calculations are defined here and all objects that
     can be added to cart must inherit from this model.
     """
@@ -600,7 +599,6 @@ class ProductBase(MPTTModel, CatalogModel):
 
 class Product(TranslatableModel, ProductBase, ModifierModel):
     """
-    Product model.
     Inherits from ProductBase and adds more specific fields like
     categorization etc.
     """
@@ -729,7 +727,6 @@ class Product(TranslatableModel, ProductBase, ModifierModel):
 @python_2_unicode_compatible
 class Attribute(TranslatableModel):
     """
-    Attribute model.
     Used to define different types of attributes to be assigned on a
     Product variant. Eg. For a t-shirt attributes could be size, color,
     pattern etc.
@@ -835,7 +832,6 @@ class Attribute(TranslatableModel):
 @python_2_unicode_compatible
 class AttributeValueBase(models.Model):
     """
-    Attribute Value base model.
     Used to define values on a Product with relation to Attribute.
     """
     attribute = models.ForeignKey(
@@ -890,7 +886,6 @@ class AttributeValueBase(models.Model):
 
 class ProductAttributeValue(AttributeValueBase):
     """
-    Product Attribute Value model.
     Through model for Product M2M relation to Attribute.
     """
     product = models.ForeignKey(
@@ -906,7 +901,6 @@ class ProductAttributeValue(AttributeValueBase):
 @python_2_unicode_compatible
 class AttributeOption(TranslatableModel):
     """
-    Attribute Option model.
     Option values for Attribute used when kind is Attribute.KIND_OPTION.
     """
     attribute = models.ForeignKey(
@@ -952,7 +946,6 @@ def get_measure_alias(measure):
 @python_2_unicode_compatible
 class MeasurementBase(models.Model):
     """
-    Measurement base model.
     A base model used for setting measurements to objects.
     """
     KIND_WIDTH = 'width'
@@ -1021,7 +1014,6 @@ class MeasurementBase(models.Model):
 
 class ProductMeasurement(MeasurementBase):
     """
-    Product measurement model.
     Through model for product measurements.
     """
     product = models.ForeignKey(

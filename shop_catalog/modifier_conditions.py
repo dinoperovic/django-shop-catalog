@@ -8,7 +8,6 @@ from django.utils.translation import ugettext_lazy as _
 
 class ModifierConditionBase(object):
     """
-    Modifier condition class.
     An interface for writing a custom condition.
     """
     name = None

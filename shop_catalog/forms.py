@@ -15,7 +15,6 @@ from shop_catalog.widgets import AttributeValueKindsMapSelect
 
 class CatalogModelFormBase(TranslatableModelForm):
     """
-    Catalog model form base.
     Objects that inherit from CatalogModel should have their form
     inherit from this one for some modified fields.
     """
@@ -53,9 +52,6 @@ class ManufacturerModelForm(CatalogModelFormBase):
 
 
 class ProductModelForm(CatalogModelFormBase):
-    """
-    Product model form.
-    """
     class Meta:
         model = Product
 
@@ -107,7 +103,6 @@ class ProductModelForm(CatalogModelFormBase):
 
 class ProductAttributeValueModelForm(forms.ModelForm):
     """
-    Attribute Value model form.
     Creates a custom form for managing multiple attribute values
     on an inline admin.
     """

@@ -13,7 +13,6 @@ except ImportError:
 
 class NullableCharField(models.CharField):
     """
-    Nullable CharField.
     Enables blank and null char fields to be unique.
     """
     description = 'CharField that stores NULL but returns \'\''
