@@ -117,9 +117,9 @@ class ProductAttributeValueModelForm(forms.ModelForm):
         model = ProductAttributeValue
         labels = {'attribute': _('Attribute (Type)')}
         fields = (
-            'attribute', 'empty', 'value_text', 'value_integer',
-            'value_boolean', 'value_float', 'value_richtext', 'value_date',
-            'value_option', 'value_file', 'value_image', 'kinds', 'kinds_map')
+            'attribute', 'empty', 'value_integer', 'value_boolean',
+            'value_float', 'value_date', 'value_option', 'value_file',
+            'value_image', 'kinds', 'kinds_map')
 
     def __init__(self, *args, **kwargs):
         super(ProductAttributeValueModelForm, self).__init__(*args, **kwargs)

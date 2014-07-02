@@ -730,13 +730,15 @@ class Attribute(TranslatableModel):
     KIND_OPTION = 'option'
     KIND_FILE = 'file'
     KIND_IMAGE = 'image'
+    KIND_INTEGER = 'integer'
+    KIND_BOOLEAN = 'boolean'
+    KIND_FLOAT = 'float'
+    KIND_DATE = 'date'
     KIND_CHOICES = (
-        ('text', _('Text')),
-        ('integer', _('Integer')),
-        ('boolean', _('True / False')),
-        ('float', _('Float')),
-        ('richtext', _('Richtext')),
-        ('date', _('Date')),
+        (KIND_INTEGER, _('Integer')),
+        (KIND_BOOLEAN, _('True / False')),
+        (KIND_FLOAT, _('Float')),
+        (KIND_DATE, _('Date')),
         (KIND_OPTION, _('Option')),
         (KIND_FILE, _('File')),
         (KIND_IMAGE, _('Image')),
@@ -833,12 +835,9 @@ class AttributeValueBase(models.Model):
     attribute = models.ForeignKey(
         Attribute, related_name='values', verbose_name=_('Attribute'))
 
-    value_text = models.CharField(
-        _('Text'), max_length=255, blank=True, null=True)
     value_integer = models.IntegerField(_('Integer'), blank=True, null=True)
     value_boolean = models.NullBooleanField(_('Boolean'), blank=True)
     value_float = models.FloatField(_('Float'), blank=True, null=True)
-    value_richtext = models.TextField(_('Richtext'), blank=True, null=True)
     value_date = models.DateField(_('Date'), blank=True, null=True)
     value_option = models.ForeignKey(
         'AttributeOption', blank=True, null=True, verbose_name=_('Option'))
