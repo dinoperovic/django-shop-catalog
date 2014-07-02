@@ -170,9 +170,8 @@ class ModifierModel(models.Model):
     class Meta:
         abstract = True
 
-    def get_modifiers(self, distinct=True):
-        mods = self.modifiers.select_related().active()
-        return mods.distinct() if distinct else mods
+    def get_modifiers(self):
+        return self.modifiers.select_related().active()
 
 
 def get_modifier_condition_choices():
@@ -823,6 +822,15 @@ class Attribute(TranslatableModel):
             return cls.objects.get(code=attr_code).template
         except cls.DoesNotExist:
             return None
+
+    @classmethod
+    def filter_dict(cls, dictionary):
+        """
+        Filters the given dictionary, removes items where key is not
+        an attribute code.
+        """
+        codes = [x.code for x in cls.objects.all()]
+        return dict((k, v) for k, v in dictionary.items() if k in codes)
 
 
 @python_2_unicode_compatible

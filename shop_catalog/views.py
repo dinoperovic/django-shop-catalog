@@ -45,14 +45,19 @@ class CategoryDetailViewBase(ShopDetailView):
         """
         Adds a list of products into the context.
         """
-        context = {}
+        context = {'object_list': []}
 
-        # TODO: Enable filtering objects in categorization.
         if self.object:
             context_object_name = self.get_context_object_name(self.object)
             if hasattr(Product, context_object_name):
                 filters = {'{}_id'.format(context_object_name): self.object.pk}
                 products = Product.objects.active(**filters).top_level()
+
+                # Filter products by attributes.
+                attrs = Attribute.filter_dict(self.request.GET)
+                if any(attrs):
+                    products = products.filter_attrs(**attrs)
+
                 context['object_list'] = products
 
         context.update(kwargs)
@@ -80,13 +85,7 @@ class ProductListView(ShopListView):
 
     def get_queryset(self):
         queryset = self.model.objects.active().top_level()
-
-        # Extract attributes from GET kwargs for filtering.
-        attr_codes = [x.code for x in Attribute.objects.all()]
-        attrs = dict((key, val) for key, val in self.request.GET.items()
-                     if key in attr_codes)
-
-        # Filter queryset by attributes if there are any.
+        attrs = Attribute.filter_dict(self.request.GET)
         return queryset.filter_attrs(**attrs) if any(attrs) else queryset
 
 
