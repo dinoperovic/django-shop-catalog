@@ -605,11 +605,14 @@ class Product(TranslatableModel, ProductBase, ModifierModel):
         verbose_name=_('Featured image'))
 
     category = TreeForeignKey(
-        Category, blank=True, null=True, related_name='products')
+        Category, blank=True, null=True, related_name='products',
+        verbose_name=_(u'Category'))
     brand = TreeForeignKey(
-        Brand, blank=True, null=True, related_name='products')
+        Brand, blank=True, null=True, related_name='products',
+        verbose_name=_(u'Brand'))
     manufacturer = TreeForeignKey(
-        Manufacturer, blank=True, null=True, related_name='products')
+        Manufacturer, blank=True, null=True, related_name='products',
+        verbose_name=_(u'Manufacturer'))
 
     attributes = models.ManyToManyField(
         'Attribute', through='ProductAttributeValue',
