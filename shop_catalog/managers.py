@@ -32,6 +32,13 @@ class CatalogManager(TranslationManager):
     def active(self, language_code=None, **kwargs):
         return self.get_queryset().active(**kwargs)
 
+    # TODO: make slugs not unique, and handle getting them.
+    # maybe add validation errors rather than making a constraint on
+    # a database. get_by_slug could be removed since its not used often.
+    # Could set unique_together (slug, id) on a translated model but not
+    # on the base model. Reason to do so is that translated version of
+    # a model could have the same slug, avoiding:
+    # (en: iphone, hr: iphone-hr)
     def get_by_slug(self, slug, language_code=None):
         return self.language(language_code).active().get(slug=slug)
 

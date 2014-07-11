@@ -3,6 +3,8 @@ from __future__ import unicode_literals
 
 from django.conf.urls import patterns, url
 
+from shop.views import ShopTemplateView
+
 from shop_catalog.views import (
     ProductListView, ProductDetailView,
     CategoryListView, CategoryDetailView,
@@ -50,6 +52,9 @@ pats.extend([
     url(r'^products/(?P<slug>[0-9A-Za-z-_.//]+)/$',
         ProductDetailView.as_view(),
         name='catalog_product_detail'),
+
+    url(r'^$', ShopTemplateView.as_view(
+        template_name='shop/welcome.html'), name='shop_welcome'),
 ])
 
 urlpatterns = patterns('', *pats)

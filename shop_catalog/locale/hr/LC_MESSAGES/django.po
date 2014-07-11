@@ -27,7 +27,7 @@ msgstr "Ime"
 #: admin.py:100 admin.py:227 models.py:268 models.py:298 models.py:328
 #: models.py:624
 msgid "Slug"
-msgstr "Slug"
+msgstr ""
 
 #: admin.py:170 admin.py:239
 msgid "Price"
