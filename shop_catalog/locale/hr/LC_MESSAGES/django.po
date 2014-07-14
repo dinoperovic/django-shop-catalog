@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2014-07-11 13:56+0200\n"
+"POT-Creation-Date: 2014-07-14 13:40+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -73,12 +73,17 @@ msgstr ""
 msgid "Parent"
 msgstr "Roditelj"
 
-#: forms.py:30
+#: forms.py:31
 #, python-format
 msgid "Is this %s active? You can hide it by unchecking this box."
 msgstr "Dali je %s aktivan/na? Može se sakriti isključivanjem ove kućice."
 
-#: forms.py:76
+#: forms.py:44
+#, python-format
+msgid "%s with this slug already exists on this language."
+msgstr "%s sa ovim slugom već postoji na ovom jeziku."
+
+#: forms.py:93
 msgid ""
 "Other products have set this product as their parent, you need to unassign "
 "or delete them before you can change this value."
@@ -86,19 +91,19 @@ msgstr ""
 "Drugi proizvodi su postavili ovaj proizvod kao njihov roditelj, morate "
 "izmjeniti ili izbrisati taj proizvod prije nego izmjenite ovu vrijednost."
 
-#: forms.py:81
+#: forms.py:98
 msgid "Cannot assign itself as a parent Product."
 msgstr "Proizvod nemože biti roditelj sam sebi."
 
-#: forms.py:85
+#: forms.py:102
 msgid "Cannot assign \"variant\" as a parent Product."
 msgstr "Varijacija proizvoda nemože biti roditelj."
 
-#: forms.py:111 models.py:908 models.py:968
+#: forms.py:128 models.py:908 models.py:968
 msgid "Value"
 msgstr "Vrijednost"
 
-#: forms.py:118
+#: forms.py:135
 msgid "Attribute (Type)"
 msgstr "Atribut (Tip)"
 
