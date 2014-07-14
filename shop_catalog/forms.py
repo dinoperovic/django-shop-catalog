@@ -36,15 +36,17 @@ class CatalogModelFormBase(TranslatableModelForm):
         Check that object with this slug on this language
         doesn't exists.
         """
-        slug = self.cleaned_data.get('slug')
-        language = getattr(self, 'language', get_language()[:2])
-        try:
-            self._meta.model.objects.get_by_slug(slug, language)
-            raise forms.ValidationError(
-                _('%s with this slug already exists on this language.') %
-                self._meta.model.__name__)
-        except self._meta.model.DoesNotExist:
-            pass
+        instance = getattr(self, 'instance', None)
+        if instance is not None and instance.pk is None:
+            slug = self.cleaned_data.get('slug')
+            language = getattr(self, 'language', get_language()[:2])
+            try:
+                self._meta.model.objects.get_by_slug(slug, language)
+                raise forms.ValidationError(
+                    _('%s with this slug already exists on this language.') %
+                    self._meta.model.__name__)
+            except self._meta.model.DoesNotExist:
+                pass
         return super(CatalogModelFormBase, self).clean()
 
 
