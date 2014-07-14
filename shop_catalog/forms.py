@@ -28,7 +28,22 @@ class CatalogModelFormBase(TranslatableModelForm):
         if instance is not None:
             self.fields['active'].help_text = _(
                 'Is this %s active? You can hide it by unchecking this box.' %
-                self.instance.__class__.__name__)
+                self._meta.model.__name__)
+
+    def clean(self):
+        """
+        Check that object with this slug on this language
+        doesn't exists.
+        """
+        slug = self.cleaned_data.get('slug')
+        try:
+            self._meta.model.objects.get_by_slug(slug)
+            raise forms.ValidationError(
+                _('%s with this slug already exists on this language.') %
+                self._meta.model.__name__)
+        except self._meta.model.DoesNotExist:
+            pass
+        return super(CatalogModelFormBase, self).clean()
 
 
 class ModifierModelForm(CatalogModelFormBase):
