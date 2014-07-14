@@ -265,8 +265,8 @@ class Category(TranslatableModel, CategoryBase):
     translations = TranslatedFields(
         name=models.CharField(_('Name'), max_length=128),
         slug=models.SlugField(
-            _('Slug'), max_length=128, unique=True,
-            help_text=scs.SLUG_FIELD_HELP_TEXT),
+            _('Slug'), max_length=128, help_text=scs.SLUG_FIELD_HELP_TEXT),
+        meta={'unique_together': [('slug', 'language_code')]},
     )
 
     objects = CatalogManager()
@@ -295,8 +295,8 @@ class Brand(TranslatableModel, CategoryBase):
     translations = TranslatedFields(
         name=models.CharField(_('Name'), max_length=128),
         slug=models.SlugField(
-            _('Slug'), max_length=128, unique=True,
-            help_text=scs.SLUG_FIELD_HELP_TEXT),
+            _('Slug'), max_length=128, help_text=scs.SLUG_FIELD_HELP_TEXT),
+        meta={'unique_together': [('slug', 'language_code')]},
     )
 
     objects = CatalogManager()
@@ -325,8 +325,8 @@ class Manufacturer(TranslatableModel, CategoryBase):
     translations = TranslatedFields(
         name=models.CharField(_('Name'), max_length=128),
         slug=models.SlugField(
-            _('Slug'), max_length=128, unique=True,
-            help_text=scs.SLUG_FIELD_HELP_TEXT),
+            _('Slug'), max_length=128, help_text=scs.SLUG_FIELD_HELP_TEXT),
+        meta={'unique_together': [('slug', 'language_code')]},
     )
 
     objects = CatalogManager()
@@ -621,8 +621,8 @@ class Product(TranslatableModel, ProductBase, ModifierModel):
     translations = TranslatedFields(
         name=models.CharField(_('Name'), max_length=128),
         slug=models.SlugField(
-            _('Slug'), max_length=128, unique=True,
-            help_text=scs.SLUG_FIELD_HELP_TEXT),
+            _('Slug'), max_length=128, help_text=scs.SLUG_FIELD_HELP_TEXT),
+        meta={'unique_together': [('slug', 'language_code')]},
     )
 
     media = PlaceholderField(
