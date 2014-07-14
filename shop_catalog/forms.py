@@ -2,6 +2,7 @@
 from __future__ import unicode_literals
 
 from django import forms
+from django.utils.translation import get_language
 from django.utils.translation import ugettext_lazy as _
 
 from hvad.forms import TranslatableModelForm
@@ -36,8 +37,9 @@ class CatalogModelFormBase(TranslatableModelForm):
         doesn't exists.
         """
         slug = self.cleaned_data.get('slug')
+        language = getattr(self, 'language', get_language()[:2])
         try:
-            self._meta.model.objects.get_by_slug(slug)
+            self._meta.model.objects.get_by_slug(slug, language)
             raise forms.ValidationError(
                 _('%s with this slug already exists on this language.') %
                 self._meta.model.__name__)
