@@ -2,6 +2,7 @@
 from __future__ import unicode_literals
 
 from django.conf.urls import patterns, url
+from django.utils.text import slugify
 
 from shop.views import ShopTemplateView
 
@@ -22,6 +23,7 @@ def catalog_url(url_string, view, name, extra_url=None):
     the string 'catalog_'.
     """
     url_string = getattr(scs, '{}_URL'.format(url_string.upper()), url_string)
+    url_string = slugify(url_string)
 
     if extra_url is not None:
         url_string = '{}/{}'.format(url_string, extra_url)
