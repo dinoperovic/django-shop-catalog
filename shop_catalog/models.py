@@ -563,7 +563,7 @@ class ProductBase(MPTTModel, CatalogModel):
             return None
 
         # Cast keys and values to str and filter out empty values.
-        kwargs = [(str(k), str(v)) for k, v in kwargs.items() if v]
+        kwargs = [(str(k), str(v)) for k, v in kwargs.items() if v is not None]
 
         # Loop through variants and compare their attribute values to
         # kwargs. If they match, return that variant.
@@ -586,13 +586,13 @@ class ProductBase(MPTTModel, CatalogModel):
         variants = []
 
         # Cast keys and values to str and filter out empty values.
-        kwargs = [(str(k), str(v)) for k, v in kwargs.items() if v]
+        kwargs = [(str(k), str(v)) for k, v in kwargs.items() if v is not None]
 
         # Loop through variants and compare their attribute values
         # to kwargs. Make sure that all kwargs are a part of attributes.
         for obj in self.variants.select_related().all():
             attrs = [(x['code'], x['value']) for x in obj.get_attrs()]
-            if set(kwargs).issubset(attrs):
+            if set(sorted(kwargs)).issubset(sorted(attrs)):
                 variants.append(obj)
 
         # Return variants if any.
