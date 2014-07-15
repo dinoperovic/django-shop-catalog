@@ -20,6 +20,15 @@ HAS_CATEGORIES = getattr(settings, 'SHOP_CATALOG_HAS_CATEGORIES', True)
 HAS_BRANDS = getattr(settings, 'SHOP_CATALOG_HAS_BRANDS', True)
 HAS_MANUFACTURERS = getattr(settings, 'SHOP_CATALOG_HAS_MANUFACTURERS', True)
 
+PRODUCT_URL = getattr(
+    settings, 'SHOP_CATALOG_PRODUCT_URL', 'products')
+CATEGORY_URL = getattr(
+    settings, 'SHOP_CATALOG_CATEGORY_URL', 'categories')
+BRAND_URL = getattr(
+    settings, 'SHOP_CATALOG_BRAND_URL', 'brands')
+MANUFACTURER_URL = getattr(
+    settings, 'SHOP_CATALOG_MANUFACTURER_URL', 'manufacturers')
+
 MEASUREMENT_UNITS = getattr(settings, 'SHOP_CATALOG_MEASUREMENT_UNITS', [])
 
 MODIFIER_CONDITIONS = getattr(settings, 'SHOP_CATALOG_MODIFIER_CONDITIONS', [

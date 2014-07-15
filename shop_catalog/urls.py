@@ -14,44 +14,57 @@ from shop_catalog.views import (
 from shop_catalog import settings as scs
 
 
-# List of url patterns.
+def catalog_url(url_string, view, name, extra_url=None):
+    """
+    Url wrapper function that gets a url attribute from settings
+    if it exists and prepends it to the url. If it doesn't exist, the
+    given string is used as a base url. It also prefixes the name with
+    the string 'catalog_'.
+    """
+    url_string = getattr(scs, '{}_URL'.format(url_string.upper()), url_string)
+
+    if extra_url is not None:
+        url_string = '{}/{}'.format(url_string, extra_url)
+    url_string = url_string.strip('/')
+
+    if url_string:
+        url_string = '{}/'.format(url_string)
+    url_string = r'^{}$'.format(url_string)
+
+    return url(url_string, view, name='catalog_{}'.format(name))
+
+
 pats = []
 
 if scs.HAS_CATEGORIES:
     pats.extend([
-        url(r'^categories/$', CategoryListView.as_view(),
-            name='catalog_category_list'),
-        url(r'^categories/(?P<slug>[0-9A-Za-z-_.//]+)/$',
-            CategoryDetailView.as_view(), name='catalog_category_detail'),
+        catalog_url('category', CategoryListView.as_view(), 'category_list'),
+        catalog_url('category', CategoryDetailView.as_view(),
+                    'category_detail', '(?P<slug>[0-9A-Za-z-_.//]+)'),
     ])
 
 if scs.HAS_BRANDS:
     pats.extend([
-        url(r'^brands/$', BrandListView.as_view(),
-            name='catalog_brand_list'),
-        url(r'^brands/(?P<slug>[0-9A-Za-z-_.//]+)/$',
-            BrandDetailView.as_view(), name='catalog_brand_detail'),
+        catalog_url('brand', BrandListView.as_view(), 'brand_list'),
+        catalog_url('brand', BrandDetailView.as_view(), 'brand_detail',
+                    '(?P<slug>[0-9A-Za-z-_.//]+)'),
     ])
 
 if scs.HAS_MANUFACTURERS:
     pats.extend([
-        url(r'^manufacturers/$', ManufacturerListView.as_view(),
-            name='catalog_manufacturer_list'),
-        url(r'^manufacturers/(?P<slug>[0-9A-Za-z-_.//]+)/$',
-            ManufacturerDetailView.as_view(),
-            name='catalog_manufacturer_detail'),
+        catalog_url('manufacturer', ManufacturerListView.as_view(),
+                    'manufacturer_list'),
+        catalog_url('manufacturer', ManufacturerDetailView.as_view(),
+                    'manufacturer_detail', '(?P<slug>[0-9A-Za-z-_.//]+)'),
     ])
 
 # Main patterns.
 pats.extend([
-    url(r'^products/$', ProductListView.as_view(),
-        name='catalog_product_list'),
-    url(r'^products/(?P<slug>[0-9A-Za-z-_.//]+)/variants/$',
-        ProductVariantsJSONView.as_view(),
-        name='catalog_product_variants'),
-    url(r'^products/(?P<slug>[0-9A-Za-z-_.//]+)/$',
-        ProductDetailView.as_view(),
-        name='catalog_product_detail'),
+    catalog_url('product', ProductListView.as_view(), 'product_list'),
+    catalog_url('product', ProductVariantsJSONView.as_view(),
+                'product_variants', '(?P<slug>[0-9A-Za-z-_.//]+)/variants/'),
+    catalog_url('product', ProductDetailView.as_view(), 'product_detail',
+                '(?P<slug>[0-9A-Za-z-_.//]+)'),
 
     url(r'^$', ShopTemplateView.as_view(
         template_name='shop/welcome.html'), name='shop_welcome'),
