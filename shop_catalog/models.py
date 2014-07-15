@@ -484,6 +484,8 @@ class ProductBase(MPTTModel, CatalogModel):
         featured_image = self.get_featured_image()
         featured_image = str(featured_image.url) if featured_image else None
 
+        # TODO: Add all currencies to dictionary.
+
         data = dict(
             upc=self.upc,
             parent=parent,
