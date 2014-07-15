@@ -27,6 +27,7 @@ setup(
         'django-mptt>=0.6.0',
         'django-hvad>=0.4.0',
         'measurement>=1.7.2',
+        'django-currencies==0.3.2',
     ),
     include_package_data=True,
     zip_safe=False,
