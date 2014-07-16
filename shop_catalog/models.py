@@ -10,7 +10,7 @@ from django.db.models import Q
 from django.core.validators import MinValueValidator
 from django.core.urlresolvers import reverse
 from django.utils.translation import ugettext_lazy as _
-from django.utils.encoding import python_2_unicode_compatible
+from django.utils.encoding import python_2_unicode_compatible, force_str
 from django.utils.text import slugify
 from django.utils.module_loading import import_by_path
 
@@ -22,6 +22,8 @@ from mptt.fields import TreeForeignKey
 from filer.fields.image import FilerFileField, FilerImageField
 from measurement.measures import Distance, Weight
 from measurement.base import MeasureBase
+from currencies.models import Currency
+from currencies.utils import calculate_price
 
 from shop_catalog.fields import NullableCharField
 from shop_catalog.managers import CatalogManager, ProductManager
@@ -53,7 +55,7 @@ class CatalogModel(models.Model):
         return None
 
     def get_name(self):
-        return str(self.pk)
+        return force_str(self.pk)
 
     def get_slug(self):
         return slugify(self.get_name())
@@ -61,13 +63,13 @@ class CatalogModel(models.Model):
     @property
     def as_dict(self):
         return dict(
-            pk=str(self.pk),
+            pk=force_str(self.pk),
             active=self.active,
-            name=str(self.get_name()),
-            slug=str(self.get_slug()),
-            url=str(self.get_absolute_url()),
-            date_added=str(self.date_added),
-            last_modified=str(self.last_modified),
+            name=force_str(self.get_name()),
+            slug=force_str(self.get_slug()),
+            url=force_str(self.get_absolute_url()),
+            date_added=force_str(self.date_added),
+            last_modified=force_str(self.last_modified),
         )
 
 
@@ -255,7 +257,7 @@ class CategoryBase(MPTTModel, CatalogModel, ModifierModel):
 
     @property
     def as_dict(self):
-        parent = str(self.parent_id) if self.parent is not None else None
+        parent = force_str(self.parent_id) if self.parent is not None else None
         data = dict(
             parent=parent,
         )
@@ -423,7 +425,7 @@ class ProductBase(MPTTModel, CatalogModel):
         return self.discount_percent or 0
 
     def get_product_reference(self):
-        return self.upc or str(self.pk)
+        return self.upc or force_str(self.pk)
 
     def get_featured_image(self):
         """
@@ -478,26 +480,25 @@ class ProductBase(MPTTModel, CatalogModel):
         """
         Returns a dicionary with product properties.
         """
-        parent = str(self.parent_id) if self.is_variant else None
-        quantity = str(self.quantity) if self.quantity else None
+        parent = force_str(self.parent_id) if self.is_variant else None
+        quantity = force_str(self.quantity) if self.quantity else None
 
         featured_image = self.get_featured_image()
-        featured_image = str(featured_image.url) if featured_image else None
-
-        # TODO: Add all currencies to dictionary.
+        featured_image = (
+            force_str(featured_image.url) if featured_image else None)
 
         data = dict(
             upc=self.upc,
             parent=parent,
-            unit_price=str(self.get_unit_price()),
-            price=str(self.get_price()),
+            unit_price=force_str(self.get_unit_price()),
+            price=force_str(self.get_price()),
             is_price_inherited=self.is_price_inherited,
             quantity=quantity,
             is_available=self.is_available,
             is_discountable=self.is_discountable,
             is_discounted=self.is_discounted,
             is_discount_inherited=self.is_discount_inherited,
-            discount_percent=str(self.get_discount_percent()),
+            discount_percent=force_str(self.get_discount_percent()),
             can_be_added_to_cart=self.can_be_added_to_cart,
             featured_image=featured_image,
             attrs=self.get_attrs(),
@@ -565,7 +566,8 @@ class ProductBase(MPTTModel, CatalogModel):
             return None
 
         # Cast keys and values to str and filter out empty values.
-        kwargs = [(str(k), str(v)) for k, v in kwargs.items() if v is not None]
+        kwargs = [(force_str(k), force_str(v)) for k, v in kwargs.items()
+                  if v is not None]
 
         # Loop through variants and compare their attribute values to
         # kwargs. If they match, return that variant.
@@ -588,7 +590,8 @@ class ProductBase(MPTTModel, CatalogModel):
         variants = []
 
         # Cast keys and values to str and filter out empty values.
-        kwargs = [(str(k), str(v)) for k, v in kwargs.items() if v is not None]
+        kwargs = [(force_str(k), force_str(v)) for k, v in kwargs.items()
+                  if v is not None]
 
         # Loop through variants and compare their attribute values
         # to kwargs. Make sure that all kwargs are a part of attributes.
@@ -662,6 +665,7 @@ class Product(TranslatableModel, ProductBase, ModifierModel):
             is_media_inherited=self.is_media_inherited,
             is_body_inherited=self.is_body_inherited,
             measurements=self.get_measurements(),
+            currencies=self.get_currencies(),
         )
         return dict(data.items() + self.get_categorization().items())
 
@@ -690,6 +694,29 @@ class Product(TranslatableModel, ProductBase, ModifierModel):
     @property
     def is_body_inherited(self):
         return self.is_variant and not self.body.get_plugins().exists()
+
+    def get_currencies(self):
+        """
+        Calculates prices for all currencies and returns them in a dict.
+        """
+        currencies = {}
+
+        for currency in Currency.objects.filter(is_active=True):
+            price = calculate_price(self.get_price(), currency.code)
+            unit_price = calculate_price(self.get_unit_price(), currency.code)
+
+            currencies[currency.code] = dict(
+                code=force_str(currency.code),
+                name=force_str(currency.name),
+                symbol=force_str(currency.symbol),
+                factor=force_str(currency.factor),
+                is_base=currency.is_base,
+                is_default=currency.is_default,
+                price=force_str(price),
+                unit_price=force_str(unit_price),
+            )
+
+        return dict(**currencies)
 
     def get_categorization(self):
         """
@@ -878,15 +905,15 @@ class AttributeValueBase(models.Model):
 
     @property
     def as_dict(self):
-        template = (
-            str(self.attribute.template) if self.attribute.template else None)
+        template = (force_str(self.attribute.template)
+                    if self.attribute.template else None)
 
         return dict(
-            code=str(self.attribute.get_slug()),
-            name=str(self.attribute.get_name()),
-            type=str(self.attribute.kind),
+            code=force_str(self.attribute.get_slug()),
+            name=force_str(self.attribute.get_name()),
+            type=force_str(self.attribute.kind),
             template=template,
-            value=str(self.value),
+            value=force_str(self.value),
         )
 
 
@@ -1015,7 +1042,8 @@ class MeasurementBase(models.Model):
                 values.append((unit, getattr(measure, unit, None)))
 
         # Cast all values to strings, remove null's and return the dict.
-        return dict([(x[0], str(x[1])) for x in values if x[1] is not None])
+        return dict([(x[0], force_str(x[1])) for x in values
+                    if x[1] is not None])
 
 
 class ProductMeasurement(MeasurementBase):
