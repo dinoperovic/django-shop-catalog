@@ -17,7 +17,7 @@ from shop_catalog import settings as scs
 
 def catalog_url(url_string, view, name, extra_url=None):
     """
-    Url wrapper function that gets a url attribute from settings
+    Url wrapper function that gets an url attribute from settings
     if it exists and prepends it to the url. If it doesn't exist, the
     given string is used as a base url. It also prefixes the name with
     the string 'catalog_'.
