@@ -355,6 +355,23 @@ class Manufacturer(TranslatableModel, CategoryBase):
 
 
 @python_2_unicode_compatible
+class Tax(models.Model):
+    name = models.CharField(_('Name'), max_length=128)
+    percent = models.DecimalField(
+        _('Percent'), max_digits=4, decimal_places=2,
+        validators=[MinValueValidator(Decimal('0.00'))],
+        help_text=_('Tax percentage.'))
+
+    class Meta:
+        db_table = 'shop_catalog_taxes'
+        verbose_name = _('Tax')
+        verbose_name_plural = _('Taxes')
+
+    def __str__(self):
+        return '{}'.format(self.name)
+
+
+@python_2_unicode_compatible
 class ProductBase(MPTTModel, CatalogModel):
     """
     Base fields and calculations are defined here and all objects that
@@ -392,6 +409,13 @@ class ProductBase(MPTTModel, CatalogModel):
                     'If you dont wan\'t this to happen, set discount percent '
                     'to "0".'))
 
+    tax = models.ForeignKey(
+        Tax, blank=True, null=True,
+        related_name='products', verbose_name=_('Tax'),
+        help_text=_('Tax to be applied to this product. If not set and '
+                    'product is a variant, tax will be inherited from '
+                    'parent.'))
+
     quantity = models.PositiveIntegerField(
         _('Quantity'), blank=True, null=True,
         help_text=_('Number of products available, if product is unavailable '
@@ -412,6 +436,10 @@ class ProductBase(MPTTModel, CatalogModel):
             if discount:
                 price -= (discount * price) / Decimal('100')
 
+        if self.is_taxed:
+            tax = self.get_tax_percent()
+            price += (tax * price) / Decimal('100')
+
         return round_2(price)
 
     def get_unit_price(self):
@@ -423,6 +451,11 @@ class ProductBase(MPTTModel, CatalogModel):
         if self.is_discount_inherited:
             return self.parent.get_discount_percent()
         return self.discount_percent or 0
+
+    def get_tax_percent(self):
+        if self.is_tax_inherited:
+            return self.parent.get_tax_percent()
+        return self.tax.percent if self.tax is not None else 0
 
     def get_product_reference(self):
         return self.upc or force_str(self.pk)
@@ -468,12 +501,22 @@ class ProductBase(MPTTModel, CatalogModel):
         return not not self.discount_percent
 
     @property
+    def is_taxed(self):
+        if self.is_tax_inherited:
+            return self.parent.is_taxed
+        return self.tax is not None
+
+    @property
     def is_price_inherited(self):
         return self.is_variant and not self.unit_price
 
     @property
     def is_discount_inherited(self):
         return self.is_variant and self.discount_percent is None
+
+    @property
+    def is_tax_inherited(self):
+        return self.is_variant and self.tax is None
 
     @property
     def as_dict(self):
@@ -498,7 +541,10 @@ class ProductBase(MPTTModel, CatalogModel):
             is_discountable=self.is_discountable,
             is_discounted=self.is_discounted,
             is_discount_inherited=self.is_discount_inherited,
+            is_taxed=self.is_taxed,
+            is_tax_inherited=self.is_tax_inherited,
             discount_percent=force_str(self.get_discount_percent()),
+            tax_percent=force_str(self.get_tax_percent()),
             can_be_added_to_cart=self.can_be_added_to_cart,
             featured_image=featured_image,
             attrs=self.get_attrs(),

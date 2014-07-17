@@ -15,7 +15,7 @@ from hvad.admin import TranslatableAdmin, TranslatableTabularInline
 from mptt.admin import MPTTModelAdmin
 
 from shop_catalog.models import (
-    Modifier, ModifierCondition, Category, Brand, Manufacturer, Product,
+    Modifier, ModifierCondition, Category, Brand, Manufacturer, Tax, Product,
     Attribute, ProductAttributeValue, AttributeOption, ProductMeasurement)
 
 from shop_catalog.forms import (
@@ -127,6 +127,10 @@ class ProductAttributeValueInline(admin.TabularInline):
     extra = 0
 
 
+class TaxAdmin(admin.ModelAdmin):
+    list_display = ('name', 'percent')
+
+
 class ProductMeasurementInline(admin.TabularInline):
     model = ProductMeasurement
     extra = 0
@@ -178,7 +182,8 @@ class ProductAdmin(
         self.fieldsets += (
             (_('Price'), {
                 'fields': (
-                    'unit_price', 'discount_percent', 'is_discountable'),
+                    'unit_price', 'discount_percent', 'is_discountable',
+                    'tax'),
             }),
             (None, {
                 'fields': ('quantity', ),
@@ -304,4 +309,5 @@ if scs.HAS_MANUFACTURERS:
 
 admin.site.register(Modifier, ModifierAdmin)
 admin.site.register(Attribute, AttributeAdmin)
+admin.site.register(Tax, TaxAdmin)
 admin.site.register(Product, ProductAdmin)
