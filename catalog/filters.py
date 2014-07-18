@@ -5,7 +5,7 @@ from django.db.models import Q
 from django.contrib.admin import SimpleListFilter
 from django.utils.translation import ugettext_lazy as _
 
-from shop_catalog.models import Product
+from catalog.models import Product
 
 
 class ProductParentListFilter(SimpleListFilter):

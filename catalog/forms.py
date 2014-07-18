@@ -7,11 +7,11 @@ from django.utils.translation import ugettext_lazy as _
 
 from hvad.forms import TranslatableModelForm
 
-from shop_catalog.models import (
+from catalog.models import (
     Modifier, Category, Brand, Manufacturer, Product, Attribute,
     ProductAttributeValue)
 
-from shop_catalog.widgets import AttributeValueKindsMapSelect
+from catalog.widgets import AttributeValueKindsMapSelect
 
 
 class CatalogModelFormBase(TranslatableModelForm):

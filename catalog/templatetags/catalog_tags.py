@@ -3,7 +3,7 @@ from __future__ import unicode_literals
 
 from django import template
 
-from shop_catalog.utils import round_2 as r2
+from catalog.utils import round_2 as r2
 
 
 register = template.Library()

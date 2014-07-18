@@ -25,11 +25,11 @@ from measurement.base import MeasureBase
 from currencies.models import Currency
 from currencies.utils import calculate_price
 
-from shop_catalog.fields import NullableCharField
-from shop_catalog.managers import CatalogManager, ProductManager
-from shop_catalog.utils.noconflict import classmaker
-from shop_catalog.utils import round_2
-from shop_catalog import settings as scs
+from catalog.fields import NullableCharField
+from catalog.managers import CatalogManager, ProductManager
+from catalog.utils.noconflict import classmaker
+from catalog.utils import round_2
+from catalog import settings as scs
 
 
 @python_2_unicode_compatible
@@ -112,7 +112,7 @@ class Modifier(TranslatableModel, CatalogModel):
     objects = CatalogManager()
 
     class Meta:
-        db_table = 'shop_catalog_modifiers'
+        db_table = 'catalog_modifiers'
         verbose_name = _('Modifier')
         verbose_name_plural = _('Modifiers')
 
@@ -210,7 +210,7 @@ class ModifierCondition(models.Model):
         _('Argument'), blank=True, null=True, max_digits=10, decimal_places=3)
 
     class Meta:
-        db_table = 'shop_catalog_modifier_conditions'
+        db_table = 'catalog_modifier_conditions'
         verbose_name = _('Condition')
         verbose_name_plural = _('Conditions')
 
@@ -280,7 +280,7 @@ class Category(TranslatableModel, CategoryBase):
     objects = CatalogManager()
 
     class Meta:
-        db_table = 'shop_catalog_categories'
+        db_table = 'catalog_categories'
         verbose_name = _('Category')
         verbose_name_plural = _('Categories')
 
@@ -310,7 +310,7 @@ class Brand(TranslatableModel, CategoryBase):
     objects = CatalogManager()
 
     class Meta:
-        db_table = 'shop_catalog_brands'
+        db_table = 'catalog_brands'
         verbose_name = _('Brand')
         verbose_name_plural = _('Brands')
 
@@ -340,7 +340,7 @@ class Manufacturer(TranslatableModel, CategoryBase):
     objects = CatalogManager()
 
     class Meta:
-        db_table = 'shop_catalog_manufacturers'
+        db_table = 'catalog_manufacturers'
         verbose_name = _('Manufacturer')
         verbose_name_plural = _('Manufacturers')
 
@@ -363,7 +363,7 @@ class Tax(models.Model):
         help_text=_('Tax percentage.'))
 
     class Meta:
-        db_table = 'shop_catalog_taxes'
+        db_table = 'catalog_taxes'
         verbose_name = _('Tax')
         verbose_name_plural = _('Taxes')
 
@@ -683,14 +683,14 @@ class Product(TranslatableModel, ProductBase, ModifierModel):
     )
 
     media = PlaceholderField(
-        'shop_catalog_product_media', related_name='product_media_set')
+        'catalog_product_media', related_name='product_media_set')
     body = PlaceholderField(
-        'shop_catalog_product_body', related_name='product_body_set')
+        'catalog_product_body', related_name='product_body_set')
 
     objects = ProductManager()
 
     class Meta:
-        db_table = 'shop_catalog_products'
+        db_table = 'catalog_products'
         verbose_name = _('Product')
         verbose_name_plural = _('Products')
 
@@ -849,7 +849,7 @@ class Attribute(TranslatableModel):
     )
 
     class Meta:
-        db_table = 'shop_catalog_attributes'
+        db_table = 'catalog_attributes'
         ordering = ('code', )
         verbose_name = _('Attribute')
         verbose_name_plural = _('Attributes')
@@ -971,7 +971,7 @@ class ProductAttributeValue(AttributeValueBase):
         Product, related_name='attribute_values', verbose_name=_('Product'))
 
     class Meta:
-        db_table = 'shop_catalog_product_attribute_values'
+        db_table = 'catalog_product_attribute_values'
         verbose_name = _('Attribute')
         verbose_name_plural = _('Attributes')
         unique_together = ('attribute', 'product')
@@ -990,7 +990,7 @@ class AttributeOption(TranslatableModel):
     )
 
     class Meta:
-        db_table = 'shop_catalog_attribute_options'
+        db_table = 'catalog_attribute_options'
         verbose_name = _('Option')
         verbose_name_plural = _('Options')
 
@@ -1100,7 +1100,7 @@ class ProductMeasurement(MeasurementBase):
         Product, related_name='measurements', verbose_name=_('Product'))
 
     class Meta:
-        db_table = 'shop_catalog_product_measurements'
+        db_table = 'catalog_product_measurements'
         verbose_name = _('Measurement')
         verbose_name_plural = _('Measurements')
         unique_together = ('product', 'kind')

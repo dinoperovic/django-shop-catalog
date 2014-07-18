@@ -6,5 +6,5 @@
 dist/
 *.egg-info/
 docs/_build
-shop_catalog/migrations
+catalog/migrations
 

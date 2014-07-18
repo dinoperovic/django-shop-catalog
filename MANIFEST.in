@@ -1,6 +1,6 @@
 include LICENSE
 include README.rst
-recursive-include shop_catalog/templates *
+recursive-include catalog/templates *
 recursive-include tests *
 recursive-include requirements *
 recursive-include docs *

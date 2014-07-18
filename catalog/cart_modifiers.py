@@ -3,7 +3,7 @@ from __future__ import unicode_literals
 
 from shop.cart.cart_modifiers_base import BaseCartModifier
 
-from shop_catalog.models import Modifier
+from catalog.models import Modifier
 
 
 class ShopCatalogCartModifier(BaseCartModifier):

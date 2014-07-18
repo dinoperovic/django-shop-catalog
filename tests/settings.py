@@ -55,13 +55,13 @@ INSTALLED_APPS = (
     'hvad',
     'shop',
     'shop.addressmodel',
-    'shop_catalog',
+    'catalog',
 )
 
-SHOP_PRODUCT_MODEL = 'shop_catalog.models.Product'
+SHOP_PRODUCT_MODEL = 'catalog.models.Product'
 
 SHOP_CART_MODIFIERS = (
-    'shop_catalog.cart_modifiers.ShopCatalogCartModifier',
+    'catalog.cart_modifiers.ShopCatalogCartModifier',
 )
 
 CACHES = {

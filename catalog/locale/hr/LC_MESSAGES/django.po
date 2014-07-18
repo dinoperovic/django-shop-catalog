@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2014-07-14 13:40+0200\n"
+"POT-Creation-Date: 2014-07-18 14:42+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -19,25 +19,26 @@ msgstr ""
 "Plural-Forms: nplurals=3; plural=n%10==1 && n%100!=11 ? 0 : n%10>=2 && n"
 "%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2;\n"
 
-#: admin.py:61 admin.py:96 admin.py:223 admin.py:286 models.py:104
-#: models.py:266 models.py:296 models.py:326 models.py:622 models.py:767
+#: admin.py:66 admin.py:105 admin.py:237 admin.py:300 models.py:106
+#: models.py:274 models.py:304 models.py:334 models.py:359 models.py:679
+#: models.py:848 orders/models.py:44
 msgid "Name"
 msgstr "Ime"
 
-#: admin.py:100 admin.py:227 models.py:268 models.py:298 models.py:328
-#: models.py:624
+#: admin.py:70 admin.py:109 admin.py:241 models.py:108 models.py:276
+#: models.py:306 models.py:336 models.py:681
 msgid "Slug"
 msgstr ""
 
-#: admin.py:170 admin.py:239
+#: admin.py:183 admin.py:253
 msgid "Price"
 msgstr "Cijena"
 
-#: admin.py:212
+#: admin.py:226
 msgid "Categorization"
 msgstr "Kategorizacija"
 
-#: admin.py:214
+#: admin.py:228
 msgid ""
 "If product is a variant, categorization will be inherited from it's parent "
 "and is not necessary to specify it again."
@@ -45,23 +46,23 @@ msgstr ""
 "Ako je proizvod varijacija od proizvoda, kategorizacija će biti nasljeđena "
 "od svog roditelja i nije ju potrebno navesti ponovno."
 
-#: admin.py:231 models.py:369
+#: admin.py:245 models.py:394
 msgid "Unit price"
 msgstr "Jedinična cijena"
 
-#: admin.py:235 models.py:379
+#: admin.py:249 models.py:404
 msgid "Discount percent"
 msgstr "Postotak popusta"
 
-#: admin.py:243
+#: admin.py:257
 msgid "Reference"
 msgstr "Referenca"
 
-#: admin.py:246
+#: admin.py:260
 msgid "~"
 msgstr ""
 
-#: admin.py:247 models.py:388
+#: admin.py:261 models.py:420
 msgid "Quantity"
 msgstr "Količina"
 
@@ -69,7 +70,7 @@ msgstr "Količina"
 msgid "Shop Catalog"
 msgstr ""
 
-#: filters.py:12 models.py:363
+#: filters.py:12 models.py:388
 msgid "Parent"
 msgstr "Roditelj"
 
@@ -78,12 +79,12 @@ msgstr "Roditelj"
 msgid "Is this %s active? You can hide it by unchecking this box."
 msgstr "Dali je %s aktivan/na? Može se sakriti isključivanjem ove kućice."
 
-#: forms.py:44
+#: forms.py:46
 #, python-format
 msgid "%s with this slug already exists on this language."
 msgstr "%s sa ovim slugom već postoji na ovom jeziku."
 
-#: forms.py:93
+#: forms.py:95
 msgid ""
 "Other products have set this product as their parent, you need to unassign "
 "or delete them before you can change this value."
@@ -91,70 +92,70 @@ msgstr ""
 "Drugi proizvodi su postavili ovaj proizvod kao njihov roditelj, morate "
 "izmjeniti ili izbrisati taj proizvod prije nego izmjenite ovu vrijednost."
 
-#: forms.py:98
+#: forms.py:100
 msgid "Cannot assign itself as a parent Product."
 msgstr "Proizvod nemože biti roditelj sam sebi."
 
-#: forms.py:102
+#: forms.py:104
 msgid "Cannot assign \"variant\" as a parent Product."
 msgstr "Varijacija proizvoda nemože biti roditelj."
 
-#: forms.py:128 models.py:908 models.py:968
+#: forms.py:130 models.py:989 models.py:1049
 msgid "Value"
 msgstr "Vrijednost"
 
-#: forms.py:135
+#: forms.py:137
 msgid "Attribute (Type)"
 msgstr "Atribut (Tip)"
 
-#: models.py:42
+#: models.py:44
 msgid "Active"
 msgstr "Aktivno"
 
-#: models.py:43
+#: models.py:45
 msgid "Date added"
 msgstr "Datum dodano"
 
-#: models.py:44
+#: models.py:46
 msgid "Last modified"
 msgstr "Zadnja promjena"
 
-#: models.py:82
+#: models.py:84
 msgid "Standard"
 msgstr "Standarndno"
 
-#: models.py:83
+#: models.py:85
 msgid "Discount"
 msgstr "Popust"
 
-#: models.py:84
+#: models.py:86
 msgid "Cart modifier"
 msgstr "Modifikacija košarice"
 
-#: models.py:88
+#: models.py:90
 msgid "Amount"
 msgstr "Iznos"
 
-#: models.py:89
+#: models.py:91
 msgid "Absolute amount that should be applied. Can be negative."
 msgstr "Absolutni iznos koji se koristi. Može biti negativan."
 
-#: models.py:93
+#: models.py:95 models.py:361
 msgid "Percent"
 msgstr "Postotak"
 
-#: models.py:95
+#: models.py:97
 msgid ""
 "If percent is set, it will override the absolute amount. Can be negative."
 msgstr ""
 "Ako je postotak postavljen, to će nadjačati absolutni iznos. Može biti "
 "negativan."
 
-#: models.py:99 models.py:965
+#: models.py:101 models.py:1046
 msgid "Kind"
 msgstr "Tip"
 
-#: models.py:100
+#: models.py:102
 msgid ""
 "Select a modifier kind. If \"Cart modifier\" is selected, modifier will be "
 "constant and affect entire cart."
@@ -162,55 +163,67 @@ msgstr ""
 "Izaberite tip modifikacije. Ako je izabrana \"Modifikacija košarice\", "
 "modifikacija će biti konstantna i utjecat će na cijelu košaricu."
 
-#: models.py:111 models.py:198
+#: models.py:116 models.py:206
 msgid "Modifier"
 msgstr "Modifikacija"
 
-#: models.py:112 models.py:168
+#: models.py:117 models.py:176
 msgid "Modifiers"
 msgstr "Modifikacije"
 
-#: models.py:200 models.py:206
+#: models.py:208 models.py:214
 msgid "Condition"
 msgstr "Uvijet"
 
-#: models.py:202
+#: models.py:210
 msgid "Argument"
 msgstr ""
 
-#: models.py:207
+#: models.py:215
 msgid "Conditions"
 msgstr "Uvijeti"
 
-#: models.py:276 models.py:609
+#: models.py:284 models.py:666
 msgid "Category"
 msgstr "Kategorija"
 
-#: models.py:277
+#: models.py:285
 msgid "Categories"
 msgstr "Kategorije"
 
-#: models.py:306 models.py:612
+#: models.py:314 models.py:669
 msgid "Brand"
 msgstr "Brend"
 
-#: models.py:307
+#: models.py:315
 msgid "Brands"
 msgstr "Brendovi"
 
-#: models.py:336 models.py:615
+#: models.py:344 models.py:672
 msgid "Manufacturer"
 msgstr "Proizvođač"
 
-#: models.py:337
+#: models.py:345
 msgid "Manufacturers"
 msgstr "Proizvođači"
 
-#: models.py:356
+#: models.py:363
+msgid "Tax percentage."
+msgstr ""
+
+#: models.py:367 models.py:414
+msgid "Tax"
+msgstr ""
+
+#: models.py:368
+msgid "Taxes"
+msgstr ""
+
+#: models.py:381
 msgid "UPC"
 msgstr "UPC"
 
-#: models.py:357
+#: models.py:382
 msgid ""
 "Universal Product Code (UPC) is an identifier for a product which is not "
 "specific to a particular supplier. Eg. an ISBN for a book."
@@ -218,7 +231,7 @@ msgstr ""
 "Univerzalni kod proizvoda (UPC) je oznaka za proizvod koji nije specifičan "
 "za određenog dobavljača. Npr. ISBN za knjigu."
 
-#: models.py:364
+#: models.py:389
 msgid ""
 "If this is a \"variant\" of a Product, select that Product. Only top level "
 "products (without a parent) are listed."
@@ -226,7 +239,7 @@ msgstr ""
 "Ako je ovo \"varijacija\" od proizvoda, izaberite taj proizvod. Samo "
 "proizvodi na najvišem nivou (bez roditelja) su prikazani."
 
-#: models.py:370
+#: models.py:395
 msgid ""
 "If Product is a \"variant\" and price is \"0\", unit price is inherited from "
 "it's parent."
@@ -234,15 +247,15 @@ msgstr ""
 "Ako je proizvod \"varijacija\" i cijena je \"0\", jedinična cijena je "
 "nasljeđena od roditelja."
 
-#: models.py:374
+#: models.py:399
 msgid "Is discountable?"
 msgstr "Može imati popust?"
 
-#: models.py:375
+#: models.py:400
 msgid "This flag indicates if this product can be used in an offer or not."
 msgstr "Ova oznaka određuje dali se proizvod može koristiti u ponudi ili ne."
 
-#: models.py:382
+#: models.py:407
 msgid ""
 "If Product is a \"variant\" and discount percent is not set, discount "
 "percent is inherited from it's parent. If you dont wan't this to happen, set "
@@ -252,7 +265,13 @@ msgstr ""
 "popusta je nasljeđen od roditelja. Ako ne želite da se to desi, postavite "
 "postotak popusta na \"0\"."
 
-#: models.py:389
+#: models.py:415
+msgid ""
+"Tax to be applied to this product. If not set and product is a variant, tax "
+"will be inherited from parent."
+msgstr ""
+
+#: models.py:421
 msgid ""
 "Number of products available, if product is unavailable (out of stock) set "
 "this to \"0\". If left empty, product will be treated as if it's always "
@@ -262,69 +281,69 @@ msgstr ""
 "vrijednost na \"0\". Ako je vrijednos prazna, proizvod će se tretirati kao "
 "da je uvijek dostupan."
 
-#: models.py:605
+#: models.py:662
 msgid "Featured image"
 msgstr "Istaknuta slika"
 
-#: models.py:619 models.py:774 models.py:895
+#: models.py:676 models.py:855 models.py:976
 msgid "Attributes"
 msgstr "Atributi"
 
-#: models.py:637 models.py:890 models.py:1018
+#: models.py:694 models.py:971 models.py:1100
 msgid "Product"
 msgstr "Proizvod"
 
-#: models.py:638
+#: models.py:695
 msgid "Products"
 msgstr "Proizvodi"
 
-#: models.py:741 models.py:841
+#: models.py:822 models.py:922
 msgid "Integer"
 msgstr "Cijeli broj"
 
-#: models.py:742
+#: models.py:823
 msgid "True / False"
 msgstr "Točno / Netočno"
 
-#: models.py:743 models.py:843
+#: models.py:824 models.py:924
 msgid "Float"
 msgstr "Decimalni broj"
 
-#: models.py:744 models.py:844
+#: models.py:825 models.py:925
 msgid "Date"
 msgstr "Datum"
 
-#: models.py:745 models.py:846 models.py:913
+#: models.py:826 models.py:927 models.py:994
 msgid "Option"
 msgstr "Opcija"
 
-#: models.py:746 models.py:850
+#: models.py:827 models.py:931
 msgid "File"
 msgstr "Datoteka"
 
-#: models.py:747 models.py:853
+#: models.py:828 models.py:934
 msgid "Image"
 msgstr "Slika"
 
-#: models.py:751
+#: models.py:832 orders/models.py:42
 msgid "Code"
 msgstr "Kod"
 
-#: models.py:756
+#: models.py:837
 msgid "Type"
 msgstr "Tip"
 
-#: models.py:757
+#: models.py:838
 msgid ""
 "Select data type. If you choose \"Option\" data type, specify the options "
 "below."
 msgstr "Izaberite tip. Ako ste izabrali tip \"Opcija\", navedite opcije ispod."
 
-#: models.py:761
+#: models.py:842
 msgid "Template"
 msgstr "Predložak"
 
-#: models.py:763
+#: models.py:844
 msgid ""
 "You can select a template for rendering this attribute or leave it empty for "
 "the default (dropdown) look."
@@ -332,43 +351,43 @@ msgstr ""
 "Moćete izabrati predložak za prikaz atribute ili ostaviti prazno za obični "
 "(padajući) izgled."
 
-#: models.py:773 models.py:839 models.py:894 models.py:905
+#: models.py:854 models.py:920 models.py:975 models.py:986
 msgid "Attribute"
 msgstr "Atribut"
 
-#: models.py:842
+#: models.py:923
 msgid "Boolean"
 msgstr ""
 
-#: models.py:914
+#: models.py:995
 msgid "Options"
 msgstr "Opcije"
 
-#: models.py:954
+#: models.py:1035
 msgid "Width"
 msgstr "Širina"
 
-#: models.py:955
+#: models.py:1036
 msgid "Height"
 msgstr "Visina"
 
-#: models.py:956
+#: models.py:1037
 msgid "Depth"
 msgstr "Dubljina"
 
-#: models.py:957
+#: models.py:1038
 msgid "Weight"
 msgstr "Težina"
 
-#: models.py:970
+#: models.py:1051
 msgid "Unit"
 msgstr "Jedinica"
 
-#: models.py:1022
+#: models.py:1104
 msgid "Measurement"
 msgstr "Mjera"
 
-#: models.py:1023
+#: models.py:1105
 msgid "Measurements"
 msgstr "Mjere"
 
@@ -430,6 +449,46 @@ msgstr ""
 
 #: settings.py:16
 msgid "Radio"
+msgstr ""
+
+#: orders/admin.py:34
+msgid "Currency"
+msgstr ""
+
+#: orders/admin.py:40
+msgid "Shipping"
+msgstr ""
+
+#: orders/admin.py:43
+msgid "Billing"
+msgstr ""
+
+#: orders/models.py:39
+msgid "Language code"
+msgstr ""
+
+#: orders/models.py:46
+msgid "Symbol"
+msgstr ""
+
+#: orders/models.py:48
+msgid "Factor"
+msgstr ""
+
+#: orders/models.py:50
+msgid "Order subtotal"
+msgstr ""
+
+#: orders/models.py:51
+msgid "Order Total"
+msgstr ""
+
+#: orders/models.py:58
+msgid "Order"
+msgstr ""
+
+#: orders/models.py:59
+msgid "Orders"
 msgstr ""
 
 #: templates/admin/shop_catalog/product_change_form.html:101

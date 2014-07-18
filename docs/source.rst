@@ -3,40 +3,40 @@ Source
 
 Models
 ######
-.. automodule:: shop_catalog.models
+.. automodule:: catalog.models
     :members:
 
 Admin
 #####
-.. automodule:: shop_catalog.admin
+.. automodule:: catalog.admin
     :members:
 
 Managers
 ########
-.. automodule:: shop_catalog.managers
+.. automodule:: catalog.managers
     :members:
 
 Views
 #####
-.. automodule:: shop_catalog.views
+.. automodule:: catalog.views
     :members:
 
 Forms
 #####
-.. automodule:: shop_catalog.forms
+.. automodule:: catalog.forms
     :members:
 
 Fields
 ######
-.. automodule:: shop_catalog.fields
+.. automodule:: catalog.fields
     :members:
 
 Filters
 #######
-.. automodule:: shop_catalog.filters
+.. automodule:: catalog.filters
     :members:
 
 Widgets
 #######
-.. automodule:: shop_catalog.widgets
+.. automodule:: catalog.widgets
     :members:

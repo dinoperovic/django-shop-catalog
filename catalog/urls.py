@@ -6,13 +6,13 @@ from django.utils.text import slugify
 
 from shop.views import ShopTemplateView
 
-from shop_catalog.views import (
+from catalog.views import (
     ProductListView, ProductDetailView,
     CategoryListView, CategoryDetailView,
     BrandListView, BrandDetailView,
     ManufacturerListView, ManufacturerDetailView,
     ProductVariantsJSONView)
-from shop_catalog import settings as scs
+from catalog import settings as scs
 
 
 def catalog_url(url_string, view, name, extra_url=None):

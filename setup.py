@@ -6,7 +6,7 @@ import os
 from setuptools import setup, find_packages
 
 
-version = __import__('shop_catalog').__version__
+version = __import__('catalog').__version__
 readme = open(os.path.join(os.path.dirname(__file__), 'README.rst')).read()
 
 setup(

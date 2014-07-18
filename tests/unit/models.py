@@ -8,9 +8,9 @@ from django.utils.translation import activate
 
 from shop.models import Cart, CartItem
 
-from shop_catalog.models import (
+from catalog.models import (
     Modifier, ModifierCondition, Product, Attribute, ProductAttributeValue)
-from shop_catalog import settings as scs
+from catalog import settings as scs
 
 from tests.utils import warning
 

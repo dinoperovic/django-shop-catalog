@@ -98,6 +98,6 @@
 {% endblock %}
 
 {% block object-tools-items %}
-    <li><a href="{% url 'admin:shop_catalog_product_add_variant' original.pk %}" class="historylink">{% trans "Add a variant" %}</a></li>
+    <li><a href="{% url 'admin:catalog_product_add_variant' original.pk %}" class="historylink">{% trans "Add a variant" %}</a></li>
     {{ block.super }}
 {% endblock %}

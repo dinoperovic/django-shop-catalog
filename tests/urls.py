@@ -7,6 +7,6 @@ from django.conf.urls.i18n import i18n_patterns
 
 urlpatterns = i18n_patterns(
     '',
-    url(r'^catalog/', include('shop_catalog.urls')),
+    url(r'^catalog/', include('catalog.urls')),
     url(r'^shop/', include('shop.urls')),
 )

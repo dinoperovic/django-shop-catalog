@@ -6,7 +6,7 @@ from django.utils.safestring import mark_safe
 from django.utils.html import format_html
 from django.utils.encoding import force_text
 
-from shop_catalog.models import Attribute, AttributeOption
+from catalog.models import Attribute, AttributeOption
 
 
 class AttributeValueKindsMapSelect(forms.Select):

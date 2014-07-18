@@ -14,17 +14,17 @@ from cms.admin.placeholderadmin import (
 from hvad.admin import TranslatableAdmin, TranslatableTabularInline
 from mptt.admin import MPTTModelAdmin
 
-from shop_catalog.models import (
+from catalog.models import (
     Modifier, ModifierCondition, Category, Brand, Manufacturer, Tax, Product,
     Attribute, ProductAttributeValue, AttributeOption, ProductMeasurement)
 
-from shop_catalog.forms import (
+from catalog.forms import (
     ModifierModelForm, CategoryModelForm, BrandModelForm,
     ManufacturerModelForm, ProductModelForm, ProductAttributeValueModelForm)
 
-from shop_catalog.filters import ProductParentListFilter
-from shop_catalog.utils import slug_num_suffix
-from shop_catalog import settings as scs
+from catalog.filters import ProductParentListFilter
+from catalog.utils import slug_num_suffix
+from catalog import settings as scs
 
 
 class ModifierConditionInline(admin.TabularInline):
@@ -199,7 +199,7 @@ class ProductAdmin(
             '',
             url(r'^(?P<pk>\d+)/add_variant/$',
                 self.admin_site.admin_view(self.add_variant),
-                name='shop_catalog_product_add_variant'),
+                name='catalog_product_add_variant'),
         )
         return product_urls + urls
 
@@ -276,7 +276,7 @@ class ProductAdmin(
             'parent': product.pk,
         }
         return HttpResponseRedirect('{}?{}'.format(
-            reverse('admin:shop_catalog_product_add'), urlencode(data)))
+            reverse('admin:catalog_product_add'), urlencode(data)))
 
 
 class AttributeOptionInline(TranslatableTabularInline):

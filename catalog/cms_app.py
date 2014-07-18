@@ -7,8 +7,8 @@ from django.utils.translation import ugettext_lazy as _
 
 
 class ShopCatalogApphook(CMSApp):
-    name = _('Shop Catalog')
-    urls = ['shop_catalog.urls']
+    name = _('Catalog')
+    urls = ['catalog.urls']
 
 
 apphook_pool.register(ShopCatalogApphook)
