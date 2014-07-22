@@ -5,12 +5,32 @@ from decimal import Decimal
 
 from django.db import models
 from django.utils.translation import get_language, ugettext_lazy as _
+from django.dispatch import receiver
 
 from shop.models_bases import BaseOrder
 from shop.models_bases.managers import OrderManager as BaseOrderManager
 from shop.util.fields import CurrencyField
+from shop.order_signals import confirmed, completed, shipped, cancelled
 
+from catalog.orders.notifications import ClientNotification, OwnersNotification
 from catalog.utils import round_2
+
+
+@receiver(confirmed)
+@receiver(completed)
+@receiver(shipped)
+@receiver(cancelled)
+def notify_client(sender, **kwargs):
+    notification = ClientNotification(kwargs.get('order'))
+    notification.send()
+
+
+@receiver(confirmed)
+@receiver(completed)
+@receiver(cancelled)
+def notify_owners(sender, **kwargs):
+    notification = OwnersNotification(kwargs.get('order'))
+    notification.send()
 
 
 class OrderManager(BaseOrderManager):

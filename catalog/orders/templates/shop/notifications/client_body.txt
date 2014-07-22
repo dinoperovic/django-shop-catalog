@@ -1,0 +1,6 @@
+{% load i18n %}{% trans "Dear Shop Client, " %}
+{% if order.status == 30 %}{% trans "your order has been confirmed, please pay." %}
+{% elif order.status == 40 %}{% trans "your order is completed, we will ship it soon." %}
+{% elif order.status == 50 %}{% trans "your order is now shipped." %}
+{% elif order.status == 60 %}{% trans "your order has been cancelled." %}
+{% endif %}

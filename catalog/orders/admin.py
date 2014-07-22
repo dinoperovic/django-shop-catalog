@@ -9,7 +9,7 @@ from shop.admin.orderadmin import (
     OrderItemInline, OrderExtraInfoInline, ExtraOrderPriceFieldInline,
     OrderPaymentInline)
 from shop.admin.mixins import LocalizeDecimalFieldsMixin
-from shop.order_signals import completed
+from shop.order_signals import completed, shipped
 
 from catalog.orders.models import Order
 
@@ -45,8 +45,22 @@ class OrderAdmin(LocalizeDecimalFieldsMixin, ModelAdmin):
         }),
     )
 
+    def __init__(self, *args, **kwargs):
+        super(OrderAdmin, self).__init__(*args, **kwargs)
+
     def save_model(self, request, order, form, change):
+        try:
+            instance = Order.objects.get(pk=order.pk)
+        except Order.DoesNotExist:
+            instance = None
+
         super(OrderAdmin, self).save_model(request, order, form, change)
+
+        # Emmit shipped signal when status is changed to shipped.
+        if instance and order.status == Order.SHIPPED \
+                and instance.status != Order.SHIPPED:
+            shipped.send(sender=self, order=order)
+
         if order.status == Order.CONFIRMED and order.is_paid():
             order.status = Order.COMPLETED
             order.save()
