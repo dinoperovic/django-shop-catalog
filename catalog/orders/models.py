@@ -54,7 +54,7 @@ class Order(BaseOrder):
 
     class Meta:
         abstract = False
-        db_table = 'catalog_order_orders'
+        db_table = 'catalog_orders_orders'
         verbose_name = _('Order')
         verbose_name_plural = _('Orders')
 
