@@ -12,26 +12,26 @@ PRODUCT_CHANGE_FORM_TEMPLATE = (
     'admin/catalog/product_change_form.html')
 
 ATTRIBUTE_TEMPLATE_CHOICES = getattr(
-    settings, 'catalog_ATTRIBUTE_TEMPLATE_CHOICES', (
+    settings, 'CATALOG_ATTRIBUTE_TEMPLATE_CHOICES', (
         ('radio', _('Radio')),
     ))
 
-HAS_CATEGORIES = getattr(settings, 'catalog_HAS_CATEGORIES', True)
-HAS_BRANDS = getattr(settings, 'catalog_HAS_BRANDS', True)
-HAS_MANUFACTURERS = getattr(settings, 'catalog_HAS_MANUFACTURERS', True)
+HAS_CATEGORIES = getattr(settings, 'CATALOG_HAS_CATEGORIES', True)
+HAS_BRANDS = getattr(settings, 'CATALOG_HAS_BRANDS', True)
+HAS_MANUFACTURERS = getattr(settings, 'CATALOG_HAS_MANUFACTURERS', True)
 
 PRODUCT_URL = getattr(
-    settings, 'catalog_PRODUCT_URL', 'products')
+    settings, 'CATALOG_PRODUCT_URL', 'products')
 CATEGORY_URL = getattr(
-    settings, 'catalog_CATEGORY_URL', 'categories')
+    settings, 'CATALOG_CATEGORY_URL', 'categories')
 BRAND_URL = getattr(
-    settings, 'catalog_BRAND_URL', 'brands')
+    settings, 'CATALOG_BRAND_URL', 'brands')
 MANUFACTURER_URL = getattr(
-    settings, 'catalog_MANUFACTURER_URL', 'manufacturers')
+    settings, 'CATALOG_MANUFACTURER_URL', 'manufacturers')
 
-MEASUREMENT_UNITS = getattr(settings, 'catalog_MEASUREMENT_UNITS', [])
+MEASUREMENT_UNITS = getattr(settings, 'CATALOG_MEASUREMENT_UNITS', [])
 
-MODIFIER_CONDITIONS = getattr(settings, 'catalog_MODIFIER_CONDITIONS', [
+MODIFIER_CONDITIONS = getattr(settings, 'CATALOG_MODIFIER_CONDITIONS', [
     'catalog.modifier_conditions.PriceGreaterThanModifierCondition',
     'catalog.modifier_conditions.PriceLessThanModifierCondition',
     'catalog.modifier_conditions.QuantityGreaterThanModifierCondition',
