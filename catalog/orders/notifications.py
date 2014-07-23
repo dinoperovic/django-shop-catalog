@@ -74,7 +74,10 @@ class ClientNotification(Notification):
         emails = []
         if self.order.user and self.order.user.email:
             emails.append(self.order.user.email)
-        # TODO: Find a way to add email to order and add it here.
+        if self.order.billing_email:
+            emails.append(self.order.billing_email)
+        if self.order.shipping_email:
+            emails.append(self.order.shipping_email)
         return list(set(emails))
 
 

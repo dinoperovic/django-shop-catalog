@@ -16,18 +16,13 @@ from catalog.orders.notifications import ClientNotification, OwnersNotification
 from catalog.utils import round_2
 
 
-@receiver(confirmed)
-@receiver(completed)
-@receiver(shipped)
-@receiver(cancelled)
+@receiver([confirmed, completed, shipped, cancelled])
 def notify_client(sender, **kwargs):
     notification = ClientNotification(kwargs.get('order'))
     notification.send()
 
 
-@receiver(confirmed)
-@receiver(completed)
-@receiver(cancelled)
+@receiver([confirmed, completed, cancelled])
 def notify_owners(sender, **kwargs):
     notification = OwnersNotification(kwargs.get('order'))
     notification.send()
@@ -58,6 +53,16 @@ class Order(BaseOrder):
     language_code = models.CharField(
         _('Language code'), max_length=10, blank=True, null=True)
 
+    shipping_name = models.CharField(
+        _('Name'), max_length=255, blank=True, null=True)
+    shipping_email = models.EmailField(
+        _('Email'), max_length=255, blank=True, null=True)
+
+    billing_name = models.CharField(
+        _('Name'), max_length=255, blank=True, null=True)
+    billing_email = models.EmailField(
+        _('Email'), max_length=255, blank=True, null=True)
+
     currency_code = models.CharField(
         _('Code'), max_length=3, blank=True, null=True)
     currency_name = models.CharField(
@@ -79,11 +84,47 @@ class Order(BaseOrder):
         verbose_name_plural = _('Orders')
 
     def save(self, *args, **kwargs):
-        self.calculate_currency()
+        self.currency_order_subtotal = \
+            self.calculate_currency(self.order_subtotal)
+        self.currency_order_total = self.calculate_currency(self.order_total)
+
         super(Order, self).save(*args, **kwargs)
 
-    def calculate_currency(self):
-        self.currency_order_subtotal = round_2(
-            self.order_subtotal * self.currency_factor)
-        self.currency_order_total = round_2(
-            self.order_total * self.currency_factor)
+    def get_name(self):
+        return self.billing_name or self.shipping_name or ''
+
+    def get_items(self):
+        items = self.items.all()
+        for item in items:
+            item.currency_unit_price = self.calculate_currency(item.unit_price)
+            item.currency_line_total = self.calculate_currency(item.line_total)
+            item.currency_line_subtotal = \
+                self.calculate_currency(item.line_subtotal)
+
+            fields = []
+            for field in item.extraorderitempricefield_set.all():
+                field.currency_value = self.calculate_currency(field.value)
+                fields.append(field)
+            item.extra_price_fields = fields
+        return items
+
+    @property
+    def extra_price_fields(self):
+        fields = []
+        for field in self.extraorderpricefield_set.all():
+            field.currency_value = self.calculate_currency(field.value)
+            fields.append(field)
+        return fields
+
+    def set_billing_address(self, billing_address):
+        self.billing_name = getattr(billing_address, 'name', None)
+        self.billing_email = getattr(billing_address, 'email', None)
+        super(Order, self).set_billing_address(billing_address)
+
+    def set_shipping_address(self, shipping_address):
+        self.shipping_name = getattr(shipping_address, 'name', None)
+        self.shipping_email = getattr(shipping_address, 'email', None)
+        super(Order, self).set_shipping_address(shipping_address)
+
+    def calculate_currency(self, price):
+        return round_2(price * self.currency_factor)

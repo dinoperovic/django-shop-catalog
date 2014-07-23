@@ -9,7 +9,7 @@ from shop.admin.orderadmin import (
     OrderItemInline, OrderExtraInfoInline, ExtraOrderPriceFieldInline,
     OrderPaymentInline)
 from shop.admin.mixins import LocalizeDecimalFieldsMixin
-from shop.order_signals import completed, shipped
+from shop.order_signals import completed, shipped, cancelled
 
 from catalog.orders.models import Order
 
@@ -34,14 +34,16 @@ class OrderAdmin(LocalizeDecimalFieldsMixin, ModelAdmin):
         (_('Currency'), {
             'fields': (
                 'currency_name', 'currency_code', 'currency_symbol',
-                'currency_factor', 'currency_order_subtotal',
-                'currency_order_total')
+                'currency_factor', 'currency_order_total',
+                'currency_order_subtotal')
         }),
         (_('Shipping'), {
-            'fields': ('shipping_address_text', ),
+            'fields': (
+                'shipping_name', 'shipping_email', 'shipping_address_text'),
         }),
         (_('Billing'), {
-            'fields': ('billing_address_text', ),
+            'fields': (
+                'billing_name', 'billing_email', 'billing_address_text'),
         }),
     )
 
@@ -49,21 +51,16 @@ class OrderAdmin(LocalizeDecimalFieldsMixin, ModelAdmin):
         super(OrderAdmin, self).__init__(*args, **kwargs)
 
     def save_model(self, request, order, form, change):
-        try:
-            instance = Order.objects.get(pk=order.pk)
-        except Order.DoesNotExist:
-            instance = None
-
+        instance = Order.objects.get(pk=order.pk)
         super(OrderAdmin, self).save_model(request, order, form, change)
 
-        # Emmit shipped signal when status is changed to shipped.
-        if instance and order.status == Order.SHIPPED \
-                and instance.status != Order.SHIPPED:
-            shipped.send(sender=self, order=order)
+        if instance.status != order.status:
+            if order.status == Order.COMPLETED:
+                completed.send(sender=self, order=order)
+            elif order.status == Order.SHIPPED:
+                shipped.send(sender=self, order=order)
+            elif order.status == Order.CANCELLED:
+                cancelled.send(sender=self, order=order)
 
-        if order.status == Order.CONFIRMED and order.is_paid():
-            order.status = Order.COMPLETED
-            order.save()
-            completed.send(sender=self, order=order)
 
 admin.site.register(Order, OrderAdmin)
