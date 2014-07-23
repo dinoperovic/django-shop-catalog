@@ -72,9 +72,6 @@ class Order(BaseOrder):
     currency_factor = models.DecimalField(
         _('Factor'), max_digits=30, decimal_places=10, default=Decimal(1))
 
-    currency_order_subtotal = CurrencyField(verbose_name=_('Order subtotal'))
-    currency_order_total = CurrencyField(verbose_name=_('Order Total'))
-
     objects = OrderManager()
 
     class Meta:
@@ -83,12 +80,15 @@ class Order(BaseOrder):
         verbose_name = _('Order')
         verbose_name_plural = _('Orders')
 
-    def save(self, *args, **kwargs):
-        self.currency_order_subtotal = \
-            self.calculate_currency(self.order_subtotal)
-        self.currency_order_total = self.calculate_currency(self.order_total)
+    def set_billing_address(self, billing_address):
+        self.billing_name = getattr(billing_address, 'name', None)
+        self.billing_email = getattr(billing_address, 'email', None)
+        super(Order, self).set_billing_address(billing_address)
 
-        super(Order, self).save(*args, **kwargs)
+    def set_shipping_address(self, shipping_address):
+        self.shipping_name = getattr(shipping_address, 'name', None)
+        self.shipping_email = getattr(shipping_address, 'email', None)
+        super(Order, self).set_shipping_address(shipping_address)
 
     def get_name(self):
         return self.billing_name or self.shipping_name or ''
@@ -116,15 +116,13 @@ class Order(BaseOrder):
             fields.append(field)
         return fields
 
-    def set_billing_address(self, billing_address):
-        self.billing_name = getattr(billing_address, 'name', None)
-        self.billing_email = getattr(billing_address, 'email', None)
-        super(Order, self).set_billing_address(billing_address)
+    @property
+    def currency_order_subtotal(self):
+        return self.calculate_currency(self.order_subtotal)
 
-    def set_shipping_address(self, shipping_address):
-        self.shipping_name = getattr(shipping_address, 'name', None)
-        self.shipping_email = getattr(shipping_address, 'email', None)
-        super(Order, self).set_shipping_address(shipping_address)
+    @property
+    def currency_order_total(self):
+        return self.calculate_currency(self.order_total)
 
     def calculate_currency(self, price):
         return round_2(price * self.currency_factor)

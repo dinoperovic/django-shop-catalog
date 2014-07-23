@@ -34,8 +34,7 @@ class OrderAdmin(LocalizeDecimalFieldsMixin, ModelAdmin):
         (_('Currency'), {
             'fields': (
                 'currency_name', 'currency_code', 'currency_symbol',
-                'currency_factor', 'currency_order_total',
-                'currency_order_subtotal')
+                'currency_factor')
         }),
         (_('Shipping'), {
             'fields': (
