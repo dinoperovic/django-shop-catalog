@@ -56,11 +56,15 @@ class Order(BaseOrder):
         _('Name'), max_length=255, blank=True, null=True)
     shipping_email = models.EmailField(
         _('Email'), max_length=255, blank=True, null=True)
+    shipping_phone_number = models.CharField(
+        _('Phone number'), max_length=16, blank=True, null=True)
 
     billing_name = models.CharField(
         _('Name'), max_length=255, blank=True, null=True)
     billing_email = models.EmailField(
         _('Email'), max_length=255, blank=True, null=True)
+    billing_phone_number = models.CharField(
+        _('Phone number'), max_length=16, blank=True, null=True)
 
     currency_code = models.CharField(
         _('Code'), max_length=3, blank=True, null=True)
@@ -82,11 +86,15 @@ class Order(BaseOrder):
     def set_billing_address(self, billing_address):
         self.billing_name = getattr(billing_address, 'name', None)
         self.billing_email = getattr(billing_address, 'email', None)
+        self.billing_phone_number = getattr(
+            billing_address, 'phone_number', None)
         super(Order, self).set_billing_address(billing_address)
 
     def set_shipping_address(self, shipping_address):
         self.shipping_name = getattr(shipping_address, 'name', None)
         self.shipping_email = getattr(shipping_address, 'email', None)
+        self.shipping_phone_number = getattr(
+            shipping_address, 'phone_number', None)
         super(Order, self).set_shipping_address(shipping_address)
 
     def get_name(self):

@@ -182,8 +182,8 @@ class ProductAdmin(
         self.fieldsets += (
             (_('Price'), {
                 'fields': (
-                    'unit_price', 'discount_percent', 'is_discountable',
-                    'tax'),
+                    'unit_price', 'discount_percent', 'tax',
+                    'is_discountable'),
             }),
             (None, {
                 'fields': ('quantity', ),

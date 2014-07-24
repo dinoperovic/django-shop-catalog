@@ -15,7 +15,6 @@ from catalog.orders.models import Order
 
 
 class OrderAdmin(LocalizeDecimalFieldsMixin, ModelAdmin):
-    # form = OrderModelForm
     list_display = ('id', 'user', 'status', 'order_total', 'created')
     list_filter = ('status', 'user')
     search_fields = ('id', 'shipping_address_text', 'user__username')
@@ -42,11 +41,13 @@ class OrderAdmin(LocalizeDecimalFieldsMixin, ModelAdmin):
         }),
         (_('Shipping'), {
             'fields': (
-                'shipping_name', 'shipping_email', 'shipping_address_text'),
+                'shipping_name', 'shipping_email', 'shipping_phone_number',
+                'shipping_address_text'),
         }),
         (_('Billing'), {
             'fields': (
-                'billing_name', 'billing_email', 'billing_address_text'),
+                'billing_name', 'billing_email', 'billing_phone_number',
+                'billing_address_text'),
         }),
     )
 

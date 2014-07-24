@@ -2,6 +2,7 @@
 from __future__ import unicode_literals
 
 from django.db import models
+from django.core.validators import RegexValidator
 from django.conf import settings
 from django.utils.translation import ugettext_lazy as _
 from django.utils.encoding import python_2_unicode_compatible
@@ -58,6 +59,13 @@ class Address(models.Model):
     country = models.ForeignKey(
         Country, verbose_name=_('Country'))
 
+    phone_number = models.CharField(
+        _('Phone number'), max_length=16, blank=True, validators=[
+            RegexValidator(r'^\+?1?\d{9,15}$',
+                           _('Phone number must be entered in the '
+                             'format: "+999999999". Up to 15 digits '
+                             'allowed.'), 'invalid')])
+
     class Meta:
         db_table = 'catalog_addresses_addresses'
         verbose_name = _('Address')
@@ -80,4 +88,5 @@ class Address(models.Model):
             'city': self.city,
             'state': self.state,
             'country': self.country,
+            'phone_number': self.phone_number,
         }
