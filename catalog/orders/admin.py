@@ -15,6 +15,7 @@ from catalog.orders.models import Order
 
 
 class OrderAdmin(LocalizeDecimalFieldsMixin, ModelAdmin):
+    # form = OrderModelForm
     list_display = ('id', 'user', 'status', 'order_total', 'created')
     list_filter = ('status', 'user')
     search_fields = ('id', 'shipping_address_text', 'user__username')
@@ -23,7 +24,9 @@ class OrderAdmin(LocalizeDecimalFieldsMixin, ModelAdmin):
         OrderItemInline, OrderExtraInfoInline, ExtraOrderPriceFieldInline,
         OrderPaymentInline)
 
-    readonly_fields = ('created', 'modified')
+    readonly_fields = (
+        'created', 'modified', 'currency_order_total',
+        'currency_order_subtotal')
     raw_id_fields = ('user', )
     fieldsets = (
         (None, {
@@ -34,7 +37,8 @@ class OrderAdmin(LocalizeDecimalFieldsMixin, ModelAdmin):
         (_('Currency'), {
             'fields': (
                 'currency_name', 'currency_code', 'currency_symbol',
-                'currency_factor')
+                'currency_factor', 'currency_order_total',
+                'currency_order_subtotal')
         }),
         (_('Shipping'), {
             'fields': (

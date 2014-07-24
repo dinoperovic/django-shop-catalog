@@ -158,7 +158,8 @@ class ProductAttributeValueModelForm(forms.ModelForm):
         """
         cleaned_data = super(ProductAttributeValueModelForm, self).clean()
         for item in self.temp_data:
-            del cleaned_data[item]
+            if item in cleaned_data:
+                del cleaned_data[item]
         return cleaned_data
 
     def has_changed(self):

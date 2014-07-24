@@ -9,7 +9,6 @@ from django.dispatch import receiver
 
 from shop.models_bases import BaseOrder
 from shop.models_bases.managers import OrderManager as BaseOrderManager
-from shop.util.fields import CurrencyField
 from shop.order_signals import confirmed, completed, shipped, cancelled
 
 from catalog.orders.notifications import ClientNotification, OwnersNotification
@@ -116,13 +115,13 @@ class Order(BaseOrder):
             fields.append(field)
         return fields
 
-    @property
     def currency_order_subtotal(self):
         return self.calculate_currency(self.order_subtotal)
+    currency_order_subtotal.short_description = _('Order subtotal')
 
-    @property
     def currency_order_total(self):
         return self.calculate_currency(self.order_total)
+    currency_order_total.short_description = _('Order Total')
 
     def calculate_currency(self, price):
         return round_2(price * self.currency_factor)
