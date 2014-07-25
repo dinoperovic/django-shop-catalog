@@ -261,7 +261,8 @@ class CategoryBase(MPTTModel, CatalogModel, ModifierModel):
         data = dict(
             parent=parent,
         )
-        return dict(data.items() + super(CategoryBase, self).as_dict.items())
+        data.update(super(CategoryBase, self).as_dict)
+        return data
 
 
 class Category(TranslatableModel, CategoryBase):
@@ -552,9 +553,10 @@ class ProductBase(MPTTModel, CatalogModel):
 
         extra_dict = self.get_extra_dict()
         if extra_dict:
-            data = dict(data.items() + extra_dict.items())
+            data.update(extra_dict)
 
-        return dict(data.items() + super(ProductBase, self).as_dict.items())
+        data.update(super(ProductBase, self).as_dict)
+        return data
 
     @property
     def as_json(self):
@@ -713,7 +715,8 @@ class Product(TranslatableModel, ProductBase, ModifierModel):
             measurements=self.get_measurements(),
             currencies=self.get_currencies(),
         )
-        return dict(data.items() + self.get_categorization().items())
+        data.update(self.get_categorization())
+        return data
 
     def get_modifiers(self, distinct=True):
         """
