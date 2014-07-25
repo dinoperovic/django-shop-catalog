@@ -257,11 +257,11 @@ class CategoryBase(MPTTModel, CatalogModel, ModifierModel):
 
     @property
     def as_dict(self):
+        data = super(CategoryBase, self).as_dict
         parent = force_str(self.parent_id) if self.parent is not None else None
-        data = dict(
+        data.update(dict(
             parent=parent,
-        )
-        data.update(super(CategoryBase, self).as_dict)
+        ))
         return data
 
 
@@ -524,6 +524,8 @@ class ProductBase(MPTTModel, CatalogModel):
         """
         Returns a dicionary with product properties.
         """
+        data = super(ProductBase, self).as_dict
+
         parent = force_str(self.parent_id) if self.is_variant else None
         quantity = force_str(self.quantity) if self.quantity else None
 
@@ -531,7 +533,7 @@ class ProductBase(MPTTModel, CatalogModel):
         featured_image = (
             force_str(featured_image.url) if featured_image else None)
 
-        data = dict(
+        data.update(dict(
             upc=self.upc,
             parent=parent,
             unit_price=force_str(self.get_unit_price()),
@@ -549,13 +551,11 @@ class ProductBase(MPTTModel, CatalogModel):
             can_be_added_to_cart=self.can_be_added_to_cart,
             featured_image=featured_image,
             attrs=self.get_attrs(),
-        )
+        ))
 
         extra_dict = self.get_extra_dict()
         if extra_dict:
             data.update(extra_dict)
-
-        data.update(super(ProductBase, self).as_dict)
         return data
 
     @property
