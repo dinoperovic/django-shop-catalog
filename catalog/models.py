@@ -86,6 +86,9 @@ class Modifier(TranslatableModel, CatalogModel):
         (KIND_CART_MODIFIER, _('Cart modifier')),
     )
 
+    code = models.SlugField(
+        _('Code'), max_length=128, help_text=scs.SLUG_FIELD_HELP_TEXT)
+
     amount = CurrencyField(
         verbose_name=_('Amount'),
         help_text=_('Absolute amount that should be applied. '
@@ -104,9 +107,6 @@ class Modifier(TranslatableModel, CatalogModel):
 
     translations = TranslatedFields(
         name=models.CharField(_('Name'), max_length=128),
-        slug=models.SlugField(
-            _('Slug'), max_length=128, help_text=scs.SLUG_FIELD_HELP_TEXT),
-        meta={'unique_together': [('slug', 'language_code')]},
     )
 
     objects = CatalogManager()
@@ -120,7 +120,7 @@ class Modifier(TranslatableModel, CatalogModel):
         return self.lazy_translation_getter('name')
 
     def get_slug(self):
-        return self.lazy_translation_getter('slug')
+        return self.code
 
     def get_extra_cart_item_price_field(self, cart_item, request=None):
         """

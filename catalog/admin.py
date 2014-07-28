@@ -35,7 +35,7 @@ class ModifierConditionInline(admin.TabularInline):
 class ModifierAdmin(TranslatableAdmin):
     form = ModifierModelForm
     list_display = (
-        'get_name', 'get_slug', 'amount', 'percent', 'kind', 'active',
+        'get_name', 'code', 'amount', 'percent', 'kind', 'active',
         'all_translations')
     list_filter = ('date_added', 'last_modified', 'active', 'kind')
 
@@ -45,10 +45,10 @@ class ModifierAdmin(TranslatableAdmin):
 
     def __init__(self, *args, **kwargs):
         super(ModifierAdmin, self).__init__(*args, **kwargs)
-        self.prepopulated_fields = {'slug': ('name', )}
+        self.prepopulated_fields = {'code': ('name', )}
         self.fieldsets = (
             (None, {
-                'fields': ('name', 'slug'),
+                'fields': ('name', 'code'),
             }),
             (None, {
                 'fields': ('amount', 'percent'),
@@ -64,10 +64,6 @@ class ModifierAdmin(TranslatableAdmin):
     def get_name(self, obj):
         return obj.get_name()
     get_name.short_description = _('Name')
-
-    def get_slug(self, obj):
-        return obj.get_slug()
-    get_slug.short_description = _('Slug')
 
 
 class CategoryAdminBase(
