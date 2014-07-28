@@ -87,7 +87,8 @@ class Modifier(TranslatableModel, CatalogModel):
     )
 
     code = models.SlugField(
-        _('Code'), max_length=128, help_text=scs.SLUG_FIELD_HELP_TEXT)
+        _('Code'), max_length=128, unique=True,
+        help_text=scs.SLUG_FIELD_HELP_TEXT)
 
     amount = CurrencyField(
         verbose_name=_('Amount'),
