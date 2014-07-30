@@ -15,8 +15,9 @@ from hvad.admin import TranslatableAdmin, TranslatableTabularInline
 from mptt.admin import MPTTModelAdmin
 
 from catalog.models import (
-    Modifier, ModifierCondition, Category, Brand, Manufacturer, Tax, Product,
-    Attribute, ProductAttributeValue, AttributeOption, ProductMeasurement)
+    Modifier, ModifierCondition, ModifierCode, Category, Brand, Manufacturer,
+    Tax, Product, Attribute, ProductAttributeValue, AttributeOption,
+    ProductMeasurement)
 
 from catalog.forms import (
     ModifierModelForm, CategoryModelForm, BrandModelForm,
@@ -32,6 +33,11 @@ class ModifierConditionInline(admin.TabularInline):
     extra = 0
 
 
+class ModifierCodeInline(admin.TabularInline):
+    model = ModifierCode
+    extra = 0
+
+
 class ModifierAdmin(TranslatableAdmin):
     form = ModifierModelForm
     list_display = (
@@ -41,7 +47,7 @@ class ModifierAdmin(TranslatableAdmin):
 
     readonly_fields = ('date_added', 'last_modified')
 
-    inlines = (ModifierConditionInline, )
+    inlines = (ModifierConditionInline, ModifierCodeInline)
 
     def __init__(self, *args, **kwargs):
         super(ModifierAdmin, self).__init__(*args, **kwargs)

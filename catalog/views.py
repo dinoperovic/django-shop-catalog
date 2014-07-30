@@ -4,13 +4,54 @@ from __future__ import unicode_literals
 import json
 
 from django.http import Http404, HttpResponse
+from django.views.generic import CreateView, View
+from django.core.urlresolvers import reverse_lazy
+from django.shortcuts import redirect
 
 from shop.views import ShopView, ShopListView, ShopDetailView
 from shop.views.product import ProductDetailView as ProductDetailViewBase
+from shop.util.cart import get_or_create_cart
 
 from catalog.models import (
-    Category, Brand, Manufacturer, Product, Attribute)
+    CartModifierCode, Category, Brand, Manufacturer, Product, Attribute)
+from catalog.forms import CartModifierCodeModelForm
 from catalog.utils.shortcuts import get_by_slug_or_404
+
+
+class ModifierCodeCreateView(CreateView):
+    model = CartModifierCode
+    form_class = CartModifierCodeModelForm
+    template_name = 'shop/cart_modifier_codes.html'
+    success_url = reverse_lazy('cart')
+
+    def get_form_kwargs(self):
+        kwargs = super(ModifierCodeCreateView, self).get_form_kwargs()
+        cart = get_or_create_cart(self.request, True)
+        instance = CartModifierCode(cart=cart)
+        kwargs.update({'instance': instance})
+        return kwargs
+
+
+class ModifierCodeDeleteView(View):
+    success_url = reverse_lazy('cart')
+
+    def get_success_url(self):
+        return self.success_url
+
+    def get(self, *args, **kwargs):
+        self.delete_cart_modifier_codes()
+        return redirect(self.get_success_url())
+
+    def post(self, *args, **kwargs):
+        self.delete_cart_modifier_codes()
+        return redirect(self.get_success_url())
+
+    def delete_cart_modifier_codes(self, codes=None):
+        cart = get_or_create_cart(self.request)
+        if codes:
+            cart.cartmodifiercode_set.filter(code__in=codes).delete()
+        else:
+            cart.cartmodifiercode_set.all().delete()
 
 
 class CategoryListViewBase(ShopListView):

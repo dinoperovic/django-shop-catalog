@@ -4,17 +4,20 @@ from __future__ import unicode_literals
 import json
 from itertools import chain
 from decimal import Decimal
+from datetime import datetime
 
 from django.db import models
 from django.db.models import Q
 from django.core.validators import MinValueValidator
 from django.core.urlresolvers import reverse
+from django.core.exceptions import ValidationError
 from django.utils.translation import ugettext_lazy as _
 from django.utils.encoding import python_2_unicode_compatible, force_str
 from django.utils.text import slugify
 from django.utils.module_loading import import_by_path
 
 from shop.util.fields import CurrencyField
+from shop.util.loader import get_model_string
 from cms.models.fields import PlaceholderField
 from hvad.models import TranslatableModel, TranslatedFields
 from mptt.models import MPTTModel
@@ -26,7 +29,8 @@ from currencies.models import Currency
 from currencies.utils import calculate_price
 
 from catalog.fields import NullableCharField
-from catalog.managers import CatalogManager, ProductManager
+from catalog.managers import (
+    CatalogManager, ModifierCodeManager, ProductManager)
 from catalog.utils.noconflict import classmaker
 from catalog.utils import round_2
 from catalog import settings as scs
@@ -41,7 +45,7 @@ class CatalogModel(models.Model):
     When an object inherits from CatalogModel, it can define a
     CatalogManager as a manager for ease of getting "active" objects.
     """
-    active = models.BooleanField(default=True, verbose_name=_('Active'))
+    active = models.BooleanField(_('Active'), default=True)
     date_added = models.DateTimeField(_('Date added'), auto_now_add=True)
     last_modified = models.DateTimeField(_('Last modified'), auto_now=True)
 
@@ -127,10 +131,7 @@ class Modifier(TranslatableModel, CatalogModel):
         """
         Returns extra price field for the given cart item.
         """
-        if self.is_eligible_product(cart_item.product):
-            for condition in self.conditions.select_related().all():
-                if not condition.is_met(cart_item=cart_item, request=request):
-                    return None
+        if self.can_be_applied(cart_item=cart_item, request=request):
             return (self.get_name(), self.calculate_add_price(
                 cart_item.current_total, cart_item.quantity))
 
@@ -138,10 +139,9 @@ class Modifier(TranslatableModel, CatalogModel):
         """
         Returns extra price field for entire cart.
         """
-        for condition in self.conditions.select_related().all():
-            if not condition.is_met(cart=cart, request=request):
-                return None
-        return (self.get_name(), self.calculate_add_price(cart.current_total))
+        if self.can_be_applied(cart=cart, request=request):
+            return (self.get_name(), self.calculate_add_price(
+                cart.current_total))
 
     def calculate_add_price(self, price, quantity=1):
         """
@@ -152,6 +152,33 @@ class Modifier(TranslatableModel, CatalogModel):
         else:
             add_price = self.amount * quantity
         return add_price if price + add_price > 0 else price * -1
+
+    def can_be_applied(self, cart_item=None, cart=None, request=None):
+        """
+        Checks if this modifier can be applied or not.
+        """
+        # Check that product is eligible if cart_item is specified.
+        if cart_item and not self.is_eligible_product(cart_item.product):
+            return False
+
+        # Check that all conditions are met.
+        for con in self.conditions.select_related().all():
+            if not con.is_met(cart_item=cart_item, cart=cart, request=request):
+                return False
+
+        # Check for codes on this modifiers, and if they exist make sure
+        # that at least one is applied to the given cart.
+        cart_id = cart_item.cart_id if cart_item else cart.id if cart else None
+        codes = self.codes.active()
+        if cart_id is not None and codes.exists():
+            cart_codes = CartModifierCode.objects.filter(cart_id=cart_id)
+            if cart_codes:
+                cart_codes = cart_codes.values_list('code', flat=True)
+                for code in list(set(cart_codes)):
+                    if codes.valid(code=code).exists():
+                        return True
+            return False
+        return True
 
     def is_eligible_product(self, product):
         """
@@ -234,6 +261,48 @@ class ModifierCondition(models.Model):
         except ImportError:
             pass
         return True
+
+
+@python_2_unicode_compatible
+class ModifierCode(models.Model):
+    modifier = models.ForeignKey(
+        Modifier, related_name='codes', verbose_name=_('Modifier'))
+
+    code = models.SlugField(
+        _('Code'), max_length=30, unique=True,
+        help_text=scs.SLUG_FIELD_HELP_TEXT)
+
+    active = models.BooleanField(_('Active'), default=True)
+    valid_from = models.DateTimeField(_('Valid from'), default=datetime.now)
+    valid_until = models.DateTimeField(_('Valid until'), blank=True, null=True)
+    num_uses = models.IntegerField(_('Times used'), default=0)
+    max_uses = models.IntegerField(
+        _('Maximum uses'), blank=True, null=True,
+        help_text=_('If left empty, there will be no limit.'))
+
+    objects = ModifierCodeManager()
+
+    class Meta:
+        db_table = 'catalog_modifier_codes'
+        verbose_name = _('Code')
+        verbose_name_plural = _('Codes')
+
+    def __str__(self):
+        return '{}'.format(self.code)
+
+
+@python_2_unicode_compatible
+class CartModifierCode(models.Model):
+    cart = models.ForeignKey(get_model_string('Cart'), editable=False)
+    code = models.CharField(_('Code'), max_length=30)
+
+    class Meta:
+        db_table = 'catalog_cart_modifier_codes'
+        verbose_name = _('Cart modifier code')
+        verbose_name_plural = _('Cart modifier codes')
+
+    def __str__(self):
+        return '{}'.format(self.code)
 
 
 class CategoryBase(MPTTModel, CatalogModel, ModifierModel):

@@ -8,8 +8,8 @@ from django.utils.translation import ugettext_lazy as _
 from hvad.forms import TranslatableModelForm
 
 from catalog.models import (
-    Modifier, Category, Brand, Manufacturer, Product, Attribute,
-    ProductAttributeValue)
+    Modifier, ModifierCode, CartModifierCode, Category, Brand, Manufacturer,
+    Product, Attribute, ProductAttributeValue)
 
 from catalog.widgets import AttributeValueKindsMapSelect
 
@@ -54,6 +54,19 @@ class CatalogModelFormBase(TranslatableModelForm):
 class ModifierModelForm(CatalogModelFormBase):
     class Meta:
         model = Modifier
+
+
+class CartModifierCodeModelForm(forms.ModelForm):
+    class Meta:
+        model = CartModifierCode
+
+    def clean_code(self):
+        instance = getattr(self, 'instance', None)
+        code = self.cleaned_data.get('code')
+        if instance is not None:
+            if not ModifierCode.objects.valid(code=code):
+                raise forms.ValidationError(_('Code is invalid or expired.'))
+        return code
 
 
 class CategoryModelForm(CatalogModelFormBase):

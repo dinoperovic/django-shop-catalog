@@ -1,6 +1,10 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
+from datetime import datetime
+
+from django.db.models import Q, F
+from django.db.models import Manager
 from django.db.models.query import QuerySet
 from django.utils.translation import get_language
 
@@ -42,6 +46,27 @@ class CatalogManager(TranslationManager):
             language_code = get_language()[:2]
 
         return self.language(language_code).active().get(slug=slug)
+
+
+class ModifierCodeQuerySet(CatalogQuerySet):
+    def valid(self, **kwargs):
+        at_datetime = kwargs.pop('at_datetime', datetime.now)
+        qs = self.filter(
+            Q(valid_from__lte=at_datetime) &
+            (Q(valid_until__isnull=True) | Q(valid_until__gt=at_datetime)) &
+            (Q(max_uses__isnull=True) | Q(num_uses__lt=F('max_uses'))))
+        return qs.filter(**kwargs)
+
+
+class ModifierCodeManager(Manager):
+    def get_queryset(self):
+        return ModifierCodeQuerySet(self.model, using=self._db)
+
+    def active(self, **kwargs):
+        return self.get_queryset().active(**kwargs)
+
+    def valid(self, **kwargs):
+        return self.active().valid(**kwargs)
 
 
 class ProductQuerySet(CatalogQuerySet):
