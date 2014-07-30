@@ -10,6 +10,8 @@ from django.utils.encoding import python_2_unicode_compatible
 from shop.addressmodel.models import USER_MODEL
 from hvad.models import TranslatableModel, TranslatedFields
 
+from catalog import settings as scs
+
 
 BASE_ADDRESS_TEMPLATE = _("""Name: %(name)s,
 Address: %(address)s,
@@ -23,7 +25,34 @@ ADDRESS_TEMPLATE = getattr(
 
 
 @python_2_unicode_compatible
+class Region(TranslatableModel):
+    code = models.SlugField(
+        _('Code'), max_length=128, unique=True, db_index=True)
+
+    translations = TranslatedFields(
+        name=models.CharField(_('Name'), max_length=255),
+    )
+
+    class Meta:
+        db_table = 'catalog_addresses_regions'
+        verbose_name = _('Region')
+        verbose_name_plural = _('Regions')
+
+    def __str__(self):
+        return self.lazy_translation_getter('name')
+
+
+@python_2_unicode_compatible
 class Country(TranslatableModel):
+    code = models.SlugField(
+        _('Code'), max_length=2, unique=True, db_index=True,
+        help_text=_('A 2 letter country code.'))
+
+    region = models.ForeignKey(
+        Region, related_name='countries', verbose_name=_('Region'),
+        help_text=_('Select a region for this country. This is mostly used to '
+                    'define shipping rates per region.'))
+
     translations = TranslatedFields(
         name=models.CharField(_('Name'), max_length=255),
     )
