@@ -3,28 +3,25 @@ from __future__ import unicode_literals
 
 from django.contrib import admin
 from django.contrib.admin.options import ModelAdmin
-from django.utils.translation import ugettext_lazy as _
-
-from hvad.admin import TranslatableAdmin
 
 from catalog.addresses.models import Region, Country, Address
 
 
-class RegionAdmin(TranslatableAdmin):
-    list_display = ('get_name', 'code')
-
-    def get_name(self, obj):
-        return obj.__str__()
-    get_name.short_description = _('Name')
+class RegionAdmin(ModelAdmin):
+    list_display = ('name', 'code')
 
 
-class CountryAdmin(TranslatableAdmin):
-    list_display = ('get_name', 'code', 'region')
+class CountryAdmin(ModelAdmin):
+    list_display = ('name', 'code', 'region')
     list_filter = ('region', )
-
-    def get_name(self, obj):
-        return obj.__str__()
-    get_name.short_description = _('Name')
+    fieldsets = (
+        (None, {
+            'fields': ('code', 'name'),
+        }),
+        (None, {
+            'fields': ('region', ),
+        }),
+    )
 
 
 class AddressAdmin(ModelAdmin):

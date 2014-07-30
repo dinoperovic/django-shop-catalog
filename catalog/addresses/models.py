@@ -8,9 +8,6 @@ from django.utils.translation import ugettext_lazy as _
 from django.utils.encoding import python_2_unicode_compatible
 
 from shop.addressmodel.models import USER_MODEL
-from hvad.models import TranslatableModel, TranslatedFields
-
-from catalog import settings as scs
 
 
 BASE_ADDRESS_TEMPLATE = _("""Name: %(name)s,
@@ -25,25 +22,24 @@ ADDRESS_TEMPLATE = getattr(
 
 
 @python_2_unicode_compatible
-class Region(TranslatableModel):
+class Region(models.Model):
     code = models.SlugField(
         _('Code'), max_length=128, unique=True, db_index=True)
 
-    translations = TranslatedFields(
-        name=models.CharField(_('Name'), max_length=255),
-    )
+    name = models.CharField(_('Name'), max_length=255)
 
     class Meta:
         db_table = 'catalog_addresses_regions'
         verbose_name = _('Region')
         verbose_name_plural = _('Regions')
+        ordering = ('name', )
 
     def __str__(self):
-        return self.lazy_translation_getter('name')
+        return '{}'.format(self.name)
 
 
 @python_2_unicode_compatible
-class Country(TranslatableModel):
+class Country(models.Model):
     code = models.SlugField(
         _('Code'), max_length=2, unique=True, db_index=True,
         help_text=_('A 2 letter country code.'))
@@ -53,17 +49,16 @@ class Country(TranslatableModel):
         help_text=_('Select a region for this country. This is mostly used to '
                     'define shipping rates per region.'))
 
-    translations = TranslatedFields(
-        name=models.CharField(_('Name'), max_length=255),
-    )
+    name = models.CharField(_('Name'), max_length=255)
 
     def __str__(self):
-        return self.lazy_translation_getter('name')
+        return '{}'.format(self.name)
 
     class Meta:
         db_table = 'catalog_addresses_countries'
         verbose_name = _('Country')
         verbose_name_plural = _('Countries')
+        ordering = ('name', )
 
 
 @python_2_unicode_compatible
