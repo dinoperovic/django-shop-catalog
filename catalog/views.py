@@ -21,8 +21,11 @@ from catalog.utils.shortcuts import get_by_slug_or_404
 class ModifierCodeCreateView(CreateView):
     model = CartModifierCode
     form_class = CartModifierCodeModelForm
-    template_name = 'shop/cart_modifier_codes.html'
-    success_url = reverse_lazy('cart')
+    template_name = 'shop/cart_modifier_code_create.html'
+    success_url = reverse_lazy('catalog_cart_modifier_code_create')
+
+    def get_success_url(self):
+        return self.request.GET.get('next', self.success_url)
 
     def get_form_kwargs(self):
         kwargs = super(ModifierCodeCreateView, self).get_form_kwargs()
@@ -31,12 +34,19 @@ class ModifierCodeCreateView(CreateView):
         kwargs.update({'instance': instance})
         return kwargs
 
+    def get_context_data(self, **kwargs):
+        context = {'object_list': []}
+        cart = get_or_create_cart(self.request, True)
+        context['object_list'] = CartModifierCode.objects.filter(cart=cart)
+        context.update(kwargs)
+        return super(ModifierCodeCreateView, self).get_context_data(**context)
+
 
 class ModifierCodeDeleteView(View):
-    success_url = reverse_lazy('cart')
+    success_url = reverse_lazy('catalog_cart_modifier_code_create')
 
     def get_success_url(self):
-        return self.success_url
+        return self.request.GET.get('next', self.success_url)
 
     def get(self, *args, **kwargs):
         self.delete_cart_modifier_codes()

@@ -64,6 +64,9 @@ class CartModifierCodeModelForm(forms.ModelForm):
         instance = getattr(self, 'instance', None)
         code = self.cleaned_data.get('code')
         if instance is not None:
+            if CartModifierCode.objects.filter(cart=instance.cart, code=code):
+                raise forms.ValidationError(
+                    _('Code is already applied to your cart.'))
             if not ModifierCode.objects.valid(code=code):
                 raise forms.ValidationError(_('Code is invalid or expired.'))
         return code

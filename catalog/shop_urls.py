@@ -16,9 +16,9 @@ urlpatterns = patterns(
     url(r'^products/', page_not_found),
 
     catalog_url('codes', ModifierCodeCreateView.as_view(),
-                'cart_modifier_codes'),
+                'cart_modifier_code_create'),
     catalog_url('codes', ModifierCodeDeleteView.as_view(),
-                'cart_modifier_codes_delete', 'delete'),
+                'cart_modifier_code_delete', 'delete'),
 
     # Redirect welcome to cart.
     url(r'^$', RedirectView.as_view(url='cart/'))
