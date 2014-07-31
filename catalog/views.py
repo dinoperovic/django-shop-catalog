@@ -18,7 +18,7 @@ from catalog.forms import CartModifierCodeModelForm
 from catalog.utils.shortcuts import get_by_slug_or_404
 
 
-class ModifierCodeCreateView(CreateView):
+class CartModifierCodeCreateView(CreateView):
     model = CartModifierCode
     form_class = CartModifierCodeModelForm
     template_name = 'shop/cart_modifier_code_create.html'
@@ -28,7 +28,7 @@ class ModifierCodeCreateView(CreateView):
         return self.request.GET.get('next', self.success_url)
 
     def get_form_kwargs(self):
-        kwargs = super(ModifierCodeCreateView, self).get_form_kwargs()
+        kwargs = super(CartModifierCodeCreateView, self).get_form_kwargs()
         cart = get_or_create_cart(self.request, True)
         instance = CartModifierCode(cart=cart)
         kwargs.update({'instance': instance})
@@ -39,10 +39,11 @@ class ModifierCodeCreateView(CreateView):
         cart = get_or_create_cart(self.request, True)
         context['object_list'] = CartModifierCode.objects.filter(cart=cart)
         context.update(kwargs)
-        return super(ModifierCodeCreateView, self).get_context_data(**context)
+        return super(CartModifierCodeCreateView, self).\
+            get_context_data(**context)
 
 
-class ModifierCodeDeleteView(View):
+class CartModifierCodeDeleteView(View):
     success_url = reverse_lazy('catalog_cart_modifier_code_create')
 
     def get_success_url(self):

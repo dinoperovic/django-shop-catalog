@@ -6,7 +6,8 @@ from django.views.defaults import page_not_found
 from django.views.generic import RedirectView
 
 from catalog.urls import catalog_url
-from catalog.views import ModifierCodeCreateView, ModifierCodeDeleteView
+from catalog.views import (
+    CartModifierCodeCreateView, CartModifierCodeDeleteView)
 
 
 urlpatterns = patterns(
@@ -15,9 +16,9 @@ urlpatterns = patterns(
     # it's own urls for products.
     url(r'^products/', page_not_found),
 
-    catalog_url('codes', ModifierCodeCreateView.as_view(),
+    catalog_url('codes', CartModifierCodeCreateView.as_view(),
                 'cart_modifier_code_create'),
-    catalog_url('codes', ModifierCodeDeleteView.as_view(),
+    catalog_url('codes', CartModifierCodeDeleteView.as_view(),
                 'cart_modifier_code_delete', 'delete'),
 
     # Redirect welcome to cart.
