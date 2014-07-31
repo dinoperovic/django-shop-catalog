@@ -58,10 +58,13 @@ class ModifierCodeDeleteView(View):
 
     def delete_cart_modifier_codes(self, codes=None):
         cart = get_or_create_cart(self.request)
+
+        # TODO: If we delete processed codes, codes 'num_uses' should
+        # be decremented. Processed codes can't be deleted for now.
+        filters = {'is_processed': False}
         if codes:
-            cart.cartmodifiercode_set.filter(code__in=codes).delete()
-        else:
-            cart.cartmodifiercode_set.all().delete()
+            filters['code__in'] = codes
+        cart.cartmodifiercode_set.filter(**filters).delete()
 
 
 class CategoryListViewBase(ShopListView):
