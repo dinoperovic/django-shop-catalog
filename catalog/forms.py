@@ -12,6 +12,7 @@ from catalog.models import (
     Product, Attribute, ProductAttributeValue)
 
 from catalog.widgets import AttributeValueKindsMapSelect
+from catalog import settings as scs
 
 
 class CatalogModelFormBase(TranslatableModelForm):
@@ -28,8 +29,7 @@ class CatalogModelFormBase(TranslatableModelForm):
         instance = getattr(self, 'instance', None)
         if instance is not None:
             self.fields['active'].help_text = _(
-                'Is this %s active? You can hide it by unchecking this box.' %
-                self._meta.model.__name__)
+                scs.ACTIVE_FIELD_HELP_TEXT % self._meta.model.__name__)
 
     def clean(self):
         """

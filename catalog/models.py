@@ -283,7 +283,9 @@ class ModifierCode(models.Model):
         _('Code'), max_length=30, unique=True,
         help_text=scs.SLUG_FIELD_HELP_TEXT)
 
-    active = models.BooleanField(_('Active'), default=True)
+    active = models.BooleanField(
+        _('Active'), default=True,
+        help_text=scs.ACTIVE_FIELD_HELP_TEXT % 'Modifier code')
     valid_from = models.DateTimeField(_('Valid from'), default=datetime.now)
     valid_until = models.DateTimeField(_('Valid until'), blank=True, null=True)
 

@@ -9,6 +9,8 @@ from django.utils.encoding import python_2_unicode_compatible
 
 from shop.addressmodel.models import USER_MODEL
 
+from catalog import settings as scs
+
 
 BASE_ADDRESS_TEMPLATE = _("""Name: %(name)s,
 Address: %(address)s,
@@ -25,8 +27,10 @@ ADDRESS_TEMPLATE = getattr(
 class Region(models.Model):
     code = models.SlugField(
         _('Code'), max_length=128, unique=True, db_index=True)
-
     name = models.CharField(_('Name'), max_length=255)
+    active = models.BooleanField(
+        _('Active'), default=True,
+        help_text=scs.ACTIVE_FIELD_HELP_TEXT % 'Region')
 
     class Meta:
         db_table = 'catalog_addresses_regions'
@@ -40,16 +44,19 @@ class Region(models.Model):
 
 @python_2_unicode_compatible
 class Country(models.Model):
-    code = models.SlugField(
-        _('Code'), max_length=2, unique=True, db_index=True,
-        help_text=_('A 2 letter country code.'))
-
     region = models.ForeignKey(
         Region, related_name='countries', verbose_name=_('Region'),
         help_text=_('Select a region for this country. This is mostly used to '
                     'define shipping rates per region.'))
 
+    code = models.SlugField(
+        _('Code'), max_length=2, unique=True, db_index=True,
+        help_text=_('A 2 letter country code.'))
+
     name = models.CharField(_('Name'), max_length=255)
+    active = models.BooleanField(
+        _('Active'), default=True,
+        help_text=scs.ACTIVE_FIELD_HELP_TEXT % 'Country')
 
     def __str__(self):
         return '{}'.format(self.name)
@@ -81,7 +88,8 @@ class Address(models.Model):
     city = models.CharField(_('City'), max_length=20)
     state = models.CharField(_('State'), max_length=255)
     country = models.ForeignKey(
-        Country, verbose_name=_('Country'))
+        Country, verbose_name=_('Country'),
+        limit_choices_to={'active': True, 'region__active': True})
 
     phone_number = models.CharField(
         _('Phone number'), max_length=16, blank=True, validators=[

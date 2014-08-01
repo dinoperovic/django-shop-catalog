@@ -7,6 +7,8 @@ from django.utils.translation import ugettext_lazy as _
 SLUG_FIELD_HELP_TEXT = _(
     'Can only contain the letters a-z, A-Z, digits, minus and underscores, '
     'and can\'t start with a digit.')
+ACTIVE_FIELD_HELP_TEXT = _(
+    'Is this %s active? You can hide it by unchecking this box.')
 
 PRODUCT_CHANGE_FORM_TEMPLATE = (
     'admin/catalog/product_change_form.html')
