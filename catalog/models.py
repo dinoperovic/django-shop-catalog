@@ -936,7 +936,7 @@ class Attribute(TranslatableModel):
 
     def __str__(self):
         return '{} ({})'.format(
-            self.get_name(), dict(self.KIND_CHOICES)[self.kind])
+            self.get_slug(), dict(self.KIND_CHOICES)[self.kind])
 
     def get_name(self):
         return self.lazy_translation_getter('name')
@@ -1022,7 +1022,6 @@ class AttributeValueBase(models.Model):
     @property
     def value(self):
         value = getattr(self, 'value_%s' % self.attribute.kind, None)
-
         if self.attribute.is_option:
             value = value.get_value()
         elif self.attribute.is_file:
@@ -1033,7 +1032,6 @@ class AttributeValueBase(models.Model):
     def as_dict(self):
         template = (force_str(self.attribute.template)
                     if self.attribute.template else None)
-
         return dict(
             code=force_str(self.attribute.get_slug()),
             name=force_str(self.attribute.get_name()),
