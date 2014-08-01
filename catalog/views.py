@@ -21,7 +21,7 @@ from catalog.utils import calculate_base_price
 
 def filter_products(queryset, request):
     """
-    Apply filters to the given products queryset.
+    A helper function that applies filters to the given product queryset.
     """
     price_from = request.GET.get('price-from', None)
     price_to = request.GET.get('price-to', None)
@@ -66,6 +66,9 @@ class CartModifierCodeCreateView(CreateView):
 
 
 class CartModifierCodeDeleteView(View):
+    """
+    This view deletes all CartModifierCode's for the currenct cart.
+    """
     success_url = reverse_lazy('catalog_cart_modifier_code_create')
 
     def get_success_url(self):
