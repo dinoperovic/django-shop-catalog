@@ -24,3 +24,14 @@ def round_2(num):
     Returns num forced 2 decimal spaces.
     """
     return Decimal(num).quantize(Decimal('0.00'))
+
+
+def is_number(num):
+    """
+    Checks if num is a number type.
+    """
+    try:
+        number_types = (int, float, long, complex)
+    except NameError:
+        number_types = (int, float, long)
+    return isinstance(num, number_types)

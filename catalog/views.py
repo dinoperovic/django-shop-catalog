@@ -105,9 +105,14 @@ class CategoryDetailViewBase(ShopDetailView):
                 filters = {'{}_id'.format(context_object_name): self.object.pk}
                 products = Product.objects.active(**filters).top_level()
 
+                price_from = self.request.GET.get('price-from', None)
+                price_to = self.request.GET.get('price-to', None)
+                if price_from or price_to:
+                    products = products.filter_price(price_from, price_to)
+
                 # Filter products by attributes.
                 attrs = Attribute.filter_dict(self.request.GET)
-                if any(attrs):
+                if attrs:
                     products = products.filter_attrs(**attrs)
 
                 context['object_list'] = products
@@ -137,8 +142,14 @@ class ProductListView(ShopListView):
 
     def get_queryset(self):
         queryset = self.model.objects.active().top_level()
+
+        price_from = self.request.GET.get('price-from', None)
+        price_to = self.request.GET.get('price-to', None)
+        if price_from or price_to:
+            queryset = queryset.filter_price(price_from, price_to)
+
         attrs = Attribute.filter_dict(self.request.GET)
-        return queryset.filter_attrs(**attrs) if any(attrs) else queryset
+        return queryset.filter_attrs(**attrs) if attrs else queryset
 
 
 class ProductDetailView(ProductDetailViewBase):

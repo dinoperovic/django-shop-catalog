@@ -988,7 +988,7 @@ class Attribute(TranslatableModel):
         an attribute code.
         """
         codes = [x.code for x in cls.objects.all()]
-        return dict((k, v) for k, v in dictionary.items() if k in codes)
+        return dict((k, v) for k, v in dictionary.items() if k in codes and v)
 
 
 @python_2_unicode_compatible

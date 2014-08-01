@@ -79,6 +79,18 @@ class ProductQuerySet(CatalogQuerySet):
         pks = [x.pk for x in self if x.filter_variants(**kwargs) is not None]
         return self.filter(pk__in=pks)
 
+    def filter_price(self, price_from=None, price_to=None):
+        filters = {}
+        try:
+            filters['unit_price__gte'] = int(float(price_from))
+        except (TypeError, ValueError):
+            pass
+        try:
+            filters['unit_price__lte'] = int(float(price_to))
+        except (TypeError, ValueError):
+            pass
+        return self.filter(**filters)
+
 
 class ProductTranslationQuerySet(TranslationQueryset, ProductQuerySet):
     pass
