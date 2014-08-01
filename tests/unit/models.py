@@ -18,13 +18,13 @@ from tests.utils import warning
 class ModifierTestCase(TestCase):
     def setUp(self):
         self.mod_1 = Modifier.objects.create(
-            percent=D(-30), kind=Modifier.KIND_STANDARD)
+            code='mod-1', percent=D(-30), kind=Modifier.KIND_STANDARD)
         self.mod_2 = Modifier.objects.create(
-            percent=D(30), kind=Modifier.KIND_DISCOUNT)
+            code='mod-2', percent=D(30), kind=Modifier.KIND_DISCOUNT)
         self.mod_3 = Modifier.objects.create(
-            amount=D(-10), kind=Modifier.KIND_DISCOUNT)
+            code='mod-3', amount=D(-10), kind=Modifier.KIND_DISCOUNT)
         self.mod_4 = Modifier.objects.create(
-            amount=D(10), kind=Modifier.KIND_CART_MODIFIER)
+            code='mod-4', amount=D(10), kind=Modifier.KIND_CART_MODIFIER)
 
         self.prod_1 = Product.objects.create(
             unit_price=D(100), is_discountable=True)
@@ -52,7 +52,7 @@ class ModifierConditionTestCase(TestCase):
     def setUp(self):
         self.prod_1 = Product.objects.create(unit_price=D(300))
         self.prod_2 = Product.objects.create(unit_price=D(10))
-        self.mod_1 = Modifier.objects.create(percent=D(-30))
+        self.mod_1 = Modifier.objects.create(code='mod-1', percent=D(-30))
         self.cond_1 = ModifierCondition.objects.create(
             modifier=self.mod_1, path=scs.MODIFIER_CONDITIONS[0], arg=D(200))
         self.cond_2 = ModifierCondition.objects.create(
