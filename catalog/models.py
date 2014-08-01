@@ -10,16 +10,13 @@ from django.db import models
 from django.db.models import Q
 from django.core.validators import MinValueValidator
 from django.core.urlresolvers import reverse
-from django.dispatch import receiver
 from django.utils.translation import ugettext_lazy as _
 from django.utils.encoding import python_2_unicode_compatible, force_str
 from django.utils.text import slugify
 from django.utils.module_loading import import_by_path
 
-from shop.order_signals import processing, confirmed, completed
 from shop.util.fields import CurrencyField
 from shop.util.loader import get_model_string
-from shop.models import Cart
 from cms.models.fields import PlaceholderField
 from hvad.models import TranslatableModel, TranslatedFields
 from mptt.models import MPTTModel
@@ -174,26 +171,18 @@ class Modifier(TranslatableModel, CatalogModel):
     def is_code_applied(self, cart_id):
         """
         Check for codes on this modifier, and if they exist make sure
-        that at least one is applied to the given cart.
+        that at least one is applied to the given cart. Codes have
+        alerady been validated so we just have to make sure they are
+        active and exist.
         """
         codes = self.codes.active()
 
         if codes.exists():
-            # Create 2 lists for processed and regular cart codes.
             cart_codes = CartModifierCode.objects.filter(cart_id=cart_id)
-            cart_codes_pro = cart_codes.filter(is_processed=True).\
-                values_list('code', flat=True)
-            cart_codes_pro = list(set(cart_codes_pro))
             cart_codes = list(set(cart_codes.values_list('code', flat=True)))
-
-            # If codes are processed, they don't need validation.
-            if cart_codes_pro:
-                for code in cart_codes_pro:
-                    if codes.filter(code=code).exists():
-                        return True
             if cart_codes:
                 for code in cart_codes:
-                    if codes.valid(code=code).exists():
+                    if codes.filter(code=code).exists():
                         return True
 
             # Codes exist but not one is applied, return False.
@@ -297,10 +286,6 @@ class ModifierCode(models.Model):
     active = models.BooleanField(_('Active'), default=True)
     valid_from = models.DateTimeField(_('Valid from'), default=datetime.now)
     valid_until = models.DateTimeField(_('Valid until'), blank=True, null=True)
-    num_uses = models.IntegerField(_('Times used'), default=0)
-    max_uses = models.IntegerField(
-        _('Maximum uses'), blank=True, null=True,
-        help_text=_('If left empty, there will be no limit.'))
 
     objects = ModifierCodeManager()
 
@@ -318,9 +303,6 @@ class CartModifierCode(models.Model):
     cart = models.ForeignKey(get_model_string('Cart'), editable=False)
     code = models.CharField(_('Code'), max_length=30)
 
-    is_processed = models.BooleanField(
-        _('Is processed?'), default=False, editable=False)
-
     class Meta:
         db_table = 'catalog_cart_modifier_codes'
         verbose_name = _('Cart modifier code')
@@ -328,45 +310,6 @@ class CartModifierCode(models.Model):
 
     def __str__(self):
         return '{}'.format(self.code)
-
-
-# TODO: If customer stops the checkout process and clears out the cart,
-# a promotional code is wasted (it gets incremented but is not used).
-@receiver(processing)
-def update_cart_modifier_codes(sender, **kwargs):
-    """
-    Increments modifier codes 'num_uses' and marks the cart modifier
-    code for later deletion.
-    """
-    cart = kwargs.get('cart')
-    for obj in cart.cartmodifiercode_set.all():
-        if not obj.is_processed:
-            try:
-                mod_code = ModifierCode.objects.get(code=obj.code)
-                mod_code.num_uses += 1
-                mod_code.save(update_fields=['num_uses'])
-            except ModifierCode.DoesNotExist:
-                pass
-            obj.is_processed = True
-            obj.save(update_fields=['is_processed'])
-
-
-@receiver([confirmed, completed])
-def delete_cart_modifier_codes(sender, **kwargs):
-    """
-    Deletes all cart modifier codes that are marked for deletion.
-    """
-    order = kwargs.get('order')
-    try:
-        cart = Cart.objects.get(pk=order.cart_pk)
-        for obj in cart.cartmodifiercode_set.filter(is_processed=True):
-            obj.delete()
-    except Cart.DoesNotExist:
-        pass
-
-
-# TODO: Maybe add a receiver for when an order is cancelled and
-# decrement the 'num_uses' on the modifer code.
 
 
 class CategoryBase(MPTTModel, CatalogModel, ModifierModel):
