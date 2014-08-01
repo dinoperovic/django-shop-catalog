@@ -16,6 +16,28 @@ from catalog.models import (
     CartModifierCode, Category, Brand, Manufacturer, Product, Attribute)
 from catalog.forms import CartModifierCodeModelForm
 from catalog.utils.shortcuts import get_by_slug_or_404
+from catalog.utils import calculate_base_price
+
+
+def filter_products(queryset, request):
+    """
+    Apply filters to the given products queryset.
+    """
+    price_from = request.GET.get('price-from', None)
+    price_to = request.GET.get('price-to', None)
+
+    currency = request.session.get('currency', None)
+    if currency:
+        if price_from:
+            price_from = calculate_base_price(price_from, currency)
+        if price_to:
+            price_to = calculate_base_price(price_to, currency)
+
+    if price_from or price_to:
+        queryset = queryset.filter_price(price_from, price_to)
+
+    attrs = Attribute.filter_dict(request.GET)
+    return queryset.filter_attrs(**attrs) if attrs else queryset
 
 
 class CartModifierCodeCreateView(CreateView):
@@ -104,17 +126,7 @@ class CategoryDetailViewBase(ShopDetailView):
             if hasattr(Product, context_object_name):
                 filters = {'{}_id'.format(context_object_name): self.object.pk}
                 products = Product.objects.active(**filters).top_level()
-
-                price_from = self.request.GET.get('price-from', None)
-                price_to = self.request.GET.get('price-to', None)
-                if price_from or price_to:
-                    products = products.filter_price(price_from, price_to)
-
-                # Filter products by attributes.
-                attrs = Attribute.filter_dict(self.request.GET)
-                if attrs:
-                    products = products.filter_attrs(**attrs)
-
+                products = filter_products(products, self.request)
                 context['object_list'] = products
 
         context.update(kwargs)
@@ -142,14 +154,7 @@ class ProductListView(ShopListView):
 
     def get_queryset(self):
         queryset = self.model.objects.active().top_level()
-
-        price_from = self.request.GET.get('price-from', None)
-        price_to = self.request.GET.get('price-to', None)
-        if price_from or price_to:
-            queryset = queryset.filter_price(price_from, price_to)
-
-        attrs = Attribute.filter_dict(self.request.GET)
-        return queryset.filter_attrs(**attrs) if attrs else queryset
+        return filter_products(queryset, self.request)
 
 
 class ProductDetailView(ProductDetailViewBase):

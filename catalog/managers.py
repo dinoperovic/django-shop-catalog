@@ -10,6 +10,8 @@ from django.utils.translation import get_language
 
 from hvad.manager import TranslationManager, TranslationQueryset
 
+from catalog.utils import round_2
+
 
 class CatalogQuerySet(QuerySet):
     """
@@ -82,11 +84,11 @@ class ProductQuerySet(CatalogQuerySet):
     def filter_price(self, price_from=None, price_to=None):
         filters = {}
         try:
-            filters['unit_price__gte'] = int(float(price_from))
+            filters['unit_price__gte'] = round_2(float(price_from))
         except (TypeError, ValueError):
             pass
         try:
-            filters['unit_price__lte'] = int(float(price_to))
+            filters['unit_price__lte'] = round_2(float(price_to))
         except (TypeError, ValueError):
             pass
         return self.filter(**filters)
