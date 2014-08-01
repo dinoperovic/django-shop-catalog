@@ -56,8 +56,8 @@
                     // Add only choices in current attribute to the new select.
                     for (var choice in choices) {
                         choice = choices[choice];
-                        var options = $fieldValue.find('select > option:contains('+ choice +')');
-                        options.clone().appendTo($newSelect);
+                        var option = $fieldValue.find('select > option:contains(\''+ choice +'\')');
+                        option.appendTo($newSelect);
                     }
 
                     // Remove all the previous clones, hide the original,
