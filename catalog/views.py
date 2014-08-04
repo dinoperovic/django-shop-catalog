@@ -19,10 +19,11 @@ from catalog.utils.shortcuts import get_by_slug_or_404
 from catalog.utils import calculate_base_price
 
 
-def filter_products(queryset, request):
+def get_categorization_filters(request):
     """
-    A helper function that applies filters to the given product queryset.
+    Returns filter dictionary for categorization objects.
     """
+    filters = {}
     category = request.GET.get('category', None)
     brand = request.GET.get('brand', None)
     manufacturer = request.GET.get('manufacturer', None)
@@ -33,26 +34,38 @@ def filter_products(queryset, request):
             try:
                 pk = model.objects.get_by_slug(slug).pk
                 filters = {'{}_id'.format(model.__name__.lower()): pk}
-                queryset = queryset.filter(**filters)
             except model.DoesNotExist:
                 pass
+    return filters
 
+
+def get_price_filters(request):
+    """
+    Return prices formated into a base currency.
+    """
     price_from = request.GET.get('price-from', None)
     price_to = request.GET.get('price-to', None)
-
     currency = \
         request.GET.get('currency', request.session.get('currency', None))
-    if currency:
-        if price_from:
-            price_from = calculate_base_price(price_from, currency)
-        if price_to:
-            price_to = calculate_base_price(price_to, currency)
+    if currency and price_from:
+        price_from = calculate_base_price(price_from, currency)
+    if currency and price_to:
+        price_to = calculate_base_price(price_to, currency)
+    return price_from, price_to
 
-    # Filter by price range.
+
+def filter_products(queryset, request):
+    """
+    A helper function that applies filters to the given product queryset.
+    """
+    cat_filters = get_categorization_filters(request)
+    if cat_filters:
+        queryset = queryset.filter(**cat_filters)
+
+    price_from, price_to = get_price_filters(request)
     if price_from or price_to:
         queryset = queryset.filter_price(price_from, price_to)
 
-    # Filter by attributes.
     attrs = Attribute.filter_dict(request.GET)
     if attrs:
         queryset = queryset.filter_attrs(**attrs)
