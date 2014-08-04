@@ -26,7 +26,8 @@ def filter_products(queryset, request):
     price_from = request.GET.get('price-from', None)
     price_to = request.GET.get('price-to', None)
 
-    currency = request.session.get('currency', None)
+    currency = \
+        request.GET.get('currency', request.session.get('currency', None))
     if currency:
         if price_from:
             price_from = calculate_base_price(price_from, currency)
