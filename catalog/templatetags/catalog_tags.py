@@ -29,13 +29,12 @@ def query_transform(context, *args, **kwargs):
     return get.urlencode()
 
 
-@register.assignment_tag(takes_context=True)
-def get_attr_filters(context, products=None):
+@register.assignment_tag
+def get_attr_filters(products=None):
     """
     Returns all attributes for the given products. If no products are
     given it uses all active, top level products.
     """
-    request = context.get('request')
     filters = {}
 
     if products is not None:
@@ -46,12 +45,7 @@ def get_attr_filters(context, products=None):
         attrs = Attribute.objects.all()
 
     for attr in attrs:
-        values = [{'value': x.value} for x in attr.values.select_related()]
-
-        for val in values:
-            get = request.GET.copy()
-            get[attr.get_slug()] = val['value']
-            val['query_string'] = get.urlencode()
+        values = [x.value for x in attr.values.select_related()]
 
         filters[attr.get_slug()] = {
             'code': attr.get_slug(),
