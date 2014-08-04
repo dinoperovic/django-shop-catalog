@@ -9,26 +9,6 @@ from catalog.models import Attribute, Product
 register = template.Library()
 
 
-@register.simple_tag(takes_context=True)
-def query_transform(context, *args, **kwargs):
-    """
-    Appends or updates current query string. Can be used as pairs
-    passing in every second arg as value so that key can be dynamic.
-    It also supports the kwargs format.
-
-    {% query_transform <key> <value> <key> <value> <key>=<value> %}
-    """
-    get = context['request'].GET.copy()
-    if args:
-        args_keys = [args[i] for i in range(len(args)) if i % 2 == 0]
-        args_vals = [args[i] for i in range(len(args)) if i % 2 != 0]
-        for i in range(len(args_vals)):
-            get[args_keys[i]] = args_vals[i]
-    for k, v in kwargs.items():
-        get[k] = v
-    return get.urlencode()
-
-
 @register.assignment_tag
 def get_attr_filters(products=None):
     """
