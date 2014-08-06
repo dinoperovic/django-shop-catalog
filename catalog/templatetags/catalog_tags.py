@@ -25,13 +25,9 @@ def get_attr_filters(products=None):
         attrs = Attribute.objects.all()
 
     for attr in attrs:
-        values = [x.value for x in attr.values.select_related()]
-
-        filters[attr.get_slug()] = {
-            'code': attr.get_slug(),
-            'name': attr.get_name(),
-            'values': values,
-        }
+        data = attr.as_dict
+        data.update({'values': attr.get_values()})
+        filters[attr.get_slug()] = data
 
     return filters
 

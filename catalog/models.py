@@ -958,6 +958,19 @@ class Attribute(TranslatableModel):
     def is_file(self):
         return self.kind in (self.KIND_FILE, self.KIND_IMAGE)
 
+    @property
+    def as_dict(self):
+        template = force_str(self.template) if self.template else None
+        return dict(
+            code=force_str(self.get_slug()),
+            name=force_str(self.get_name()),
+            type=force_str(self.kind),
+            template=template,
+        )
+
+    def get_values(self):
+        return [x.value for x in self.values.select_related()]
+
     @classmethod
     def is_nullable(cls, attr_code, obj):
         """
@@ -1032,15 +1045,9 @@ class AttributeValueBase(models.Model):
 
     @property
     def as_dict(self):
-        template = (force_str(self.attribute.template)
-                    if self.attribute.template else None)
-        return dict(
-            code=force_str(self.attribute.get_slug()),
-            name=force_str(self.attribute.get_name()),
-            type=force_str(self.attribute.kind),
-            template=template,
-            value=force_str(self.value),
-        )
+        data = self.attribute.as_dict
+        data.update({'value': force_str(self.value)})
+        return data
 
 
 class ProductAttributeValue(AttributeValueBase):
