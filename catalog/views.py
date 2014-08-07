@@ -7,6 +7,7 @@ import operator
 from django.db.models import Q
 from django.http import Http404, HttpResponse
 from django.views.generic import CreateView, View
+from django.views.generic.list import MultipleObjectMixin
 from django.core.urlresolvers import reverse_lazy
 from django.shortcuts import redirect
 
@@ -19,6 +20,7 @@ from catalog.models import (
 from catalog.forms import CartModifierCodeModelForm
 from catalog.utils.shortcuts import get_by_slug_or_404
 from catalog.utils import calculate_base_price
+from catalog import settings as scs
 
 
 def get_categorization_filters(request):
@@ -164,8 +166,10 @@ class ManufacturerListView(CategoryListViewBase):
     template_name = 'shop/manufacturer_list.html'
 
 
-class CategoryDetailViewBase(ShopDetailView):
+class CategoryDetailViewBase(ShopDetailView, MultipleObjectMixin):
     model = None
+    object_list = []
+    paginate_by = scs.PRODUCTS_PER_PAGE
 
     def get_queryset(self):
         return self.model.objects.language().active()
@@ -206,6 +210,7 @@ class ManufacturerDetailView(CategoryDetailViewBase):
 class ProductListView(ShopListView):
     model = Product
     template_name = 'shop/product_list.html'
+    paginate_by = scs.PRODUCTS_PER_PAGE
 
     def get_queryset(self):
         queryset = self.model.objects.active().top_level()

@@ -18,6 +18,8 @@ ATTRIBUTE_TEMPLATE_CHOICES = getattr(
         ('radio', _('Radio')),
     ))
 
+PRODUCTS_PER_PAGE = getattr(settings, 'CATALOG_PRODUCTS_PER_PAGE', 6)
+
 HAS_CATEGORIES = getattr(settings, 'CATALOG_HAS_CATEGORIES', True)
 HAS_BRANDS = getattr(settings, 'CATALOG_HAS_BRANDS', True)
 HAS_MANUFACTURERS = getattr(settings, 'CATALOG_HAS_MANUFACTURERS', True)
