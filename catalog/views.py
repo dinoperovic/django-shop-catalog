@@ -57,6 +57,9 @@ def get_price_filters(request):
 
 
 def search_products(queryset, request):
+    """
+    Simple product serach by name and slug.
+    """
     query = request.GET.get('search', None)
     if query:
         keywords = [x for x in query.split(' ') if x]
