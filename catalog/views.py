@@ -2,7 +2,9 @@
 from __future__ import unicode_literals
 
 import json
+import operator
 
+from django.db.models import Q
 from django.http import Http404, HttpResponse
 from django.views.generic import CreateView, View
 from django.core.urlresolvers import reverse_lazy
@@ -54,6 +56,18 @@ def get_price_filters(request):
     return price_from, price_to
 
 
+def search_products(queryset, request):
+    query = request.GET.get('search', None)
+    if query:
+        keywords = [x for x in query.split(' ') if x]
+        pks = queryset.values_list('pk', flat=True)
+        queryset = Product.objects.language().filter(
+            Q(pk__in=pks) &
+            (reduce(operator.or_, (Q(slug__icontains=x) for x in keywords)) |
+             reduce(operator.or_, (Q(name__icontains=x) for x in keywords))))
+    return queryset
+
+
 def filter_products(queryset, request):
     """
     A helper function that applies filters to the given product queryset.
@@ -69,6 +83,8 @@ def filter_products(queryset, request):
     attrs = Attribute.filter_dict(request.GET)
     if attrs:
         queryset = queryset.filter_attrs(**attrs)
+
+    queryset = search_products(queryset, request)
 
     return queryset
 
