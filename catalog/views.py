@@ -73,6 +73,17 @@ def search_products(queryset, request):
     return queryset
 
 
+def sort_products(queryset, request):
+    """
+    Sort products.
+    """
+    sort = request.GET.get('sort', None)
+    if sort and len(queryset) and hasattr(queryset[0], sort.lstrip('-')):
+        pks = queryset.values_list('pk', flat=True)
+        queryset = Product.objects.language().filter(pk__in=pks).order_by(sort)
+    return queryset
+
+
 def filter_products(queryset, request):
     """
     A helper function that applies filters to the given product queryset.
@@ -90,6 +101,7 @@ def filter_products(queryset, request):
         queryset = queryset.filter_attrs(**attrs)
 
     queryset = search_products(queryset, request)
+    queryset = sort_products(queryset, request)
 
     return queryset
 
