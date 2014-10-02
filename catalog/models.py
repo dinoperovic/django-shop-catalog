@@ -350,12 +350,19 @@ class Category(TranslatableModel, CategoryBase):
     """
     __metaclass__ = classmaker()
 
+    featured_image = FilerImageField(
+        blank=True, null=True, verbose_name=_('Featured image'))
+
     translations = TranslatedFields(
         name=models.CharField(_('Name'), max_length=128),
         slug=models.SlugField(
             _('Slug'), max_length=128, help_text=scs.SLUG_FIELD_HELP_TEXT),
+        description=models.TextField(_('Description'), blank=True),
         meta={'unique_together': [('slug', 'language_code')]},
     )
+
+    body = PlaceholderField(
+        'catalog_category_body', related_name='category_body_set')
 
     objects = CatalogManager()
 
@@ -380,12 +387,19 @@ class Brand(TranslatableModel, CategoryBase):
     """
     __metaclass__ = classmaker()
 
+    featured_image = FilerImageField(
+        blank=True, null=True, verbose_name=_('Featured image'))
+
     translations = TranslatedFields(
         name=models.CharField(_('Name'), max_length=128),
         slug=models.SlugField(
             _('Slug'), max_length=128, help_text=scs.SLUG_FIELD_HELP_TEXT),
+        description=models.TextField(_('Description'), blank=True),
         meta={'unique_together': [('slug', 'language_code')]},
     )
+
+    body = PlaceholderField(
+        'catalog_brand_body', related_name='brand_body_set')
 
     objects = CatalogManager()
 
@@ -410,12 +424,19 @@ class Manufacturer(TranslatableModel, CategoryBase):
     """
     __metaclass__ = classmaker()
 
+    featured_image = FilerImageField(
+        blank=True, null=True, verbose_name=_('Featured image'))
+
     translations = TranslatedFields(
         name=models.CharField(_('Name'), max_length=128),
         slug=models.SlugField(
             _('Slug'), max_length=128, help_text=scs.SLUG_FIELD_HELP_TEXT),
+        description=models.TextField(_('Description'), blank=True),
         meta={'unique_together': [('slug', 'language_code')]},
     )
+
+    body = PlaceholderField(
+        'catalog_manufacturer_body', related_name='manufacturer_body_set')
 
     objects = CatalogManager()
 
@@ -760,6 +781,7 @@ class Product(TranslatableModel, ProductBase, ModifierModel):
         name=models.CharField(_('Name'), max_length=128),
         slug=models.SlugField(
             _('Slug'), max_length=128, help_text=scs.SLUG_FIELD_HELP_TEXT),
+        description=models.TextField(_('Description'), blank=True),
         meta={'unique_together': [('slug', 'language_code')]},
     )
 

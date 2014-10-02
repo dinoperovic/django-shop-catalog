@@ -97,6 +97,9 @@ class CategoryAdminBase(
                 'fields': ('parent', ),
             }),
             (None, {
+                'fields': ('featured_image', 'description'),
+            }),
+            (None, {
                 'fields': ('modifiers', ),
             }),
         )
@@ -184,7 +187,7 @@ class ProductAdmin(
                 'fields': ('parent', ),
             }),
             (None, {
-                'fields': ('featured_image', ),
+                'fields': ('featured_image', 'description'),
             }),
         )
         self.fieldsets += self.get_categorization_fieldset()
