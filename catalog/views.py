@@ -58,6 +58,15 @@ def get_price_filters(request):
     return price_from, price_to
 
 
+def get_date_filters(request):
+    """
+    Return date filters.
+    """
+    date_from = request.GET.get('date-from', None)
+    date_to = request.GET.get('date-to', None)
+    return date_from, date_to
+
+
 def search_products(queryset, request):
     """
     Simple product serach by name and slug.
@@ -95,6 +104,10 @@ def filter_products(queryset, request):
     price_from, price_to = get_price_filters(request)
     if price_from or price_to:
         queryset = queryset.filter_price(price_from, price_to)
+
+    date_from, date_to = get_date_filters(request)
+    if date_from or date_to:
+        queryset = queryset.filter_date(date_from, date_to)
 
     attrs = Attribute.filter_dict(request.GET)
     if attrs:

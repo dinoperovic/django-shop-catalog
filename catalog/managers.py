@@ -11,6 +11,7 @@ from django.utils.translation import get_language
 from hvad.manager import TranslationManager, TranslationQueryset
 
 from catalog.utils import round_2
+from catalog import settings as scs
 
 
 class CatalogQuerySet(QuerySet):
@@ -89,6 +90,20 @@ class ProductQuerySet(CatalogQuerySet):
             pass
         try:
             filters['unit_price__lte'] = round_2(float(price_to))
+        except (TypeError, ValueError):
+            pass
+        return self.filter(**filters)
+
+    def filter_date(self, date_from=None, date_to=None):
+        filters = {}
+        try:
+            filters['date_added__gte'] = datetime.strptime(
+                date_from, scs.DATETIME_INPUT_FOMRAT)
+        except (TypeError, ValueError):
+            pass
+        try:
+            filters['date_added__lte'] = datetime.strptime(
+                date_to, scs.DATETIME_INPUT_FOMRAT)
         except (TypeError, ValueError):
             pass
         return self.filter(**filters)

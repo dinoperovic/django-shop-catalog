@@ -4,9 +4,13 @@ from __future__ import unicode_literals
 from django.conf import settings
 from django.utils.translation import ugettext_lazy as _
 
+
+DATETIME_INPUT_FOMRAT = '%Y-%m-%d %H:%M:%S'
+
 SLUG_FIELD_HELP_TEXT = _(
     'Can only contain the letters a-z, A-Z, digits, minus and underscores, '
     'and can\'t start with a digit.')
+
 ACTIVE_FIELD_HELP_TEXT = _(
     'Is this %s active? You can hide it by unchecking this box.')
 
