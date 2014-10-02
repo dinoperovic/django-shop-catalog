@@ -12,6 +12,10 @@ SLUG_FIELD_HELP_TEXT = _(
     'Can only contain the letters a-z, A-Z, digits, minus and underscores, '
     'and can\'t start with a digit.')
 
+UNDERSCORE_FIELD_HELP_TEXT = _(
+    'Can only contain the letters a-z, A-Z, digits and underscores, '
+    'and can\'t start with a digit.')
+
 ACTIVE_FIELD_HELP_TEXT = _(
     'Is this %s active? You can hide it by unchecking this box.')
 

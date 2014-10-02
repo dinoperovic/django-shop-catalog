@@ -8,7 +8,7 @@ from datetime import datetime
 
 from django.db import models
 from django.db.models import Q
-from django.core.validators import MinValueValidator
+from django.core.validators import MinValueValidator, RegexValidator
 from django.core.urlresolvers import reverse
 from django.utils.translation import ugettext_lazy as _
 from django.utils.encoding import python_2_unicode_compatible, force_str
@@ -27,7 +27,7 @@ from measurement.base import MeasureBase
 from currencies.models import Currency
 from currencies.utils import calculate_price
 
-from catalog.fields import NullableCharField
+from catalog.fields import NullableCharField, UnderscoreField
 from catalog.managers import (
     CatalogManager, ModifierCodeManager, ProductManager)
 from catalog.utils.noconflict import classmaker
@@ -793,6 +793,7 @@ class Product(TranslatableModel, ProductBase, ModifierModel):
             is_body_inherited=self.is_body_inherited,
             measurements=self.get_measurements(),
             currencies=self.get_currencies(),
+            flags=self.get_flags(),
         )
         data.update(self.get_categorization())
         return data
@@ -884,6 +885,20 @@ class Product(TranslatableModel, ProductBase, ModifierModel):
             except ProductMeasurement.DoesNotExist:
                 measurements_dict[kind] = None
         return measurements_dict
+
+    def get_flags(self):
+        """
+        Checks for parent flags and returns correct list of dictionaries
+        for product flags.
+        """
+        flags = self.flags.select_related().all()
+
+        if self.is_variant:
+            flag_ids = flags.values_list('flag_id', flat=True)
+            parent_flags = self.parent.flags.select_related()
+            parent_flags = parent_flags.exclude(flag_id__in=flag_ids)
+            flags = flags | parent_flags
+        return dict((x.get_code(), x.as_dict) for x in flags)
 
 
 @python_2_unicode_compatible
@@ -1191,3 +1206,62 @@ class ProductMeasurement(MeasurementBase):
         verbose_name = _('Measurement')
         verbose_name_plural = _('Measurements')
         unique_together = ('product', 'kind')
+
+
+@python_2_unicode_compatible
+class Flag(TranslatableModel):
+    """
+    Flags model to specify custom bool options on an object.
+    """
+    code = UnderscoreField(
+        _('Code'), max_length=123, unique=True,
+        help_text=scs.UNDERSCORE_FIELD_HELP_TEXT)
+
+    translations = TranslatedFields(
+        name=models.CharField(_('Name'), max_length=128),
+    )
+
+    class Meta:
+        db_table = 'catalog_flags'
+        verbose_name = _('Flag')
+        verbose_name_plural = _('Flags')
+
+    def __str__(self):
+        return self.get_name()
+
+    def get_name(self):
+        return self.lazy_translation_getter('name')
+
+    def get_code(self):
+        return self.code
+
+
+@python_2_unicode_compatible
+class ProductFlag(models.Model):
+    """
+    Through model for product flag relation.
+    """
+    product = models.ForeignKey(
+        Product, related_name='flags', verbose_name=_('Product'))
+    flag = models.ForeignKey(Flag, verbose_name=_('Flag'))
+    is_true = models.BooleanField(_('Is True?'), default=True)
+
+    class Meta:
+        db_table = 'catalog_product_flags'
+        verbose_name = _('Flag')
+        verbose_name_plural = _('Flags')
+        unique_together = ('product', 'flag')
+
+    def __str__(self):
+        return self.flag.get_name()
+
+    def get_code(self):
+        return self.flag.code
+
+    @property
+    def as_dict(self):
+        return dict(
+            name=force_str(self.__str__()),
+            code=force_str(self.get_code()),
+            is_true=self.is_true,
+        )

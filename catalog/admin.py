@@ -17,7 +17,7 @@ from mptt.admin import MPTTModelAdmin
 from catalog.models import (
     Modifier, ModifierCondition, ModifierCode, Category, Brand, Manufacturer,
     Tax, Product, Attribute, ProductAttributeValue, AttributeOption,
-    ProductMeasurement)
+    ProductMeasurement, Flag, ProductFlag)
 
 from catalog.forms import (
     ModifierModelForm, CategoryModelForm, BrandModelForm,
@@ -139,6 +139,11 @@ class ProductMeasurementInline(admin.TabularInline):
     max_num = len(ProductMeasurement.KIND_CHOICES)
 
 
+class ProductFlagInline(admin.TabularInline):
+    model = ProductFlag
+    extra = 0
+
+
 class ProductAdmin(
         TranslatableAdmin, MPTTModelAdmin, FrontendEditableAdminMixin,
         PlaceholderAdminMixin, admin.ModelAdmin):
@@ -159,7 +164,9 @@ class ProductAdmin(
     search_fields = ('upc', 'id')
     filter_horizontal = ('modifiers', )
 
-    inlines = (ProductMeasurementInline, ProductAttributeValueInline)
+    inlines = (
+        ProductFlagInline, ProductMeasurementInline,
+        ProductAttributeValueInline)
 
     def __init__(self, *args, **kwargs):
         super(ProductAdmin, self).__init__(*args, **kwargs)
@@ -302,6 +309,17 @@ class AttributeAdmin(TranslatableAdmin):
     get_name.short_description = _('Name')
 
 
+class FlagAdmin(TranslatableAdmin):
+    list_display = ('get_name', 'code', 'all_translations')
+
+    def __init__(self, *args, **kwargs):
+        super(FlagAdmin, self).__init__(*args, **kwargs)
+
+    def get_name(self, obj):
+        return obj.get_name()
+    get_name.short_description = _('Name')
+
+
 if scs.HAS_CATEGORIES:
     admin.site.register(Category, CategoryAdmin)
 if scs.HAS_BRANDS:
@@ -313,3 +331,4 @@ admin.site.register(Modifier, ModifierAdmin)
 admin.site.register(Attribute, AttributeAdmin)
 admin.site.register(Tax, TaxAdmin)
 admin.site.register(Product, ProductAdmin)
+admin.site.register(Flag, FlagAdmin)
