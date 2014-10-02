@@ -98,12 +98,12 @@ class ProductQuerySet(CatalogQuerySet):
         filters = {}
         try:
             filters['date_added__gte'] = datetime.strptime(
-                date_from, scs.DATETIME_INPUT_FOMRAT)
+                date_from, scs.DATE_INPUT_FOMRAT)
         except (TypeError, ValueError):
             pass
         try:
             filters['date_added__lte'] = datetime.strptime(
-                date_to, scs.DATETIME_INPUT_FOMRAT)
+                date_to, scs.DATE_INPUT_FOMRAT)
         except (TypeError, ValueError):
             pass
         return self.filter(**filters)

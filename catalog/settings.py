@@ -6,6 +6,7 @@ from django.utils.translation import ugettext_lazy as _
 
 
 DATETIME_INPUT_FOMRAT = '%Y-%m-%d %H:%M:%S'
+DATE_INPUT_FOMRAT = '%Y-%m-%d'
 
 SLUG_FIELD_HELP_TEXT = _(
     'Can only contain the letters a-z, A-Z, digits, minus and underscores, '
