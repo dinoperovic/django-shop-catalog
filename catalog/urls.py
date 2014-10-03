@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
+from django.conf import settings
 from django.conf.urls import patterns, url
 from django.utils.text import slugify
 
@@ -59,6 +60,12 @@ if scs.HAS_MANUFACTURERS:
         catalog_url('manufacturer', ManufacturerDetailView.as_view(),
                     'manufacturer_detail', '(?P<slug>[0-9A-Za-z-_.//]+)'),
     ])
+
+
+if 'catalog.reviews' in settings.INSTALLED_APPS:
+    from catalog.reviews.urls import pats as reviews_pats
+    pats.extend(reviews_pats)
+
 
 # Main patterns.
 pats.extend([

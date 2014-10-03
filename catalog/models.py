@@ -807,10 +807,20 @@ class Product(TranslatableModel, ProductBase, ModifierModel):
         return self.lazy_translation_getter('slug')
 
     def get_featured_image(self):
+        if self.is_featured_image_inherited:
+            return self.parent.get_featured_image()
         return self.featured_image
+
+    def get_description(self):
+        if self.is_description_inherited:
+            return self.parent.get_description()
+        return self.lazy_translation_getter('description')
 
     def get_extra_dict(self):
         data = dict(
+            description=self.get_description(),
+            is_description_inherited=self.is_description_inherited,
+            is_featured_image_inherited=self.is_featured_image_inherited,
             is_media_inherited=self.is_media_inherited,
             is_body_inherited=self.is_body_inherited,
             measurements=self.get_measurements(),
@@ -837,6 +847,15 @@ class Product(TranslatableModel, ProductBase, ModifierModel):
                 mods = mods | self.manufacturer.get_modifiers(distinct=False)
 
         return mods.distinct() if distinct else mods
+
+    @property
+    def is_description_inherited(self):
+        return (self.is_variant and not
+                self.lazy_translation_getter('description'))
+
+    @property
+    def is_featured_image_inherited(self):
+        return self.is_variant and not self.featured_image
 
     @property
     def is_media_inherited(self):
