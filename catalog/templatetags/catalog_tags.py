@@ -57,5 +57,5 @@ def get_price_steps(steps=5, products=None):
         price_steps.append(price_steps[-1] + chunk)
     price_steps.append(max_price)
 
-    price_steps = list(set(price_steps))
-    return price_steps if len(price_steps) > 1 else []
+    steps_count = list(set(price_steps))
+    return price_steps if len(steps_count) > 1 else []
