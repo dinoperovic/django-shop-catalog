@@ -39,12 +39,16 @@ def get_price_steps(steps=5, products=None):
     """
     if products is None:
         products = Product.objects.active().top_level()
+    else:
+        pks = products.values_list('pk', flat=True)
+        products = Product.objects.active().top_level(pk__in=pks)
 
     if not products:
         return []
 
-    min_price = products.order_by('unit_price')[0].get_unit_price()
-    max_price = products.order_by('-unit_price')[0].get_unit_price()
+    products = products.order_by('unit_price')
+    min_price, max_price = (products[0].get_unit_price(),
+                            products.reverse()[0].get_unit_price())
 
     price_steps = [min_price]
     chunk = int(float((max_price - min_price) / (steps + 1)))
@@ -53,4 +57,5 @@ def get_price_steps(steps=5, products=None):
         price_steps.append(price_steps[-1] + chunk)
     price_steps.append(max_price)
 
-    return price_steps
+    price_steps = list(set(price_steps))
+    return price_steps if len(price_steps) > 1 else []
