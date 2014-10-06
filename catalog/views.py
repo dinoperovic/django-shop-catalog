@@ -88,7 +88,7 @@ def sort_products(queryset, request):
     """
     sort = request.GET.get('sort', None)
     if sort and len(queryset) and hasattr(queryset[0], sort.lstrip('-')):
-        pks = queryset.values_list('pk', flat=True)
+        pks = list(queryset.values_list('pk', flat=True))
         queryset = Product.objects.language().filter(pk__in=pks).order_by(sort)
     return queryset
 
