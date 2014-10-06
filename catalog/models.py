@@ -150,7 +150,7 @@ class Modifier(TranslatableModel, CatalogModel):
             add_price = (self.percent / 100) * price
         else:
             add_price = self.amount * quantity
-        return add_price if price + add_price > 0 else price * -1
+        return add_price
 
     def can_be_applied(self, cart_item=None, cart=None, request=None):
         """
