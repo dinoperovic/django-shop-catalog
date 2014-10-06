@@ -2,7 +2,6 @@
 from __future__ import unicode_literals
 
 from django import template
-from django.db.models import Q
 
 from catalog.models import Attribute, Product
 
@@ -40,12 +39,10 @@ def get_price_steps(steps=5, products=None):
     """
     if products is None:
         products = Product.objects.active().top_level()
+    elif products:
+        pks = list(products.values_list('pk', flat=True))
+        products = Product.objects.language().filter(pk__in=pks)
     else:
-        pks = products.values_list('pk', flat=True)
-        limits = [~Q(pk=x) for x in pks]
-        products = Product.objects.filter(*limits)
-
-    if not products:
         return []
 
     products = products.order_by('unit_price')

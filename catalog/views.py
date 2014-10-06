@@ -74,7 +74,7 @@ def search_products(queryset, request):
     query = request.GET.get('search', None)
     if query:
         keywords = [x for x in query.split(' ') if x]
-        pks = queryset.values_list('pk', flat=True)
+        pks = list(queryset.values_list('pk', flat=True))
         queryset = Product.objects.language().filter(
             Q(pk__in=pks) &
             (reduce(operator.or_, (Q(slug__icontains=x) for x in keywords)) |
