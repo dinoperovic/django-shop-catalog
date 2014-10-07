@@ -91,10 +91,6 @@ class ProductModelForm(CatalogModelFormBase):
     class Meta:
         model = Product
 
-    def __init__(self, *args, **kwargs):
-        super(ProductModelForm, self).__init__(*args, **kwargs)
-        self.fields['parent'].queryset = self.get_parent_queryset()
-
     def clean_parent(self):
         """
         If parent is set to a any value, checks that there aren't
@@ -121,20 +117,6 @@ class ProductModelForm(CatalogModelFormBase):
                     _('Cannot assign "variant" as a parent Product.'))
 
         return data
-
-    def get_parent_queryset(self):
-        """
-        Filters parents queryset to return only top level products
-        and removes itself from a list.
-        """
-        instance = getattr(self, 'instance', None)
-        queryset = Product.objects.top_level()
-        pks = list(queryset.values_list('pk', flat=True))
-
-        if instance is not None and instance.pk in pks:
-            pks.remove(instance.pk)
-
-        return queryset.filter(pk__in=pks)
 
 
 class ProductAttributeValueModelForm(forms.ModelForm):

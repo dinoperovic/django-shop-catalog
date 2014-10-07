@@ -488,8 +488,7 @@ class ProductBase(MPTTModel, CatalogModel):
         'self', blank=True, null=True, related_name='variants',
         verbose_name=_('Parent'),
         help_text=_('If this is a "variant" of a Product, select that '
-                    'Product. Only top level products (without a parent) are '
-                    'listed.'))
+                    'Product.'))
 
     unit_price = CurrencyField(
         verbose_name=_('Unit price'),

@@ -165,6 +165,7 @@ class ProductAdmin(
     mptt_level_indent = 0
     readonly_fields = ('date_added', 'last_modified')
     search_fields = ('upc', 'id')
+    raw_id_fields = ('parent', )
     filter_horizontal = ('modifiers', )
 
     inlines = (
