@@ -5,6 +5,7 @@ from django import forms
 from django.forms.models import BaseInlineFormSet
 from django.utils.translation import get_language
 from django.utils.translation import ugettext_lazy as _
+from django.utils.encoding import force_str
 
 from hvad.forms import TranslatableModelForm
 
@@ -124,26 +125,64 @@ class ProductAttributeValueInlineFormSet(BaseInlineFormSet):
     """
     Custom formset for products attribute values.
     """
+    def clean_duplicates(self):
+        """
+        Checks if another variant with selected attributes
+        already exists.
+        """
+        instance = getattr(self, 'instance', None)
+
+        if instance is not None and instance.is_variant:
+            variation_exists = True
+            variations = instance.parent.get_variations(
+                exclude={'pk': instance.pk})
+
+            for form in self.forms:
+                key = form.cleaned_data['attribute'].code
+                value = force_str(
+                    ProductAttributeValue.value_for(form.cleaned_data))
+
+                # Check if this key, value pair already exists.
+                if key in variations:
+                    if value in variations[key]['values']:
+                        continue;
+
+                # One key, value pair does not exist in variations
+                # so attribute pairs are valid.
+                variation_exists = False
+                break
+
+            if variation_exists:
+                raise forms.ValidationError(
+                    _('A "variant" for this parent with selected '
+                      'attributes already exsists.'))
+
     def clean(self):
         super(ProductAttributeValueInlineFormSet, self).clean()
+        instance = getattr(self, 'instance', None)
+
+        if any(self.errors) or instance is None:
+            return
 
         # Filter out forms without attribute specified (empty).
-        valid_forms = [x for x in self.forms if 'attribute' in x.cleaned_data]
+        self.forms = [x for x in self.forms if 'attribute' in x.cleaned_data]
 
-        instance = getattr(self, 'instance', None)
-        if instance is not None:
 
-            # Check if product is a variant, but has no attributes.
-            if instance.is_variant and not valid_forms:
+        # At least one attribute must be specified on a variant.
+        if instance.is_variant and not self.forms:
+            if not self.forms:
                 raise forms.ValidationError(
                     _('If product is a "variant" attributes must be '
                       'specified.'))
 
-            # Check that product is not top level and has attributes.
-            if instance.is_top_level and valid_forms:
-                raise forms.ValidationError(
-                    _('Attributes can only be assigned to a "variant" '
-                      'of a product.'))
+        # Check for duplicates.
+        self.clean_duplicates()
+
+        # Check that product is not top level and has attributes.
+        if instance.is_top_level and self.forms:
+            raise forms.ValidationError(
+                _('Attributes can only be assigned to a "variant" '
+                  'of a product.'))
 
 
 class ProductAttributeValueModelForm(forms.ModelForm):

@@ -676,7 +676,7 @@ class ProductBase(MPTTModel, CatalogModel):
 
         return attrs
 
-    def get_variations(self):
+    def get_variations(self, exclude={}):
         """
         If product is a group product (has variants) returns a list of
         all it's variants attributes grouped by code in a dictionary.
@@ -684,7 +684,7 @@ class ProductBase(MPTTModel, CatalogModel):
         variations = {}
 
         if self.is_group:
-            variants = self.variants.select_related().all()
+            variants = self.variants.select_related().exclude(**exclude)
             attr_values = list(chain(*[x.get_attrs() for x in variants]))
 
             for value in attr_values:
@@ -703,7 +703,7 @@ class ProductBase(MPTTModel, CatalogModel):
                 if value['value'] not in variations[value['code']]['values']:
                     variations[value['code']]['values'].append(value['value'])
 
-        return variations.values()
+        return variations
 
     def get_variant(self, **kwargs):
         """
@@ -1103,6 +1103,18 @@ class AttributeValueBase(models.Model):
         data = self.attribute.as_dict
         data.update({'value': force_str(self.value)})
         return data
+
+    @classmethod
+    def value_for(cls, data):
+        """
+        Creates a temp object and return it's correct value.
+        """
+        field_names = [x.name for x in cls._meta.fields]
+        for x in data.keys():
+            if x not in field_names:
+                del data[x]
+        obj = cls(**data)
+        return obj.value
 
 
 class ProductAttributeValue(AttributeValueBase):
