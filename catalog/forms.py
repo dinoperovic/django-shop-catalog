@@ -2,6 +2,7 @@
 from __future__ import unicode_literals
 
 from django import forms
+from django.forms.models import BaseInlineFormSet
 from django.utils.translation import get_language
 from django.utils.translation import ugettext_lazy as _
 
@@ -117,6 +118,32 @@ class ProductModelForm(CatalogModelFormBase):
                     _('Cannot assign "variant" as a parent Product.'))
 
         return data
+
+
+class ProductAttributeValueInlineFormSet(BaseInlineFormSet):
+    """
+    Custom formset for products attribute values.
+    """
+    def clean(self):
+        super(ProductAttributeValueInlineFormSet, self).clean()
+
+        # Filter out forms without attribute specified (empty).
+        valid_forms = [x for x in self.forms if 'attribute' in x.cleaned_data]
+
+        instance = getattr(self, 'instance', None)
+        if instance is not None:
+
+            # Check if product is a variant, but has no attributes.
+            if instance.is_variant and not valid_forms:
+                raise forms.ValidationError(
+                    _('If product is a "variant" attributes must be '
+                      'specified.'))
+
+            # Check that product is not top level and has attributes.
+            if instance.is_top_level and valid_forms:
+                raise forms.ValidationError(
+                    _('Attributes can only be assigned to a "variant" '
+                      'of a product.'))
 
 
 class ProductAttributeValueModelForm(forms.ModelForm):

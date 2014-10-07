@@ -21,7 +21,8 @@ from catalog.models import (
 
 from catalog.forms import (
     ModifierModelForm, CategoryModelForm, BrandModelForm,
-    ManufacturerModelForm, ProductModelForm, ProductAttributeValueModelForm)
+    ManufacturerModelForm, ProductModelForm,
+    ProductAttributeValueInlineFormSet, ProductAttributeValueModelForm)
 
 from catalog.filters import ProductParentListFilter
 from catalog.utils import slug_num_suffix
@@ -129,6 +130,7 @@ class ManufacturerAdmin(CategoryAdminBase):
 class ProductAttributeValueInline(admin.TabularInline):
     model = ProductAttributeValue
     form = ProductAttributeValueModelForm
+    formset = ProductAttributeValueInlineFormSet
     extra = 0
 
 
