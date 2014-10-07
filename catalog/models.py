@@ -1093,7 +1093,7 @@ class AttributeValueBase(models.Model):
     def value(self):
         value = getattr(self, 'value_%s' % self.attribute.kind, None)
         if self.attribute.is_option:
-            value = value.get_value()
+            value = value.get_value() if value else None
         elif self.attribute.is_file:
             value = value.url if value else None
         return value
