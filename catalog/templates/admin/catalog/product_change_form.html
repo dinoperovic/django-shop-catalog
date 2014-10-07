@@ -84,17 +84,16 @@
         };
 
         jQuery(document).ready(function ($) {
-
             // Initialize all rows.
             $('#attribute_values-group .form-row').each(function () {
                 shopCatalogAttrValueUpdate($(this));
             });
+
+            // Hide tabular fields that are not used.
+            $('#attribute_values-group .form-row > td:not(.original):not(.delete):not(.field-attribute):not(.field-empty)').hide();
+            $('#attribute_values-group table tr:first-child th:not(:first-child):not(:last-child):not(:nth-child(2))').hide();
         });
     </script>
-    <style>
-        #attribute_values-group .form-row > td:not(.original):not(.delete):not(.field-attribute):not(.field-empty) {display: none;}
-        #attribute_values-group table tr:first-child th:not(:first-child):not(:last-child):not(:nth-child(2)) {display: none;}
-    </style>
 {% endblock %}
 
 {% block object-tools-items %}
