@@ -713,8 +713,7 @@ class ProductBase(MPTTModel, CatalogModel):
             return None
 
         # Cast keys and values to str and filter out empty values.
-        kwargs = [(force_str(k), force_str(v)) for k, v in kwargs.items()
-                  if v is not None]
+        kwargs = [(force_str(k), force_str(v)) for k, v in kwargs.items() if v]
 
         # Loop through variants and compare their attribute values to
         # kwargs. If they match, return that variant.
