@@ -145,7 +145,7 @@ class ProductAttributeValueInlineFormSet(BaseInlineFormSet):
                 # Check if this key, value pair already exists.
                 if key in variations:
                     if value in variations[key]['values']:
-                        continue;
+                        continue
 
                 # One key, value pair does not exist in variations
                 # so attribute pairs are valid.
