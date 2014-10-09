@@ -1023,7 +1023,7 @@ class Attribute(TranslatableModel):
         )
 
     def get_values(self):
-        return [x.value for x in self.values.select_related()]
+        return list(set([x.value for x in self.values.select_related().all()]))
 
     @classmethod
     def is_nullable(cls, attr_code, obj):
