@@ -167,7 +167,6 @@ class ProductAttributeValueInlineFormSet(BaseInlineFormSet):
         # Filter out forms without attribute specified (empty).
         self.forms = [x for x in self.forms if 'attribute' in x.cleaned_data]
 
-
         # At least one attribute must be specified on a variant.
         if instance.is_variant and not self.forms:
             if not self.forms:

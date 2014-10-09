@@ -1,8 +1,6 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
-from django.conf.urls import patterns, url
-
 from catalog.urls import catalog_url
 from catalog.reviews.views import (
     ReviewListView, ReviewDetailView, ReviewCreateView, ReviewUpdateView,
