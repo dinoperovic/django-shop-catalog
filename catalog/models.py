@@ -947,8 +947,15 @@ class Product(TranslatableModel, ProductBase, ModifierModel):
         if self.is_variant:
             return self.parent.get_related_products()
 
-        products = self.related_products.select_related().all()
-        return [x.as_dict for x in products]
+        products_dict = dict(
+            (x[0], {'name': force_str(x[1]), 'products': []})
+            for x in scs.RELATED_PRODUCT_KIND_CHOICES)
+
+        for obj in self.related_products.select_related().all():
+            if obj.kind in products_dict:
+                products_dict[obj.kind]['products'].append(
+                    force_str(obj.product.pk))
+        return products_dict
 
 
 @python_2_unicode_compatible
