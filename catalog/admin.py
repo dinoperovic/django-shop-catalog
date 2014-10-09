@@ -17,12 +17,13 @@ from mptt.admin import MPTTModelAdmin
 from catalog.models import (
     Modifier, ModifierCondition, ModifierCode, Category, Brand, Manufacturer,
     Tax, Product, Attribute, ProductAttributeValue, AttributeOption,
-    ProductMeasurement, Flag, ProductFlag)
+    ProductMeasurement, Flag, ProductFlag, RelatedProduct)
 
 from catalog.forms import (
     ModifierModelForm, CategoryModelForm, BrandModelForm,
     ManufacturerModelForm, ProductModelForm,
-    ProductAttributeValueInlineFormSet, ProductAttributeValueModelForm)
+    ProductAttributeValueInlineFormSet, ProductAttributeValueModelForm,
+    RelatedProductModelForm, RelatedProductInlineFormSet)
 
 from catalog.filters import ProductParentListFilter
 from catalog.utils import slug_num_suffix
@@ -149,6 +150,15 @@ class ProductFlagInline(admin.TabularInline):
     extra = 0
 
 
+class RelatedProductInline(admin.TabularInline):
+    model = RelatedProduct
+    fk_name = 'base_product'
+    form = RelatedProductModelForm
+    formset = RelatedProductInlineFormSet
+    extra = 0
+    raw_id_fields = ('product', )
+
+
 class ProductAdmin(
         TranslatableAdmin, MPTTModelAdmin, FrontendEditableAdminMixin,
         PlaceholderAdminMixin, admin.ModelAdmin):
@@ -172,7 +182,7 @@ class ProductAdmin(
 
     inlines = (
         ProductFlagInline, ProductMeasurementInline,
-        ProductAttributeValueInline)
+        ProductAttributeValueInline, RelatedProductInline)
 
     def __init__(self, *args, **kwargs):
         super(ProductAdmin, self).__init__(*args, **kwargs)

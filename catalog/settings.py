@@ -27,6 +27,12 @@ ATTRIBUTE_TEMPLATE_CHOICES = getattr(
         ('radio', _('Radio')),
     ))
 
+RELATED_PRODUCT_KIND_CHOICES = getattr(
+    settings, 'CATALOG_RELATED_PRODUCT_KIND_CHOICES', (
+        ('upsell', _('Upsell')),
+        ('cross_sell', _('Cross sell')),
+    ))
+
 PRODUCTS_PER_PAGE = getattr(settings, 'CATALOG_PRODUCTS_PER_PAGE', 6)
 
 HAS_CATEGORIES = getattr(settings, 'CATALOG_HAS_CATEGORIES', True)

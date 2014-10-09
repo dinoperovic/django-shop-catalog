@@ -824,6 +824,7 @@ class Product(TranslatableModel, ProductBase, ModifierModel):
             measurements=self.get_measurements(),
             currencies=self.get_currencies(),
             flags=self.get_flags(),
+            related_products=self.get_related_products(),
         )
         data.update(self.get_categorization())
         return data
@@ -938,6 +939,16 @@ class Product(TranslatableModel, ProductBase, ModifierModel):
             parent_flags = parent_flags.exclude(flag_id__in=flag_ids)
             flags = flags | parent_flags
         return dict((x.get_code(), x.as_dict) for x in flags)
+
+    def get_related_products(self):
+        """
+        Returns all related products for this product.
+        """
+        if self.is_variant:
+            return self.parent.get_related_products()
+
+        products = self.related_products.select_related().all()
+        return [x.as_dict for x in products]
 
 
 @python_2_unicode_compatible
@@ -1315,4 +1326,38 @@ class ProductFlag(models.Model):
             name=force_str(self.__str__()),
             code=force_str(self.get_code()),
             is_true=self.is_true,
+        )
+
+
+@python_2_unicode_compatible
+class RelatedProduct(models.Model):
+    """
+    Product relations model.
+    """
+    base_product = models.ForeignKey(
+        Product, related_name='related_products',
+        verbose_name=_('Base product'))
+
+    product = models.ForeignKey(
+        Product, verbose_name=_('Product'))
+
+    kind = UnderscoreField(
+        _('Kind'), max_length=255,
+        choices=scs.RELATED_PRODUCT_KIND_CHOICES,
+        default=scs.RELATED_PRODUCT_KIND_CHOICES[0][0])
+
+    class Meta:
+        db_table = 'catalog_related_products'
+        verbose_name = _('Related Product')
+        verbose_name_plural = _('Related Products')
+        unique_together = ('base_product', 'product', 'kind')
+
+    def __str__(self):
+        return self.product.__str__()
+
+    @property
+    def as_dict(self):
+        return dict(
+            product=force_str(self.product_id),
+            kind=force_str(self.kind),
         )

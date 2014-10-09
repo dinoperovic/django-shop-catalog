@@ -11,7 +11,7 @@ from hvad.forms import TranslatableModelForm
 
 from catalog.models import (
     Modifier, ModifierCode, CartModifierCode, Category, Brand, Manufacturer,
-    Product, Attribute, ProductAttributeValue)
+    Product, Attribute, ProductAttributeValue, RelatedProduct)
 
 from catalog.widgets import AttributeValueKindsMapSelect
 from catalog import settings as scs
@@ -125,37 +125,31 @@ class ProductAttributeValueInlineFormSet(BaseInlineFormSet):
     """
     Custom formset for products attribute values.
     """
-    def clean_duplicates(self):
+    def has_duplicates(self, instance, forms):
         """
-        Checks if another variant with selected attributes
+        Returns if another variant with selected attributes
         already exists.
         """
-        instance = getattr(self, 'instance', None)
+        variation_exists = True
+        variations = instance.parent.get_variations(
+            exclude={'pk': instance.pk})
 
-        if instance is not None and instance.is_variant:
-            variation_exists = True
-            variations = instance.parent.get_variations(
-                exclude={'pk': instance.pk})
+        for form in forms:
+            key = form.cleaned_data['attribute'].code
+            value = force_str(
+                ProductAttributeValue.value_for(form.cleaned_data))
 
-            for form in self.forms:
-                key = form.cleaned_data['attribute'].code
-                value = force_str(
-                    ProductAttributeValue.value_for(form.cleaned_data))
+            # Check if this key, value pair already exists.
+            if key in variations:
+                if value in variations[key]['values']:
+                    continue
 
-                # Check if this key, value pair already exists.
-                if key in variations:
-                    if value in variations[key]['values']:
-                        continue
+            # One key, value pair does not exist in variations
+            # so attribute pairs are valid.
+            variation_exists = False
+            break
 
-                # One key, value pair does not exist in variations
-                # so attribute pairs are valid.
-                variation_exists = False
-                break
-
-            if variation_exists:
-                raise forms.ValidationError(
-                    _('A "variant" for this parent with selected '
-                      'attributes already exsists.'))
+        return variation_exists
 
     def clean(self):
         super(ProductAttributeValueInlineFormSet, self).clean()
@@ -165,20 +159,23 @@ class ProductAttributeValueInlineFormSet(BaseInlineFormSet):
             return
 
         # Filter out forms without attribute specified (empty).
-        self.forms = [x for x in self.forms if 'attribute' in x.cleaned_data]
+        clean_forms = [x for x in self.forms if 'attribute' in x.cleaned_data]
 
-        # At least one attribute must be specified on a variant.
-        if instance.is_variant and not self.forms:
-            if not self.forms:
+        if instance.is_variant:
+            # At least one attribute must be specified on a variant.
+            if not clean_forms:
                 raise forms.ValidationError(
                     _('If product is a "variant" attributes must be '
                       'specified.'))
 
-        # Check for duplicates.
-        self.clean_duplicates()
+            # Check for duplicates.
+            if self.has_duplicates(instance, clean_forms):
+                raise forms.ValidationError(
+                    _('A "variant" for this parent with selected '
+                      'attributes already exsists.'))
 
         # Check that product is not top level and has attributes.
-        if instance.is_top_level and self.forms:
+        if instance.is_top_level and clean_forms:
             raise forms.ValidationError(
                 _('Attributes can only be assigned to a "variant" '
                   'of a product.'))
@@ -244,3 +241,55 @@ class ProductAttributeValueModelForm(forms.ModelForm):
         for item in Attribute.objects.all():
             choices += (item.kind, item.pk),
         return choices
+
+
+class RelatedProductModelForm(forms.ModelForm):
+    """
+    Related product model form.
+    """
+    class Meta:
+        model = RelatedProduct
+
+    def clean_product(self):
+        """
+        Custom product validation.
+        """
+        instance = getattr(self, 'instance', None)
+        product = self.cleaned_data.get('product')
+
+        if product is not None:
+            if product.is_variant:
+                raise forms.ValidationError(
+                    _('You can\'t assign a "variant" product as a '
+                      'related product, select a top level '
+                      'product.'))
+
+            if instance is not None:
+                if instance.base_product_id == product.pk:
+                    raise forms.ValidationError(
+                        _('You can\'t assign a related product as '
+                          'itself.'))
+
+        return product
+
+
+class RelatedProductInlineFormSet(BaseInlineFormSet):
+    """
+    Related Product custom formset.
+    """
+    def clean(self):
+        super(RelatedProductInlineFormSet, self).clean()
+        instance = getattr(self, 'instance', None)
+
+        if any(self.errors) or instance is None:
+            return
+
+        # Filter out forms without product specified (empty).
+        clean_forms = [x for x in self.forms if 'product' in x.cleaned_data]
+
+        # Check that product is top level.
+        if not instance.is_top_level and clean_forms:
+            raise forms.ValidationError(
+                _('Related products have to be specified on a top '
+                  'level product. It\'s variants will inherit the '
+                  'relations automatically.'))
