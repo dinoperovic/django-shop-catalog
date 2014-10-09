@@ -1,8 +1,0 @@
-{% load i18n %}===============================================================================
-{% blocktrans with status=order.get_status_name %}Order {{ status }}{% endblocktrans %}
-===============================================================================
-
-{% if order.status == order.CONFIRMED %}{% trans "A new order has been confirmed." %}
-{% elif order.status == order.COMPLETED %}{% trans "A new order has been completed, ship it!" %}
-{% elif order.status == order.CANCELLED %}{% trans "An order has been cancelled." %}
-{% endif %}

@@ -1,1 +1,0 @@
-{% load i18n %}{% blocktrans with status=order.get_status_name %}Order {{ status }}{% endblocktrans %}
