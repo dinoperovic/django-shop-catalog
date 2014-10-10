@@ -38,7 +38,7 @@ class ModifierTestCase(TestCase):
     def test_calculate_add_price(self):
         self.assertEquals(self.mod_1.calculate_add_price(D(100), 1), D(-30))
         self.assertEquals(self.mod_2.calculate_add_price(D(100), 1), D(30))
-        self.assertEquals(self.mod_3.calculate_add_price(D(10), 2), D(-10))
+        self.assertEquals(self.mod_3.calculate_add_price(D(10), 2), D(-20))
         self.assertEquals(self.mod_4.calculate_add_price(D(100), 4), D(40))
 
     def test_is_eligible_product(self):
