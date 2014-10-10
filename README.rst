@@ -30,7 +30,7 @@ Installation
 
 Install from github using pip:
 
-.. code:: python
+.. code:: bash
 
     pip install -e git://github.com/dinoperovic/django-shop-catalog.git@master#egg=django-shop-catalog
 
