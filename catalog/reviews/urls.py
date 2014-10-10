@@ -7,6 +7,8 @@ from catalog.reviews.views import (
     ReviewDeleteView)
 
 
+# Pats are automatically inserted into urlpatterns in catalog urls.py
+# so urlpatterns are not specified here.
 pats = [
     catalog_url('product', ReviewListView.as_view(),
                 'review_list',
