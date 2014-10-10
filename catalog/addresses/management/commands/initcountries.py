@@ -66,4 +66,4 @@ class Command(BaseCommand):
         try:
             return '{}'.format(smart_str(string))
         except UnicodeDecodeError:
-            return 'Can\'t want to deal with unicode errors right now, sry!'
+            return 'Don\'t want to deal with unicode errors right now, sry!'
