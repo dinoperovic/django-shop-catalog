@@ -6,7 +6,7 @@ from shop.cart.cart_modifiers_base import BaseCartModifier
 from catalog.models import Modifier
 
 
-class ShopCatalogCartModifier(BaseCartModifier):
+class CatalogCartModifier(BaseCartModifier):
     def process_cart_item(self, cart_item, request):
         """
         Loops through extra cart item fields and updates the

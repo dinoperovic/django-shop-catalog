@@ -78,7 +78,7 @@ Add to your ``settings.py``:
 
     SHOP_PRODUCT_MODEL = 'catalog.models.Product'
     SHOP_CART_MODIFIERS = (
-        'catalog.cart_modifiers.ShopCatalogCartModifier',
+        'catalog.cart_modifiers.CatalogCartModifier',
     )
 
     # If you're using 'catalog.orders' app.
