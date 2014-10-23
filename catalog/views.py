@@ -208,7 +208,13 @@ class CategoryDetailViewBase(ShopDetailView, MultipleObjectMixin):
         if self.object:
             context_object_name = self.get_context_object_name(self.object)
             if hasattr(Product, context_object_name):
-                filters = {'{}_id'.format(context_object_name): self.object.pk}
+
+                # Add all children to filters, this should maybe go in
+                # a method like 'get_products()' on categorization models.
+                pks = [x.pk for x in
+                       self.object.get_descendants(include_self=True)]
+                filters = {'{}_id__in'.format(context_object_name): pks}
+
                 products = Product.objects.active(**filters).top_level()
                 products = filter_products(products, self.request)
                 context['object_list'] = products
