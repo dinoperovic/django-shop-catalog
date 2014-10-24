@@ -954,7 +954,7 @@ class Product(TranslatableModel, ProductBase, ModifierModel):
         for obj in self.related_products.select_related().all():
             if obj.kind in products_dict:
                 products_dict[obj.kind]['products'].append(
-                    obj.product.as_dict)
+                    force_str(obj.product.pk))
         return products_dict
 
 
