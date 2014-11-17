@@ -49,8 +49,6 @@ class ModifierAdmin(TranslatableAdmin):
 
     readonly_fields = ('date_added', 'last_modified')
 
-    inlines = (ModifierConditionInline, ModifierCodeInline)
-
     def __init__(self, *args, **kwargs):
         super(ModifierAdmin, self).__init__(*args, **kwargs)
         self.prepopulated_fields = {'code': ('name', )}
@@ -68,6 +66,13 @@ class ModifierAdmin(TranslatableAdmin):
                 'fields': ('active', 'date_added', 'last_modified'),
             }),
         )
+        self.inlines = self.get_inlines()
+
+    def get_inlines(self):
+        inlines = (ModifierConditionInline, )
+        if scs.HAS_MODIFIER_CODES:
+            inlines += ModifierCodeInline,
+        return inlines
 
     def get_name(self, obj):
         return obj.get_name()

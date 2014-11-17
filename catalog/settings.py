@@ -35,9 +35,11 @@ RELATED_PRODUCT_KIND_CHOICES = getattr(
 
 PRODUCTS_PER_PAGE = getattr(settings, 'CATALOG_PRODUCTS_PER_PAGE', 6)
 
+# Toggles.
 HAS_CATEGORIES = getattr(settings, 'CATALOG_HAS_CATEGORIES', True)
 HAS_BRANDS = getattr(settings, 'CATALOG_HAS_BRANDS', True)
 HAS_MANUFACTURERS = getattr(settings, 'CATALOG_HAS_MANUFACTURERS', True)
+HAS_MODIFIER_CODES = getattr(settings, 'CATALOG_HAS_MODIFIER_CODES', True)
 
 PRODUCT_URL = getattr(
     settings, 'CATALOG_PRODUCT_URL', 'products')
