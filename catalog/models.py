@@ -1360,7 +1360,7 @@ class RelatedProduct(models.Model):
         unique_together = ('base_product', 'product', 'kind')
 
     def __str__(self):
-        return self.product.__str__()
+        return self.product.get_name()
 
     @property
     def as_dict(self):
