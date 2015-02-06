@@ -56,6 +56,7 @@ INSTALLED_APPS = (
     'shop',
     'shop.addressmodel',
     'catalog',
+    'currencies',
 )
 
 SHOP_PRODUCT_MODEL = 'catalog.models.Product'
