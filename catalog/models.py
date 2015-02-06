@@ -62,7 +62,7 @@ class CatalogModel(models.Model):
         return force_str(self.pk)
 
     def get_slug(self):
-        return slugify(self.get_name())
+        return slugify(unicode(self.get_name()))
 
     @property
     def as_dict(self):
