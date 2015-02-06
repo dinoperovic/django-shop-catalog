@@ -17,7 +17,7 @@ UNDERSCORE_FIELD_HELP_TEXT = _(
     'and can\'t start with a digit.')
 
 ACTIVE_FIELD_HELP_TEXT = _(
-    'Is this %s active? You can hide it by unchecking this box.')
+    'Is this object active? You can hide it by unchecking this box.')
 
 PRODUCT_CHANGE_FORM_TEMPLATE = (
     'admin/catalog/product_change_form.html')

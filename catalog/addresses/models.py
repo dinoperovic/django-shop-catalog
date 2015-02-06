@@ -29,8 +29,7 @@ class Region(models.Model):
         _('Code'), max_length=128, unique=True, db_index=True)
     name = models.CharField(_('Name'), max_length=255)
     active = models.BooleanField(
-        _('Active'), default=True,
-        help_text=scs.ACTIVE_FIELD_HELP_TEXT % 'Region')
+        _('Active'), default=True, help_text=scs.ACTIVE_FIELD_HELP_TEXT)
 
     class Meta:
         db_table = 'catalog_addresses_regions'
@@ -55,8 +54,7 @@ class Country(models.Model):
 
     name = models.CharField(_('Name'), max_length=255)
     active = models.BooleanField(
-        _('Active'), default=True,
-        help_text=scs.ACTIVE_FIELD_HELP_TEXT % 'Country')
+        _('Active'), default=True, help_text=scs.ACTIVE_FIELD_HELP_TEXT)
 
     def __str__(self):
         return '{}'.format(self.name)

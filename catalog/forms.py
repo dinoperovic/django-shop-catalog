@@ -14,7 +14,6 @@ from catalog.models import (
     Product, Attribute, ProductAttributeValue, RelatedProduct)
 
 from catalog.widgets import AttributeValueKindsMapSelect
-from catalog import settings as scs
 
 
 class CatalogModelFormBase(TranslatableModelForm):
@@ -24,14 +23,6 @@ class CatalogModelFormBase(TranslatableModelForm):
     """
     class Meta:
         model = None
-
-    def __init__(self, *args, **kwargs):
-        super(CatalogModelFormBase, self).__init__(*args, **kwargs)
-
-        instance = getattr(self, 'instance', None)
-        if instance is not None:
-            self.fields['active'].help_text = _(
-                scs.ACTIVE_FIELD_HELP_TEXT % self._meta.model.__name__)
 
     def clean(self):
         """

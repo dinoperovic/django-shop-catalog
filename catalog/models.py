@@ -44,7 +44,8 @@ class CatalogModel(models.Model):
     When an object inherits from CatalogModel, it can define a
     CatalogManager as a manager for ease of getting "active" objects.
     """
-    active = models.BooleanField(_('Active'), default=True)
+    active = models.BooleanField(
+        _('Active'), default=True, help_text=scs.ACTIVE_FIELD_HELP_TEXT)
     date_added = models.DateTimeField(_('Date added'), auto_now_add=True)
     last_modified = models.DateTimeField(_('Last modified'), auto_now=True)
 
@@ -284,8 +285,7 @@ class ModifierCode(models.Model):
         help_text=scs.SLUG_FIELD_HELP_TEXT)
 
     active = models.BooleanField(
-        _('Active'), default=True,
-        help_text=scs.ACTIVE_FIELD_HELP_TEXT % 'Modifier code')
+        _('Active'), default=True, help_text=scs.ACTIVE_FIELD_HELP_TEXT)
     valid_from = models.DateTimeField(_('Valid from'), default=datetime.now)
     valid_until = models.DateTimeField(_('Valid until'), blank=True, null=True)
 
