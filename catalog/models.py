@@ -476,7 +476,9 @@ class Tax(models.Model):
 class ProductBase(MPTTModel, CatalogModel):
     """
     Base fields and calculations are defined here and all objects that
-    can be added to cart must inherit from this model.
+    can be added to cart must inherit from this model. Models that
+    extend ProductBase must define 'attributes' M2M  relation to
+    'Attribute' and through 'ProductAttributeValue' model.
     """
     upc = NullableCharField(
         _('UPC'), max_length=64, blank=True, null=True, unique=True,
