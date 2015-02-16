@@ -13,7 +13,7 @@ def main(verbosity=1, *test_args):
     test_runner = NoseTestSuiteRunner(verbosity)
 
     if not test_args:
-        test_args = ['tests.unit']
+        test_args = ['tests.catalog']
 
     failures = test_runner.run_tests(test_args)
     sys.exit(failures)
