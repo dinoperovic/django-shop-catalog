@@ -17,7 +17,7 @@ from catalog.models import (
     ProductAttributeValue)
 from catalog import settings as scs
 
-from tests.utils import warning
+from ..utils import warning
 
 
 def create_product(name, unit_price=100, **kwargs):
@@ -29,6 +29,27 @@ def create_product(name, unit_price=100, **kwargs):
     }
     filters.update(kwargs)
     return Product.objects.language().create(**filters)
+
+
+def create_categorization(model, name, **kwargs):
+    filters = {
+        'name': name,
+        'slug': slugify(name),
+    }
+    filters.update(kwargs)
+    return model.objects.language().create(**filters)
+
+
+def create_category(name, **kwargs):
+    return create_categorization(Category, name, **kwargs)
+
+
+def create_brand(name, **kwargs):
+    return create_categorization(Brand, name, **kwargs)
+
+
+def create_manufacturer(name, **kwargs):
+    return create_categorization(Manufacturer, name, **kwargs)
 
 
 def create_modifier(name, values=[20, None], kind='standard'):
