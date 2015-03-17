@@ -15,7 +15,7 @@ Requirements
 
 .. code:: text
 
-    django>=1.6
+    django>=1.6,<1.8
     django-cms>=3.0.1
     django-shop>=0.2.0
     django-filer>=0.9.5
