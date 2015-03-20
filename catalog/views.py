@@ -77,7 +77,8 @@ def search_products(queryset, request):
         pks = list(queryset.values_list('pk', flat=True))
         queryset = Product.objects.language().filter(
             Q(pk__in=pks) &
-            (reduce(operator.or_, (Q(slug__icontains=x) for x in keywords)) |
+            (reduce(operator.or_, (Q(upc=x) for x in keywords)) |
+             reduce(operator.or_, (Q(slug__icontains=x) for x in keywords)) |
              reduce(operator.or_, (Q(name__icontains=x) for x in keywords))))
     return queryset
 
