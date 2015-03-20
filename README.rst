@@ -28,6 +28,13 @@ Requirements
 Installation
 ------------
 
+Install with pip:
+
+.. code:: bash
+
+    pip install django-shop-catalog
+
+
 Install from github using pip:
 
 .. code:: bash
