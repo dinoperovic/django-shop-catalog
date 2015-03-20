@@ -181,7 +181,7 @@ class ProductAdmin(
     frontend_editable_fields = ()
     mptt_level_indent = 0
     readonly_fields = ('date_added', 'last_modified')
-    search_fields = ('upc', 'id')
+    search_fields = ('upc', 'id', 'translations__name', 'translations__slug')
     raw_id_fields = ('parent', )
     filter_horizontal = ('modifiers', )
 
