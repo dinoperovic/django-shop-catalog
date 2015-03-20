@@ -3,7 +3,7 @@ django-shop-catalog
 
 Catalog app for django SHOP.
 
-:Version: 0.0.1
+:Version: 0.0.11
 :Source: https://github.com/dinoperovic/django-shop-catalog
 :Dev Status: Alpha
 
@@ -133,6 +133,16 @@ to have all countries and regions pulled from `geonames.org`_.
 .. code:: bash
 
     python manage.py initcountries
+
+
+Changelog
+-----
+
+- 0.0.11 Bugfix:
+
+    + Add locale directory to MANIFEST.in
+
+- 0.0.1 Initial Alpha release
 
 
 
