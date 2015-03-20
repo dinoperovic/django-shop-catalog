@@ -513,7 +513,8 @@ class ProductBase(MPTTModel, CatalogModel):
 
     tax = models.ForeignKey(
         Tax, blank=True, null=True,
-        related_name='products', verbose_name=_('Tax'),
+        related_name='products', on_delete=models.SET_NULL,
+        verbose_name=_('Tax'),
         help_text=_('Tax to be applied to this product. If not set and '
                     'product is a variant, tax will be inherited from '
                     'parent.'))
