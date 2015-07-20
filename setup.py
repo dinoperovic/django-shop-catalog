@@ -42,6 +42,6 @@ setup(
     ],
     test_suite='runtests.main',
     tests_require=(
-        'django-nose==1.2',
+        'django-nose>=1.2',
     ),
 )
