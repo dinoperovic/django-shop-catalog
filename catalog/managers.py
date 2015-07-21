@@ -8,7 +8,7 @@ from django.db.models import Manager
 from django.db.models.query import QuerySet
 from django.utils.translation import get_language
 
-from hvad.manager import TranslationManager, TranslationQueryset
+from parler.managers import TranslatableManager, TranslatableQuerySet
 
 from catalog.utils import round_2
 from catalog import settings as scs
@@ -22,33 +22,24 @@ class CatalogQuerySet(QuerySet):
         return self.filter(active=True, **kwargs)
 
 
-class CatalogTranslationQuerySet(TranslationQueryset, CatalogQuerySet):
+class CatalogTranslatableQuerySet(TranslatableQuerySet, CatalogQuerySet):
     pass
 
 
-class CatalogManager(TranslationManager):
+class CatalogManager(TranslatableManager):
     """
     Defines basic methods and should be used on CatalogModel
     inherited models.
     """
-    queryset_class = CatalogTranslationQuerySet
-    default_class = CatalogQuerySet
+    queryset_class = CatalogTranslatableQuerySet
 
-    def get_queryset(self):
-        return self.default_class(self.model, using=self._db)
+    def active(self, **kwargs):
+        return self.all().active(**kwargs)
 
-    def active(self, language_code=None, **kwargs):
-        return self.get_queryset().active(**kwargs)
-
-    def get_by_slug(self, slug, language_code=None):
-        # Make sure language_code is set since slugs are unique_together
-        # with language on a translated model and a result could be
-        # multiple objects otherwise.
-        if language_code is None:
-            # Take only first 2 letters, in case of 'en-us'.
-            language_code = get_language()[:2]
-
-        return self.language(language_code).active().get(slug=slug)
+    def get_by_slug(self, slug, language=None):
+        if not language:
+            language = get_language()[:2]
+        return self.translated(slug=slug).active().get()
 
 
 class ModifierCodeQuerySet(CatalogQuerySet):
@@ -109,7 +100,7 @@ class ProductQuerySet(CatalogQuerySet):
         return self.filter(**filters)
 
 
-class ProductTranslationQuerySet(TranslationQueryset, ProductQuerySet):
+class ProductTranslationQuerySet(TranslatableQuerySet, ProductQuerySet):
     pass
 
 
@@ -118,7 +109,6 @@ class ProductManager(CatalogManager):
     Adds a Product specific manager methods.
     """
     queryset_class = ProductTranslationQuerySet
-    default_class = ProductQuerySet
 
     def top_level(self, language_code=None, **kwargs):
         return self.get_queryset().top_level(**kwargs)

@@ -15,7 +15,8 @@ def slug_num_suffix(slug, queryset, template='{slug}-{num}'):
     num = 1
     while True:
         try:
-            queryset.get(slug=template.format(slug=slug, num=num))
+            queryset.get(
+                translations__slug=template.format(slug=slug, num=num))
             num += 1
         except ObjectDoesNotExist:
             return num

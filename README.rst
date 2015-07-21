@@ -20,7 +20,7 @@ Requirements
     django-shop>=0.2.0
     django-filer>=0.9.5
     django-mptt>=0.6.0
-    django-hvad>=0.4.0
+    django-parler>=1.4
     measurement>=1.7.2
     django-currencies>=0.3.2
 
@@ -45,7 +45,7 @@ Install from github using pip:
 Getting Started
 ---------------
 
-Setup `django-cms`_, `django-shop`_, `django-filer`_, `django-hvad`_ and `django-currencies`_.
+Setup `django-cms`_, `django-shop`_, `django-filer`_, `django-parler`_ and `django-currencies`_.
 
 Your ``INSTALLED_APPS`` should look something like this:
 
@@ -68,7 +68,7 @@ Your ``INSTALLED_APPS`` should look something like this:
         'filer',
         'easy_thumbnails',
         'currencies',
-        'hvad',
+        'parler',
         'shop',
         'catalog',
 
@@ -136,7 +136,9 @@ to have all countries and regions pulled from `geonames.org`_.
 
 
 Changelog
------
+---------
+
+- 0.0.4 Replace hvad with parler
 
 - 0.0.3 Update noconflict script
 
@@ -152,6 +154,6 @@ Changelog
 .. _django-shop: https://github.com/divio/django-shop
 .. _django-shop-catalog-templates: https://github.com/dinoperovic/django-shop-catalog-templates
 .. _django-filer: https://github.com/stefanfoulis/django-filer
-.. _django-hvad: https://github.com/kristianoellegaard/django-hvad
+.. _django-parler: https://github.com/edoburu/django-parler
 .. _django-currencies: https://github.com/panosl/django-currencies
 .. _geonames.org http://geonames.org/

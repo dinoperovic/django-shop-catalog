@@ -75,11 +75,14 @@ def search_products(queryset, request):
     if query:
         keywords = [x for x in query.split(' ') if x]
         pks = list(queryset.values_list('pk', flat=True))
-        queryset = Product.objects.language().filter(
+        queryset = Product.objects.translated().filter(
             Q(pk__in=pks) &
             (reduce(operator.or_, (Q(upc=x) for x in keywords)) |
-             reduce(operator.or_, (Q(slug__icontains=x) for x in keywords)) |
-             reduce(operator.or_, (Q(name__icontains=x) for x in keywords))))
+             reduce(operator.or_, (Q(translations__slug__icontains=x)
+                                   for x in keywords)) |
+             reduce(operator.or_, (Q(translations__name__icontains=x)
+                                   for x in keywords)))
+        )
     return queryset
 
 
@@ -90,7 +93,8 @@ def sort_products(queryset, request):
     sort = request.GET.get('sort', None)
     if sort and len(queryset) and hasattr(queryset[0], sort.lstrip('-')):
         pks = list(queryset.values_list('pk', flat=True))
-        queryset = Product.objects.language().filter(pk__in=pks).order_by(sort)
+        queryset = Product.objects.translated().filter(pk__in=pks).\
+            order_by(sort)
     return queryset
 
 
@@ -196,9 +200,10 @@ class CategoryDetailViewBase(ShopDetailView, MultipleObjectMixin):
     model = None
     object_list = []
     paginate_by = scs.PRODUCTS_PER_PAGE
+    slug_field = 'translations__slug'
 
     def get_queryset(self):
-        return self.model.objects.language().active()
+        return self.model.objects.translated().active()
 
     def get_context_data(self, **kwargs):
         """
@@ -252,9 +257,10 @@ class ProductListView(ShopListView):
 class ProductDetailView(ProductDetailViewBase):
     model = Product
     template_name = 'shop/product_detail.html'
+    slug_field = 'translations__slug'
 
     def get_queryset(self):
-        return self.model.objects.language().active()
+        return self.model.objects.translated().active()
 
 
 class ProductVariantsJSONView(ShopView):

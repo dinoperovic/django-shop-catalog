@@ -62,7 +62,7 @@ INSTALLED_APPS = (
     'treebeard',
     'mptt',
     'filer',
-    'hvad',
+    'parler',
     'shop',
     'shop.addressmodel',
     'catalog',

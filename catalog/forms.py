@@ -7,7 +7,7 @@ from django.utils.translation import get_language
 from django.utils.translation import ugettext_lazy as _
 from django.utils.encoding import force_str
 
-from hvad.forms import TranslatableModelForm
+from parler.forms import TranslatableModelForm
 
 from catalog.models import (
     Modifier, ModifierCode, CartModifierCode, Category, Brand, Manufacturer,

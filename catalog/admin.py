@@ -11,7 +11,7 @@ from django.utils.translation import ugettext_lazy as _
 
 from cms.admin.placeholderadmin import (
     PlaceholderAdminMixin, FrontendEditableAdminMixin)
-from hvad.admin import TranslatableAdmin, TranslatableTabularInline
+from parler.admin import TranslatableAdmin, TranslatableTabularInline
 from mptt.admin import MPTTModelAdmin
 
 from catalog.models import (
@@ -44,7 +44,7 @@ class ModifierAdmin(TranslatableAdmin):
     form = ModifierModelForm
     list_display = (
         'get_name', 'code', 'amount', 'percent', 'kind', 'active',
-        'all_translations')
+        'language_column')
     list_filter = ('date_added', 'last_modified', 'active', 'kind')
 
     readonly_fields = ('date_added', 'last_modified')
@@ -82,7 +82,7 @@ class ModifierAdmin(TranslatableAdmin):
 class CategoryAdminBase(
         TranslatableAdmin, MPTTModelAdmin, FrontendEditableAdminMixin,
         PlaceholderAdminMixin, admin.ModelAdmin):
-    list_display = ('get_name', 'get_slug', 'all_translations')
+    list_display = ('get_name', 'get_slug', 'language_column')
     list_filter = ('date_added', 'last_modified', 'active', 'parent')
 
     frontend_editable_fields = ()
@@ -173,7 +173,7 @@ class ProductAdmin(
     list_display = (
         'get_name', 'get_slug', 'get_product_reference', 'get_unit_price',
         'get_discount_percent', 'get_price', 'get_quantity', 'is_discountable',
-        'active', 'all_translations')
+        'active', 'language_column')
     list_filter = (
         'date_added', 'last_modified', 'active', 'is_discountable',
         ProductParentListFilter)
@@ -299,7 +299,7 @@ class ProductAdmin(
         if product.is_variant:
             product = product.parent
 
-        num = slug_num_suffix(product.get_slug(), Product.objects.language())
+        num = slug_num_suffix(product.get_slug(), Product.objects.translated())
         data = {
             'name': '{} #{}'.format(product.get_name(), num),
             'slug': '{}-{}'.format(product.get_slug(), num),
@@ -315,7 +315,7 @@ class AttributeOptionInline(TranslatableTabularInline):
 
 
 class AttributeAdmin(TranslatableAdmin):
-    list_display = ('get_name', 'code', 'kind', 'all_translations')
+    list_display = ('get_name', 'code', 'kind', 'language_column')
     list_filter = ('kind', )
 
     inlines = (AttributeOptionInline, )
@@ -331,7 +331,7 @@ class AttributeAdmin(TranslatableAdmin):
 
 
 class FlagAdmin(TranslatableAdmin):
-    list_display = ('get_name', 'code', 'all_translations')
+    list_display = ('get_name', 'code', 'language_column')
 
     def __init__(self, *args, **kwargs):
         super(FlagAdmin, self).__init__(*args, **kwargs)

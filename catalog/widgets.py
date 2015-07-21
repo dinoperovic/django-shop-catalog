@@ -24,7 +24,7 @@ class AttributeValueKindsMapSelect(forms.Select):
             selected_html = ''
 
         if option_value == Attribute.KIND_OPTION:
-            opts = AttributeOption.objects.language().filter(
+            opts = AttributeOption.objects.translated().filter(
                 attribute__id=option_label).values_list('value', flat=True)
             choices = mark_safe(' data-choices="{0}"'.format(','.join(opts)))
         else:

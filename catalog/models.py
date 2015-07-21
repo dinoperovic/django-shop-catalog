@@ -18,7 +18,7 @@ from django.utils.module_loading import import_by_path
 from shop.util.fields import CurrencyField
 from shop.util.loader import get_model_string
 from cms.models.fields import PlaceholderField
-from hvad.models import TranslatableModel, TranslatedFields
+from parler.models import TranslatableModel, TranslatedFields
 from mptt.models import MPTTModel
 from mptt.fields import TreeForeignKey
 from filer.fields.image import FilerFileField, FilerImageField
@@ -30,7 +30,6 @@ from currencies.utils import calculate_price
 from catalog.fields import NullableCharField, UnderscoreField
 from catalog.managers import (
     CatalogManager, ModifierCodeManager, ProductManager)
-from catalog.utils.noconflict import classmaker
 from catalog.utils import round_2
 from catalog import settings as scs
 
@@ -122,7 +121,7 @@ class Modifier(TranslatableModel, CatalogModel):
         verbose_name_plural = _('Modifiers')
 
     def get_name(self):
-        return self.lazy_translation_getter('name')
+        return self.safe_translation_getter('name')
 
     def get_slug(self):
         return self.code
@@ -344,12 +343,10 @@ class CategoryBase(MPTTModel, CatalogModel, ModifierModel):
         return data
 
 
-class Category(TranslatableModel, CategoryBase):
+class Category(CategoryBase, TranslatableModel):
     """
     A categorization layer inherited from CategoryBase.
     """
-    __metaclass__ = classmaker()
-
     featured_image = FilerImageField(
         blank=True, null=True, verbose_name=_('Featured image'))
 
@@ -375,18 +372,16 @@ class Category(TranslatableModel, CategoryBase):
         return reverse('catalog_category_detail', args=[self.get_slug()])
 
     def get_name(self):
-        return self.lazy_translation_getter('name')
+        return self.safe_translation_getter('name')
 
     def get_slug(self):
-        return self.lazy_translation_getter('slug')
+        return self.safe_translation_getter('slug')
 
 
-class Brand(TranslatableModel, CategoryBase):
+class Brand(CategoryBase, TranslatableModel):
     """
     A categorization layer inherited from CategoryBase.
     """
-    __metaclass__ = classmaker()
-
     featured_image = FilerImageField(
         blank=True, null=True, verbose_name=_('Featured image'))
 
@@ -412,18 +407,16 @@ class Brand(TranslatableModel, CategoryBase):
         return reverse('catalog_brand_detail', args=[self.get_slug()])
 
     def get_name(self):
-        return self.lazy_translation_getter('name')
+        return self.safe_translation_getter('name')
 
     def get_slug(self):
-        return self.lazy_translation_getter('slug')
+        return self.safe_translation_getter('slug')
 
 
-class Manufacturer(TranslatableModel, CategoryBase):
+class Manufacturer(CategoryBase, TranslatableModel):
     """
     A categorization layer inherited from CategoryBase.
     """
-    __metaclass__ = classmaker()
-
     featured_image = FilerImageField(
         blank=True, null=True, verbose_name=_('Featured image'))
 
@@ -449,10 +442,10 @@ class Manufacturer(TranslatableModel, CategoryBase):
         return reverse('catalog_manufacturer_detail', args=[self.get_slug()])
 
     def get_name(self):
-        return self.lazy_translation_getter('name')
+        return self.safe_translation_getter('name')
 
     def get_slug(self):
-        return self.lazy_translation_getter('slug')
+        return self.safe_translation_getter('slug')
 
 
 @python_2_unicode_compatible
@@ -753,13 +746,11 @@ class ProductBase(MPTTModel, CatalogModel):
         return variants if any(variants) else None
 
 
-class Product(TranslatableModel, ProductBase, ModifierModel):
+class Product(ProductBase, ModifierModel, TranslatableModel):
     """
     Inherits from ProductBase and adds more specific fields like
     categorization etc.
     """
-    __metaclass__ = classmaker()
-
     featured_image = FilerImageField(
         blank=True, null=True, related_name='featured_images',
         verbose_name=_('Featured image'))
@@ -802,10 +793,10 @@ class Product(TranslatableModel, ProductBase, ModifierModel):
         return reverse('catalog_product_detail', args=[self.get_slug()])
 
     def get_name(self):
-        return self.lazy_translation_getter('name')
+        return self.safe_translation_getter('name')
 
     def get_slug(self):
-        return self.lazy_translation_getter('slug')
+        return self.safe_translation_getter('slug')
 
     def get_featured_image(self):
         if self.is_featured_image_inherited:
@@ -815,7 +806,7 @@ class Product(TranslatableModel, ProductBase, ModifierModel):
     def get_description(self):
         if self.is_description_inherited:
             return self.parent.get_description()
-        return self.lazy_translation_getter('description')
+        return self.safe_translation_getter('description')
 
     def get_extra_dict(self):
         data = dict(
@@ -853,7 +844,7 @@ class Product(TranslatableModel, ProductBase, ModifierModel):
     @property
     def is_description_inherited(self):
         return (self.is_variant and not
-                self.lazy_translation_getter('description'))
+                self.safe_translation_getter('description'))
 
     @property
     def is_featured_image_inherited(self):
@@ -1016,7 +1007,7 @@ class Attribute(TranslatableModel):
             self.get_slug(), dict(self.KIND_CHOICES)[self.kind])
 
     def get_name(self):
-        return self.lazy_translation_getter('name')
+        return self.safe_translation_getter('name')
 
     def get_slug(self):
         return self.code
@@ -1172,7 +1163,7 @@ class AttributeOption(TranslatableModel):
         return self.get_value()
 
     def get_value(self):
-        return self.lazy_translation_getter('value')
+        return self.safe_translation_getter('value')
 
 
 def get_measure_alias(measure):
@@ -1302,7 +1293,7 @@ class Flag(TranslatableModel):
         return self.get_name()
 
     def get_name(self):
-        return self.lazy_translation_getter('name')
+        return self.safe_translation_getter('name')
 
     def get_code(self):
         return self.code

@@ -6,18 +6,12 @@ from datetime import datetime
 
 from django.test import TestCase
 from django.core.urlresolvers import reverse
-from django.utils.translation import activate
 from django.utils.text import slugify
 
 from shop.models import Cart, CartItem
 
-from catalog.models import (
-    CatalogModel, Modifier, ModifierCondition, ModifierCode, CartModifierCode,
-    ModifierModel, Category, Brand, Manufacturer, Tax, Product, Attribute,
-    ProductAttributeValue)
+from catalog.models import *  # noqa
 from catalog import settings as scs
-
-from ..utils import warning
 
 
 def create_product(name, unit_price=100, **kwargs):

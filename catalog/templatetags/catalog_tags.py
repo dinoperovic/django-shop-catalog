@@ -41,7 +41,7 @@ def get_price_steps(steps=5, products=None):
         products = Product.objects.active().top_level()
     elif products:
         pks = list(products.values_list('pk', flat=True))
-        products = Product.objects.language().filter(pk__in=pks)
+        products = Product.objects.translated().filter(pk__in=pks)
     else:
         return []
 
