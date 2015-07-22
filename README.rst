@@ -1,17 +1,22 @@
+###################
 django-shop-catalog
-===================
+###################
 
-Catalog app for django SHOP.
+.. image:: https://img.shields.io/travis/dinoperovic/django-shop-catalog.svg
+    :target: https://travis-ci.org/dinoperovic/django-shop-catalog
+.. image:: https://img.shields.io/pypi/v/django-shop-catalog.svg
+    :target: https://pypi.python.org/pypi/django-shop-catalog/
+.. image:: https://img.shields.io/pypi/dm/django-shop-catalog.svg
+    :target: https://pypi.python.org/pypi/django-shop-catalog/
 
-:Version: 0.0.3
-:Source: https://github.com/dinoperovic/django-shop-catalog
-:Dev Status: Alpha
+
+Catalog app for `django SHOP <http://www.django-shop.org>`_.
 
 Find starting templates in `django-shop-catalog-templates`_ repo.
 
-
+============
 Requirements
-------------
+============
 
 .. code:: text
 
@@ -25,8 +30,9 @@ Requirements
     django-currencies>=0.3.2
 
 
+============
 Installation
-------------
+============
 
 Install with pip:
 
@@ -42,8 +48,9 @@ Install from github using pip:
     pip install -e git://github.com/dinoperovic/django-shop-catalog.git@master#egg=django-shop-catalog
 
 
+===============
 Getting Started
----------------
+===============
 
 Setup `django-cms`_, `django-shop`_, `django-filer`_, `django-parler`_ and `django-currencies`_.
 
@@ -124,8 +131,9 @@ Run:
 Install `django-shop-catalog-templates`_ to get started quickly.
 
 
+=====
 Notes
------
+=====
 
 If your're using ``catalog.addresses`` app, you can run this command
 to have all countries and regions pulled from `geonames.org`_.
@@ -135,20 +143,6 @@ to have all countries and regions pulled from `geonames.org`_.
     python manage.py initcountries
 
 
-Changelog
----------
-
-- 0.0.4 Replace hvad with parler
-
-- 0.0.3 Update noconflict script
-
-- 0.0.2 Bugfix:
-
-    + Add locale directory to MANIFEST.in
-
-- 0.0.1 Initial Alpha release
-
-
 
 .. _django-cms: https://github.com/divio/django-cms
 .. _django-shop: https://github.com/divio/django-shop
@@ -156,4 +150,4 @@ Changelog
 .. _django-filer: https://github.com/stefanfoulis/django-filer
 .. _django-parler: https://github.com/edoburu/django-parler
 .. _django-currencies: https://github.com/panosl/django-currencies
-.. _geonames.org http://geonames.org/
+.. _geonames.org: http://geonames.org/
