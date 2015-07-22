@@ -14,6 +14,7 @@ from django.shortcuts import redirect
 from shop.views import ShopView, ShopListView, ShopDetailView
 from shop.views.product import ProductDetailView as ProductDetailViewBase
 from shop.util.cart import get_or_create_cart
+from parler.views import TranslatableSlugMixin
 
 from catalog.models import (
     CartModifierCode, Category, Brand, Manufacturer, Product, Attribute)
@@ -196,11 +197,11 @@ class ManufacturerListView(CategoryListViewBase):
     template_name = 'shop/manufacturer_list.html'
 
 
-class CategoryDetailViewBase(ShopDetailView, MultipleObjectMixin):
+class CategoryDetailViewBase(TranslatableSlugMixin, ShopDetailView,
+                             MultipleObjectMixin):
     model = None
     object_list = []
     paginate_by = scs.PRODUCTS_PER_PAGE
-    slug_field = 'translations__slug'
 
     def get_queryset(self):
         return self.model.objects.translated().active()
@@ -254,13 +255,12 @@ class ProductListView(ShopListView):
         return filter_products(queryset, self.request)
 
 
-class ProductDetailView(ProductDetailViewBase):
+class ProductDetailView(TranslatableSlugMixin, ProductDetailViewBase):
     model = Product
     template_name = 'shop/product_detail.html'
-    slug_field = 'translations__slug'
 
     def get_queryset(self):
-        return self.model.objects.translated().active()
+        return self.model.objects.active()
 
 
 class ProductVariantsJSONView(ShopView):
