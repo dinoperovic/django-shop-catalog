@@ -124,8 +124,7 @@ Run:
 
 .. code:: bash
 
-    python manage.py syncdb --all
-    python manage.py migrate --fake
+    python manage.py migrate
 
 
 Install `django-shop-catalog-templates`_ to get started quickly.
