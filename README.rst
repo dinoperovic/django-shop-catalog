@@ -6,8 +6,6 @@ django-shop-catalog
     :target: https://travis-ci.org/dinoperovic/django-shop-catalog
 .. image:: https://img.shields.io/pypi/v/django-shop-catalog.svg
     :target: https://pypi.python.org/pypi/django-shop-catalog/
-.. image:: https://img.shields.io/pypi/dm/django-shop-catalog.svg
-    :target: https://pypi.python.org/pypi/django-shop-catalog/
 
 
 Catalog app for `django SHOP <http://www.django-shop.org>`_.
