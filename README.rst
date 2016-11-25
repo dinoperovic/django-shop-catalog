@@ -10,8 +10,8 @@ django-shop-catalog
 
 Catalog app for `django SHOP <http://www.django-shop.org>`_.
 
-> This project is ment for version 0.2.x of djangoSHOP. If you use djangoSHOP version 0.9.x and above,
-there's a new project `djangoshop-shopit`_.
+    This project is ment for version 0.2.x of djangoSHOP. If you use djangoSHOP version 0.9.x and above,
+    there's a new project `djangoshop-shopit`_.
 
 Find starting templates in `django-shop-catalog-templates`_ repo.
 
