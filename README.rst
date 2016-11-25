@@ -10,6 +10,10 @@ django-shop-catalog
 
 Catalog app for `django SHOP <http://www.django-shop.org>`_.
 
+.. note::
+    This project is ment for version 0.2.x of djangoSHOP. If you use djangoSHOP version 0.9.x and above,
+    there's a new project `djangoshop-shopit`_.
+
 Find starting templates in `django-shop-catalog-templates`_ repo.
 
 ============
@@ -141,6 +145,7 @@ to have all countries and regions pulled from `geonames.org`_.
 
 
 
+.. _djangoshop-shopit: https://github.com/dinoperovic/djangoshop-shopit
 .. _django-cms: https://github.com/divio/django-cms
 .. _django-shop: https://github.com/divio/django-shop
 .. _django-shop-catalog-templates: https://github.com/dinoperovic/django-shop-catalog-templates
